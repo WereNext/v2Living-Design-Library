@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ComponentShowcase } from "./components/ComponentShowcase";
 import { ThemeCustomizer } from "./components/ThemeCustomizer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 import { Palette, Mouse, Layout, Type, Box, Menu, Settings, ChevronLeft, ChevronRight, Code2, Upload, Target, ShoppingBag, CreditCard, Star, Filter, Smartphone, Hand, RefreshCw, AlignLeft, Zap, Megaphone, DollarSign, MessageSquare, Grid3x3, Mail, Plug, Rocket, Package, Sparkles, Layers, Wand2 } from "lucide-react";
 import { Button } from "./components/ui/button";
@@ -113,11 +114,13 @@ const intents = [
 
 export default function App() {
   return (
-    <AppStateProvider>
-      <TokenEditorProvider>
-        <AppContent />
-      </TokenEditorProvider>
-    </AppStateProvider>
+    <ErrorBoundary section="Application">
+      <AppStateProvider>
+        <TokenEditorProvider>
+          <AppContent />
+        </TokenEditorProvider>
+      </AppStateProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -542,25 +545,27 @@ function AppContent() {
             </div>
             
             <div className={`p-4 md:p-6 ${activeTheme?.fontFamily ? `font-${activeTheme.fontFamily}` : ''}`}>
-              {selectedCategory === "quick-start" ? (
-                <QuickStartGuide onNavigate={setSelectedCategory} />
-              ) : selectedCategory === "import-config" ? (
-                <ImportConfig onIntentCreated={handleIntentCreated} availableIntents={availableIntents} />
-              ) : selectedCategory === "design-system-builder" ? (
-                <DesignSystemBuilderPage />
-              ) : selectedCategory === "saved-systems" ? (
-                <SavedDesignSystemsPage />
-              ) : selectedCategory === "imported-components" ? (
-                <ImportedComponentsLibrary />
-              ) : selectedCategory === "mcp-config" ? (
-                <MCPConfig />
-              ) : selectedCategory === "playground" ? (
-                <EnhancedPlayground />
-              ) : selectedCategory === "design-tokens" ? (
-                <DesignTokensPage activeTheme={activeTheme} />
-              ) : (
-                <ComponentShowcase category={selectedCategory} designIntent={designIntent} />
-              )}
+              <ErrorBoundary section="Main Content">
+                {selectedCategory === "quick-start" ? (
+                  <QuickStartGuide onNavigate={setSelectedCategory} />
+                ) : selectedCategory === "import-config" ? (
+                  <ImportConfig onIntentCreated={handleIntentCreated} availableIntents={availableIntents} />
+                ) : selectedCategory === "design-system-builder" ? (
+                  <DesignSystemBuilderPage />
+                ) : selectedCategory === "saved-systems" ? (
+                  <SavedDesignSystemsPage />
+                ) : selectedCategory === "imported-components" ? (
+                  <ImportedComponentsLibrary />
+                ) : selectedCategory === "mcp-config" ? (
+                  <MCPConfig />
+                ) : selectedCategory === "playground" ? (
+                  <EnhancedPlayground />
+                ) : selectedCategory === "design-tokens" ? (
+                  <DesignTokensPage activeTheme={activeTheme} />
+                ) : (
+                  <ComponentShowcase category={selectedCategory} designIntent={designIntent} />
+                )}
+              </ErrorBoundary>
             </div>
           </main>
 
@@ -593,17 +598,19 @@ function AppContent() {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-4">
-                    <ThemeCustomizer
-                      key={`${activeSystemId}-${activeTheme?.id || 'default'}`}
-                      colorTheme={colorTheme}
-                      fontFamily={fontFamily}
-                      visualFeel={visualFeel}
-                      onColorThemeChange={setColorTheme}
-                      onFontFamilyChange={setFontFamily}
-                      onVisualFeelChange={setVisualFeel}
-                      activeTheme={activeTheme}
-                      onRestartWizard={() => setShowWizard(true)}
-                    />
+                    <ErrorBoundary section="Theme Customizer">
+                      <ThemeCustomizer
+                        key={`${activeSystemId}-${activeTheme?.id || 'default'}`}
+                        colorTheme={colorTheme}
+                        fontFamily={fontFamily}
+                        visualFeel={visualFeel}
+                        onColorThemeChange={setColorTheme}
+                        onFontFamilyChange={setFontFamily}
+                        onVisualFeelChange={setVisualFeel}
+                        activeTheme={activeTheme}
+                        onRestartWizard={() => setShowWizard(true)}
+                      />
+                    </ErrorBoundary>
                   </div>
                 </div>
               </div>
@@ -612,9 +619,17 @@ function AppContent() {
         </div>
 
         {/* Quick Start Wizard */}
-        {showWizard && <QuickStartWizard onClose={handleCloseWizard} />}
+        {showWizard && (
+          <ErrorBoundary section="Quick Start Wizard" onError={() => setShowWizard(false)}>
+            <QuickStartWizard onClose={handleCloseWizard} />
+          </ErrorBoundary>
+        )}
         {/* Decision Gate */}
-        {showDecisionGate && <DecisionGate onClose={handleCloseDecisionGate} onViewDemo={handleViewDemo} onImportSystem={handleImportSystem} onImportComponent={handleImportComponent} />}
+        {showDecisionGate && (
+          <ErrorBoundary section="Decision Gate" onError={() => setShowDecisionGate(false)}>
+            <DecisionGate onClose={handleCloseDecisionGate} onViewDemo={handleViewDemo} onImportSystem={handleImportSystem} onImportComponent={handleImportComponent} />
+          </ErrorBoundary>
+        )}
       </SidebarProvider>
     </ActiveThemeProvider>
   );

@@ -1,4 +1,5 @@
 import type { ComponentType } from './types';
+import { ErrorBoundary, InlineErrorFallback } from '../../ErrorBoundary';
 import {
   ButtonsPreview,
   CardsPreview,
@@ -35,7 +36,12 @@ export function LivePreview({ theme, componentType }: LivePreviewProps) {
 
   return (
     <div className="border rounded-lg p-8 space-y-6 bg-background">
-      <PreviewComponent theme={theme} />
+      <ErrorBoundary
+        section={`${componentType} Preview`}
+        fallback={<InlineErrorFallback message={`Failed to render ${componentType} preview`} />}
+      >
+        <PreviewComponent theme={theme} />
+      </ErrorBoundary>
     </div>
   );
 }
