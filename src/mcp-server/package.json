@@ -1,0 +1,29 @@
+{
+  "name": "living-design-library-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for Living Design Library - Connect AI coding agents to your design system",
+  "type": "module",
+  "bin": {
+    "living-design-library-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "mcp",
+    "design-system",
+    "components",
+    "figma",
+    "design-tokens",
+    "ai-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

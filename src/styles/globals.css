@@ -1,0 +1,507 @@
+@custom-variant dark (&:is(.dark *));
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;900&family=Manrope:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --font-size: 16px;
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --card: #ffffff;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #030213;
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.0058 264.53);
+  --secondary-foreground: #030213;
+  --muted: #ececf0;
+  --muted-foreground: #717182;
+  --accent: #e9ebef;
+  --accent-foreground: #030213;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: transparent;
+  --input-background: #f3f3f5;
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #030213;
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Default shadow values - will be overridden by themes */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.02);
+  --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.03);
+  --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.04);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Dynamic spacing tokens from themes */
+  --spacing-xs: var(--xs, 0.5rem);
+  --spacing-sm: var(--sm, 0.75rem);
+  --spacing-md: var(--md, 1rem);
+  --spacing-lg: var(--lg, 1.5rem);
+  --spacing-xl: var(--xl, 2rem);
+  --spacing-2xl: var(--2xl, 3rem);
+  
+  /* Map theme spacing to Tailwind spacing scale - this allows p-xs, p-sm, etc. */
+  --spacing-0: 0px;
+  --spacing-0\.5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1\.5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2\.5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3\.5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: var(--md, 2rem);     /* Use theme md for p-8 */
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: var(--lg, 3rem);    /* Use theme lg for p-12 */
+  --spacing-14: 3.5rem;
+  --spacing-16: var(--xl, 4rem);    /* Use theme xl for p-16 */
+  --spacing-20: var(--2xl, 5rem);   /* Use theme 2xl for p-20 */
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* Modern Color Themes */
+
+/* Neo - Modern gradient mesh */
+.theme-neo {
+  /* Colors removed - use design system themes instead */
+  /* Special effects only */
+}
+
+/* Brutalist - Raw & unpolished */
+.theme-brutalist {
+  /* Colors removed - use design system themes instead */
+  /* Border radius already set by theme */
+}
+
+/* Glassmorphism - Frosted & translucent */
+.theme-glassmorphism {
+  /* Colors removed - use design system themes instead */
+  /* Blur effects added below */
+}
+
+/* Cyberpunk - Neon & futuristic */
+.theme-cyberpunk {
+  /* Colors removed - use design system themes instead */
+  /* Glow effects added below */
+}
+
+/* Midnight - Deep dark elegance */
+.theme-midnight {
+  /* Colors removed - use design system themes instead */
+  /* Glow effects added below */
+}
+
+/* Candy - Playful pastels */
+.theme-candy {
+  /* Colors removed - use design system themes instead */
+  /* Animation effects added below */
+}
+
+/* Modern Font Families with Google Fonts */
+.font-inter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.font-inter * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.font-spaceGrotesk {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-spaceGrotesk * {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-jetbrainsMono {
+  font-family: 'JetBrains Mono', "SF Mono", "Monaco", monospace;
+}
+
+.font-jetbrainsMono * {
+  font-family: 'JetBrains Mono', "SF Mono", "Monaco", monospace;
+}
+
+.font-poppins {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-poppins * {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-playfairDisplay {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+.font-playfairDisplay * {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-manrope {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-manrope * {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-system {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.font-system * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* GQ Theme - Helvetica Font */
+.font-helvetica {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.font-helvetica * {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Vogue Theme - Avenir Font */
+.font-avenir {
+  font-family: 'Avenir Next', 'Avenir', Helvetica, sans-serif;
+}
+
+.font-avenir * {
+  font-family: 'Avenir Next', 'Avenir', Helvetica, sans-serif;
+}
+
+/* Classic Serif Font */
+.font-georgia {
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+
+.font-georgia * {
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+
+/* Dainty Serif Fonts for Editorial Use */
+.font-crimsonText {
+  font-family: 'Crimson Text', Georgia, 'Iowan Old Style', serif;
+  letter-spacing: -0.005em;
+}
+
+.font-crimsonText * {
+  font-family: 'Crimson Text', Georgia, 'Iowan Old Style', serif;
+}
+
+.font-lora {
+  font-family: 'Lora', Georgia, 'Iowan Old Style', serif;
+  letter-spacing: -0.01em;
+}
+
+.font-lora * {
+  font-family: 'Lora', Georgia, 'Iowan Old Style', serif;
+}
+
+.font-libreBaskerville {
+  font-family: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+  letter-spacing: -0.005em;
+}
+
+.font-libreBaskerville * {
+  font-family: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+}
+
+/* Visual Feels */
+.feel-modern {
+  --radius: 0.375rem;
+}
+
+.feel-classic {
+  --radius: 0.25rem;
+}
+
+.feel-classic button,
+.feel-classic input,
+.feel-classic select {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.feel-playful {
+  --radius: 1rem;
+}
+
+.feel-minimal {
+  --radius: 0rem;
+}
+
+.feel-minimal button {
+  border-width: 1px;
+}
+
+.feel-bold {
+  --radius: 0.5rem;
+  --font-weight-medium: 700;
+  --font-weight-normal: 500;
+}
+
+.feel-bold button,
+.feel-bold .font-medium {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Override Tailwind shadow utilities to use theme shadow tokens */
+@layer utilities {
+  .shadow-sm {
+    box-shadow: var(--shadow-sm) !important;
+  }
+  
+  .shadow-md, .shadow {
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  .shadow-lg {
+    box-shadow: var(--shadow-lg) !important;
+  }
+  
+  .shadow-none {
+    box-shadow: none !important;
+  }
+}
+
+/* Theme-specific visual effects */
+
+/* Neo - subtle gradient overlays */
+.theme-neo {
+  /* Modern, clean - no special effects needed */
+}
+
+/* Cyberpunk glow effects - removed aggressive text-shadow */
+.theme-cyberpunk .border {
+  border-color: currentColor;
+  box-shadow: 0 0 2px currentColor;
+}
+
+/* Glassmorphism backdrop blur */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+  .theme-glassmorphism .bg-card,
+  .theme-glassmorphism .bg-popover,
+  .theme-glassmorphism [class*="bg-secondary"] {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  .theme-glassmorphism .bg-muted {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Brutalist bold text */
+.theme-brutalist {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.theme-brutalist button {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+/* Candy theme soft shadows */
+.theme-candy button:hover {
+  transform: translateY(-0.5px);
+  transition: transform 0.2s ease;
+}
+
+/* Midnight theme subtle glow */
+.theme-midnight button:not(:disabled):hover {
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+}
+
+/* Warm Earth organic textures */
+.font-playfairDisplay {
+  letter-spacing: -0.02em;
+}
