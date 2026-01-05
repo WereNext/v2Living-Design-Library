@@ -25,6 +25,7 @@ import { ActiveThemeProvider } from "./contexts/ActiveThemeContext";
 import { QuickStartWizard } from "./components/QuickStartWizard";
 import { DecisionGate } from "./components/DecisionGate";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
+import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS } from "./lib/constants";
 
 // Web App Categories (default)
 const webAppCategories = [
@@ -161,7 +162,7 @@ function AppContent() {
 
   // Check if user has seen the decision gate before
   useEffect(() => {
-    const hasSeenDecisionGate = localStorage.getItem('hasSeenDecisionGate');
+    const hasSeenDecisionGate = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_DECISION_GATE);
     if (!hasSeenDecisionGate) {
       setShowDecisionGate(true);
     }
@@ -169,7 +170,7 @@ function AppContent() {
 
   // Mark decision gate as seen and close it
   const handleCloseDecisionGate = () => {
-    localStorage.setItem('hasSeenDecisionGate', 'true');
+    localStorage.setItem(STORAGE_KEYS.HAS_SEEN_DECISION_GATE, 'true');
     setShowDecisionGate(false);
   };
 
@@ -194,7 +195,7 @@ function AppContent() {
 
   // Mark wizard as seen and close it
   const handleCloseWizard = () => {
-    localStorage.setItem('hasSeenQuickStartWizard', 'true');
+    localStorage.setItem(STORAGE_KEYS.HAS_SEEN_QUICK_START_WIZARD, 'true');
     setShowWizard(false);
   };
 
@@ -289,7 +290,7 @@ function AppContent() {
   };
 
   // Handle custom intent creation
-  const handleIntentCreated = (intent: any) => {
+  const handleIntentCreated = (intent: { id: string; name: string; description: string; tokens?: { colors?: Record<string, string> } }) => {
     addIntent(intent);
     // Apply the tokens if they exist
     if (intent.tokens) {
@@ -300,12 +301,12 @@ function AppContent() {
     setSelectedCategory("playground");
   };
 
-  const applyTokens = (tokens: any) => {
+  const applyTokens = (tokens: { colors?: Record<string, string> }) => {
     const root = document.documentElement;
-    
+
     if (tokens.colors) {
       Object.entries(tokens.colors).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value as string);
+        root.style.setProperty(`--${key}`, value);
       });
     }
     // Add more token types as needed

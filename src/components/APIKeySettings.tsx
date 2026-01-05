@@ -6,11 +6,12 @@ import { Label } from "./ui/label";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Eye, EyeOff, Key, Check, X, AlertTriangle, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { STORAGE_KEYS } from "../lib/constants";
 
-const API_KEY_STORAGE_KEY = "designLibrary_llm_api_key";
-const API_PROVIDER_STORAGE_KEY = "designLibrary_llm_provider";
-const API_ENDPOINT_STORAGE_KEY = "designLibrary_llm_endpoint";
-const API_MODEL_STORAGE_KEY = "designLibrary_llm_model";
+const API_KEY_STORAGE_KEY = STORAGE_KEYS.LLM_API_KEY;
+const API_PROVIDER_STORAGE_KEY = STORAGE_KEYS.LLM_PROVIDER;
+const API_ENDPOINT_STORAGE_KEY = STORAGE_KEYS.LLM_ENDPOINT;
+const API_MODEL_STORAGE_KEY = STORAGE_KEYS.LLM_MODEL;
 
 type LLMProvider = "openai" | "anthropic" | "google" | "cohere" | "mistral" | "groq" | "together" | "perplexity" | "openrouter" | "custom";
 

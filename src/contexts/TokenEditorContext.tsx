@@ -8,8 +8,13 @@ interface TokenChange {
   timestamp: number;
 }
 
+// Type for nested token structure
+type NestedTokenObject = {
+  [key: string]: string | NestedTokenObject;
+};
+
 interface TokenEditorContextType {
-  editedTokens: Map<string, any>;
+  editedTokens: Map<string, string>;
   changes: TokenChange[];
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
@@ -18,14 +23,14 @@ interface TokenEditorContextType {
   resetAllTokens: () => void;
   getTokenValue: (path: string, originalTheme: Theme) => string;
   hasChanges: boolean;
-  exportChanges: () => Record<string, any>;
+  exportChanges: () => NestedTokenObject;
   applyThemeOverrides: (theme: Theme) => Theme;
 }
 
 const TokenEditorContext = createContext<TokenEditorContextType | undefined>(undefined);
 
 export function TokenEditorProvider({ children }: { children: ReactNode }) {
-  const [editedTokens, setEditedTokens] = useState<Map<string, any>>(new Map());
+  const [editedTokens, setEditedTokens] = useState<Map<string, string>>(new Map());
   const [changes, setChanges] = useState<TokenChange[]>([]);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -57,32 +62,36 @@ export function TokenEditorProvider({ children }: { children: ReactNode }) {
 
   const getTokenValue = useCallback((path: string, originalTheme: Theme): string => {
     if (editedTokens.has(path)) {
-      return editedTokens.get(path);
+      return editedTokens.get(path) ?? '';
     }
 
     // Parse path like "colors.primary"
     const parts = path.split('.');
-    let value: any = originalTheme;
+    let value: unknown = originalTheme;
     for (const part of parts) {
-      value = value?.[part];
+      if (value && typeof value === 'object' && part in value) {
+        value = (value as Record<string, unknown>)[part];
+      } else {
+        value = undefined;
+      }
     }
-    return value || '';
+    return typeof value === 'string' ? value : '';
   }, [editedTokens]);
 
-  const exportChanges = useCallback(() => {
-    const result: Record<string, any> = {};
-    
+  const exportChanges = useCallback((): NestedTokenObject => {
+    const result: NestedTokenObject = {};
+
     editedTokens.forEach((value, path) => {
       const parts = path.split('.');
-      let current = result;
-      
+      let current: NestedTokenObject = result;
+
       for (let i = 0; i < parts.length - 1; i++) {
-        if (!current[parts[i]]) {
+        if (!current[parts[i]] || typeof current[parts[i]] === 'string') {
           current[parts[i]] = {};
         }
-        current = current[parts[i]];
+        current = current[parts[i]] as NestedTokenObject;
       }
-      
+
       current[parts[parts.length - 1]] = value;
     });
 
@@ -92,19 +101,19 @@ export function TokenEditorProvider({ children }: { children: ReactNode }) {
   const applyThemeOverrides = useCallback((theme: Theme): Theme => {
     if (editedTokens.size === 0) return theme;
 
-    const overriddenTheme = JSON.parse(JSON.stringify(theme));
+    const overriddenTheme: Theme = JSON.parse(JSON.stringify(theme));
 
     editedTokens.forEach((value, path) => {
       const parts = path.split('.');
-      let current: any = overriddenTheme;
-      
+      let current: Record<string, unknown> = overriddenTheme as unknown as Record<string, unknown>;
+
       for (let i = 0; i < parts.length - 1; i++) {
-        if (!current[parts[i]]) {
+        if (!current[parts[i]] || typeof current[parts[i]] !== 'object') {
           current[parts[i]] = {};
         }
-        current = current[parts[i]];
+        current = current[parts[i]] as Record<string, unknown>;
       }
-      
+
       current[parts[parts.length - 1]] = value;
     });
 

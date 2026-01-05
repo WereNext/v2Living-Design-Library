@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ComponentDocumentation } from '../types/documentation';
+import { STORAGE_KEYS } from '../lib/constants';
 
-const STORAGE_KEY = 'component-documentation';
+const STORAGE_KEY = STORAGE_KEYS.COMPONENT_DOCUMENTATION;
 
 export function useDocumentation() {
   const [documentation, setDocumentation] = useState<ComponentDocumentation[]>(() => {
@@ -55,7 +56,7 @@ export function useDocumentation() {
   };
 
   // Update specific field
-  const updateField = (componentId: string, field: keyof ComponentDocumentation, value: any) => {
+  const updateField = (componentId: string, field: keyof ComponentDocumentation, value: ComponentDocumentation[keyof ComponentDocumentation]) => {
     setDocumentation(prev => prev.map(doc => 
       doc.componentId === componentId
         ? { ...doc, [field]: value, lastUpdated: new Date().toISOString() }

@@ -1,11 +1,12 @@
 /**
  * Figma API Integration
- * 
+ *
  * Handles all communication with Figma's REST API
  * for fetching files, nodes, and images
  */
 
 import type { FigmaFile, FigmaNode } from '../types/imported-component';
+import { STORAGE_KEYS } from './constants';
 
 export class FigmaAPI {
   private baseUrl = 'https://api.figma.com/v1';
@@ -170,7 +171,7 @@ export class FigmaAPI {
  * API Key Storage
  */
 export class FigmaAPIKeyManager {
-  private static STORAGE_KEY = 'figma_api_key';
+  private static STORAGE_KEY = STORAGE_KEYS.FIGMA_API_KEY;
 
   static save(apiKey: string): void {
     localStorage.setItem(this.STORAGE_KEY, apiKey);

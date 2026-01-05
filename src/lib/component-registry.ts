@@ -1,14 +1,15 @@
 /**
  * Component Registry
- * 
+ *
  * Central registry for all imported components
  * Handles storage, retrieval, and management
  */
 
 import type { ImportedComponent, ComponentFilter, ComponentUpdate } from '../types/imported-component';
+import { STORAGE_KEYS } from './constants';
 
 export class ComponentRegistry {
-  private static STORAGE_KEY = 'imported_components';
+  private static STORAGE_KEY = STORAGE_KEYS.IMPORTED_COMPONENTS;
   private components: Map<string, ImportedComponent>;
 
   constructor() {

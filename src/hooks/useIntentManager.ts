@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS } from '../lib/constants';
 
 export interface ComponentCategory {
   name: string;
@@ -11,12 +12,12 @@ export interface DesignIntent {
   label: string;
   description?: string;
   categories: ComponentCategory[];
-  tokens?: any;
+  tokens?: unknown;
   isCustom?: boolean;
   createdAt?: string;
 }
 
-const STORAGE_KEY = 'design-library-intents';
+const STORAGE_KEY = STORAGE_KEYS.DESIGN_INTENTS;
 
 const defaultIntents: DesignIntent[] = [
   {

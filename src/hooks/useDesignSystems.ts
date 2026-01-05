@@ -5,6 +5,7 @@ import { MATERIAL_THEMES } from '../lib/material-themes';
 import { MINIMALIST_THEMES } from '../lib/minimalist-themes';
 import { CANDY_NEST_THEMES } from '../lib/candy-nest-themes';
 import { DesignSystemVersion, VersionType } from '../types/version';
+import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS, INTENT_IDS } from '../lib/constants';
 
 // Theme = A variable set (colors, spacing, typography, etc.)
 export interface Theme {
@@ -64,19 +65,20 @@ export interface DesignSystem {
   currentVersionId?: string;
 }
 
-const STORAGE_KEY = 'designSystems';
-const ACTIVE_SYSTEM_KEY = 'activeDesignSystemId';
-const ACTIVE_THEMES_KEY = 'activeThemeIds'; // Store active theme for each system
-const INITIALIZED_KEY = 'designSystemsInitialized';
+// Use centralized storage keys
+const STORAGE_KEY = STORAGE_KEYS.DESIGN_SYSTEMS;
+const ACTIVE_SYSTEM_KEY = STORAGE_KEYS.ACTIVE_SYSTEM_ID;
+const ACTIVE_THEMES_KEY = STORAGE_KEYS.ACTIVE_THEME_IDS;
+const INITIALIZED_KEY = STORAGE_KEYS.DESIGN_SYSTEMS_INITIALIZED;
 
 // Pre-built design systems (always available, never persisted)
 const createDefaultSystem = (): DesignSystem => ({
-  id: 'default-system',
+  id: SYSTEM_IDS.DEFAULT,
   name: 'Default Design System',
   description: 'The base design system with 4 curated themes',
   createdAt: new Date().toISOString(),
   themes: DEFAULT_THEMES,
-  activeThemeId: 'apple-theme',
+  activeThemeId: THEME_IDS.APPLE,
   intents: [
     { 
       id: 'web-app', 
