@@ -41,6 +41,13 @@ export const STORAGE_KEYS = {
   HAS_SEEN_DECISION_GATE: 'hasSeenDecisionGate',
   HAS_SEEN_QUICK_START_WIZARD: 'hasSeenQuickStartWizard',
   THEME_PREFERENCE: 'theme-preference',
+
+  // Supabase / Cloud Sync
+  SUPABASE_MIGRATION_COMPLETE: 'supabase_migration_complete',
+  SUPABASE_USER_ID: 'supabase_user_id',
+
+  // LDL Documents (local storage before sync)
+  LDL_DOCUMENTS: 'ldl_documents',
 } as const;
 
 // =============================================================================

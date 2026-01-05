@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ComponentShowcase } from "./components/ComponentShowcase";
 import { ThemeCustomizer } from "./components/ThemeCustomizer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -22,10 +22,13 @@ import { AppStateProvider } from "./contexts/AppStateContext";
 import { useAppState } from "./contexts/AppStateContext";
 import { TokenEditorProvider } from "./contexts/TokenEditorContext";
 import { ActiveThemeProvider } from "./contexts/ActiveThemeContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { QuickStartWizard } from "./components/QuickStartWizard";
 import { DecisionGate } from "./components/DecisionGate";
+import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
 import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS } from "./lib/constants";
+import { dataMigrationService } from "./services/migration";
 
 // Web App Categories (default)
 const webAppCategories = [
@@ -113,14 +116,40 @@ const intents = [
   { value: "forms", label: "Forms & Surveys" },
 ];
 
+// Handle first sign-in migration
+async function handleFirstSignIn(userId: string) {
+  console.log('[App] First sign-in detected, checking for data to migrate...');
+
+  if (dataMigrationService.hasLocalData()) {
+    const result = await dataMigrationService.migrateAll(userId, (progress) => {
+      console.log(`[Migration] ${progress.phase}: ${progress.message}`);
+    });
+
+    if (result.success) {
+      toast.success(
+        `Migrated ${result.migratedSystems} systems, ${result.migratedLDLDocuments} token docs`,
+        { description: 'Your local data has been synced to the cloud' }
+      );
+    } else if (result.errors.length > 0) {
+      toast.error('Some data could not be migrated', {
+        description: result.errors[0],
+      });
+    }
+  } else {
+    console.log('[App] No local data to migrate');
+  }
+}
+
 export default function App() {
   return (
     <ErrorBoundary section="Application">
-      <AppStateProvider>
-        <TokenEditorProvider>
-          <AppContent />
-        </TokenEditorProvider>
-      </AppStateProvider>
+      <AuthProvider onFirstSignIn={handleFirstSignIn}>
+        <AppStateProvider>
+          <TokenEditorProvider>
+            <AppContent />
+          </TokenEditorProvider>
+        </AppStateProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
@@ -528,20 +557,23 @@ function AppContent() {
                     componentCategories.find(c => c.id === selectedCategory)?.name
                   )}
                 </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsThemeSidebarOpen(!isThemeSidebarOpen)}
-                  className="gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden md:inline">Theme</span>
-                  {isThemeSidebarOpen ? (
-                    <ChevronRight className="w-4 h-4" />
-                  ) : (
-                    <ChevronLeft className="w-4 h-4" />
-                  )}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <UserMenu />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsThemeSidebarOpen(!isThemeSidebarOpen)}
+                    className="gap-2"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden md:inline">Theme</span>
+                    {isThemeSidebarOpen ? (
+                      <ChevronRight className="w-4 h-4" />
+                    ) : (
+                      <ChevronLeft className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
             

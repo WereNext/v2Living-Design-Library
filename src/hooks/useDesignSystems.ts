@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { applyTokens } from '../lib/token-utils';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { DEFAULT_THEMES } from '../lib/default-themes';
 import { MATERIAL_THEMES } from '../lib/material-themes';
 import { MINIMALIST_THEMES } from '../lib/minimalist-themes';
 import { CANDY_NEST_THEMES } from '../lib/candy-nest-themes';
 import { DesignSystemVersion, VersionType } from '../types/version';
-import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS, INTENT_IDS } from '../lib/constants';
+import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS } from '../lib/constants';
+import { useServices } from '../services/ServiceFactory';
 
 // Theme = A variable set (colors, spacing, typography, etc.)
 export interface Theme {
@@ -63,15 +63,20 @@ export interface DesignSystem {
   // Version history
   versions?: DesignSystemVersion[];
   currentVersionId?: string;
+  // Cloud sync fields
+  isPublic?: boolean;
+  shareSlug?: string;
 }
 
 // Use centralized storage keys
-const STORAGE_KEY = STORAGE_KEYS.DESIGN_SYSTEMS;
 const ACTIVE_SYSTEM_KEY = STORAGE_KEYS.ACTIVE_SYSTEM_ID;
 const ACTIVE_THEMES_KEY = STORAGE_KEYS.ACTIVE_THEME_IDS;
 const INITIALIZED_KEY = STORAGE_KEYS.DESIGN_SYSTEMS_INITIALIZED;
 
-// Pre-built design systems (always available, never persisted)
+// Pre-built system IDs
+const PREBUILT_IDS = [SYSTEM_IDS.DEFAULT, 'material-system', 'minimalist-system', 'candy-nest-system'];
+
+// Pre-built design systems (always available, never persisted to cloud)
 const createDefaultSystem = (): DesignSystem => ({
   id: SYSTEM_IDS.DEFAULT,
   name: 'Default Design System',
@@ -80,30 +85,30 @@ const createDefaultSystem = (): DesignSystem => ({
   themes: DEFAULT_THEMES,
   activeThemeId: THEME_IDS.APPLE,
   intents: [
-    { 
-      id: 'web-app', 
-      value: 'web-app', 
+    {
+      id: 'web-app',
+      value: 'web-app',
       label: 'Web App',
       description: 'General purpose web application components',
       icon: 'Code2'
     },
-    { 
-      id: 'ecommerce', 
-      value: 'ecommerce', 
+    {
+      id: 'ecommerce',
+      value: 'ecommerce',
       label: 'E-commerce',
       description: 'Shopping and product-focused components',
       icon: 'ShoppingBag'
     },
-    { 
-      id: 'mobile', 
-      value: 'mobile', 
+    {
+      id: 'mobile',
+      value: 'mobile',
       label: 'Mobile Experience',
       description: 'Touch-optimized mobile components',
       icon: 'Smartphone'
     },
-    { 
-      id: 'landing', 
-      value: 'landing', 
+    {
+      id: 'landing',
+      value: 'landing',
       label: 'Landing Page',
       description: 'Marketing and conversion-focused components',
       icon: 'Megaphone'
@@ -119,16 +124,16 @@ const createMaterialSystem = (): DesignSystem => ({
   themes: MATERIAL_THEMES,
   activeThemeId: 'material-light',
   intents: [
-    { 
-      id: 'web-app', 
-      value: 'web-app', 
+    {
+      id: 'web-app',
+      value: 'web-app',
       label: 'Web App',
       description: 'General purpose web application components',
       icon: 'Code2'
     },
-    { 
-      id: 'mobile', 
-      value: 'mobile', 
+    {
+      id: 'mobile',
+      value: 'mobile',
       label: 'Mobile Experience',
       description: 'Touch-optimized mobile components',
       icon: 'Smartphone'
@@ -145,16 +150,16 @@ const createMinimalistSystem = (): DesignSystem => ({
   themes: MINIMALIST_THEMES,
   activeThemeId: 'swiss-minimal',
   intents: [
-    { 
-      id: 'web-app', 
-      value: 'web-app', 
+    {
+      id: 'web-app',
+      value: 'web-app',
       label: 'Web App',
       description: 'General purpose web application components',
       icon: 'Code2'
     },
-    { 
-      id: 'landing', 
-      value: 'landing', 
+    {
+      id: 'landing',
+      value: 'landing',
       label: 'Landing Page',
       description: 'Marketing and conversion-focused components',
       icon: 'Megaphone'
@@ -170,9 +175,9 @@ const createCandyNestSystem = (): DesignSystem => ({
   themes: CANDY_NEST_THEMES,
   activeThemeId: 'gq-theme',
   intents: [
-    { 
-      id: 'web-editorial', 
-      value: 'web-editorial', 
+    {
+      id: 'web-editorial',
+      value: 'web-editorial',
       label: 'Web Editorial',
       description: 'Magazine-style editorial content and publishing',
       icon: 'Newspaper'
@@ -180,20 +185,74 @@ const createCandyNestSystem = (): DesignSystem => ({
   ]
 });
 
-export function useDesignSystems() {
-  const [systems, setSystems] = useState<DesignSystem[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const parsed = stored ? JSON.parse(stored) : [];
-      // Filter out pre-built systems - they will be injected dynamically
-      const prebuiltIds = ['default-system', 'material-system', 'minimalist-system', 'candy-nest-system'];
-      return parsed.filter((s: DesignSystem) => !prebuiltIds.includes(s.id));
-    } catch (error) {
-      console.error('Error loading design systems:', error);
-      return [];
+// Helper to apply theme tokens to DOM
+function applyThemeToDOM(theme: Theme) {
+  const root = document.documentElement;
+
+  // Apply colors - wrap HSL values in hsl()
+  Object.entries(theme.colors || {}).forEach(([key, value]) => {
+    if (value.startsWith('#') || value.startsWith('rgb') || value.startsWith('hsl') || value.startsWith('oklch')) {
+      root.style.setProperty(`--${key}`, value);
+    } else {
+      root.style.setProperty(`--${key}`, `hsl(${value})`);
     }
   });
 
+  // Apply spacing
+  Object.entries(theme.spacing || {}).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+  });
+
+  // Apply typography
+  Object.entries(theme.typography || {}).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+  });
+
+  // Apply border radius
+  Object.entries(theme.borderRadius || {}).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+    if (key === 'radius-lg') {
+      root.style.setProperty(`--radius`, value);
+    }
+  });
+
+  // Apply shadows
+  Object.entries(theme.shadows || {}).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+  });
+
+  // Apply sidebar colors if provided
+  if (theme.sidebar) {
+    Object.entries(theme.sidebar).forEach(([key, value]) => {
+      const varName = key === 'background' ? '--sidebar' : `--sidebar-${key}`;
+      root.style.setProperty(varName, value);
+    });
+  }
+
+  // Apply opacity tokens if provided
+  if (theme.opacity) {
+    Object.entries(theme.opacity).forEach(([key, value]) => {
+      root.style.setProperty(`--${key}`, value);
+    });
+  }
+
+  // Apply visual effects if provided
+  if (theme.effects) {
+    Object.entries(theme.effects).forEach(([key, value]) => {
+      root.style.setProperty(`--${key}`, value);
+    });
+  }
+}
+
+export function useDesignSystems() {
+  const { designSystems: service, isAuthenticated, mode } = useServices();
+
+  // User-created systems (loaded from service)
+  const [userSystems, setUserSystems] = useState<DesignSystem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Active system/theme tracking (always localStorage for fast access)
   const [activeSystemId, setActiveSystemId] = useState<string | undefined>(() => {
     try {
       return localStorage.getItem(ACTIVE_SYSTEM_KEY) || undefined;
@@ -202,7 +261,6 @@ export function useDesignSystems() {
     }
   });
 
-  // Track active theme for each system (especially pre-built ones)
   const [activeThemeIds, setActiveThemeIds] = useState<Record<string, string>>(() => {
     try {
       const stored = localStorage.getItem(ACTIVE_THEMES_KEY);
@@ -212,86 +270,72 @@ export function useDesignSystems() {
     }
   });
 
-  // Create pre-built systems with the stored active theme
-  const createDefaultSystemWithTheme = (): DesignSystem => {
-    const system = createDefaultSystem();
-    // Validate that the stored active theme still exists
-    const storedThemeId = activeThemeIds['default-system'];
-    const themeExists = storedThemeId && system.themes.some(t => t.id === storedThemeId);
-    
-    return {
-      ...system,
-      activeThemeId: themeExists ? storedThemeId : system.activeThemeId
-    };
-  };
+  // Create pre-built systems with stored active theme
+  const prebuiltSystems = useMemo(() => {
+    const defaultSys = createDefaultSystem();
+    const materialSys = createMaterialSystem();
+    const minimalistSys = createMinimalistSystem();
+    const candyNestSys = createCandyNestSystem();
 
-  const createMaterialSystemWithTheme = (): DesignSystem => {
-    const system = createMaterialSystem();
-    return {
-      ...system,
-      activeThemeId: activeThemeIds['material-system'] || system.activeThemeId
-    };
-  };
+    // Apply stored active themes
+    if (activeThemeIds[defaultSys.id] && defaultSys.themes.some(t => t.id === activeThemeIds[defaultSys.id])) {
+      defaultSys.activeThemeId = activeThemeIds[defaultSys.id];
+    }
+    if (activeThemeIds[materialSys.id]) {
+      materialSys.activeThemeId = activeThemeIds[materialSys.id];
+    }
+    if (activeThemeIds[minimalistSys.id]) {
+      minimalistSys.activeThemeId = activeThemeIds[minimalistSys.id];
+    }
+    if (activeThemeIds[candyNestSys.id]) {
+      candyNestSys.activeThemeId = activeThemeIds[candyNestSys.id];
+    }
 
-  const createMinimalistSystemWithTheme = (): DesignSystem => {
-    const system = createMinimalistSystem();
-    return {
-      ...system,
-      activeThemeId: activeThemeIds['minimalist-system'] || system.activeThemeId
-    };
-  };
+    return [defaultSys, materialSys, minimalistSys, candyNestSys];
+  }, [activeThemeIds]);
 
-  const createCandyNestSystemWithTheme = (): DesignSystem => {
-    const system = createCandyNestSystem();
-    return {
-      ...system,
-      activeThemeId: activeThemeIds['candy-nest-system'] || system.activeThemeId
-    };
-  };
+  // Combined systems (prebuilt + user-created)
+  const allSystems = useMemo(() => {
+    return [...prebuiltSystems, ...userSystems];
+  }, [prebuiltSystems, userSystems]);
 
-  // Always inject pre-built systems dynamically (never persist them)
-  const allSystems = [
-    createDefaultSystemWithTheme(), 
-    createMaterialSystemWithTheme(), 
-    createMinimalistSystemWithTheme(), 
-    createCandyNestSystemWithTheme(),
-    ...systems
-  ];
+  // Load user systems from service
+  const loadSystems = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await service.getAll();
+      if (result.error) {
+        setError(result.error.message);
+      } else {
+        // Filter out any prebuilt systems that might have been saved
+        const filtered = (result.data || []).filter(s => !PREBUILT_IDS.includes(s.id));
+        setUserSystems(filtered);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load design systems');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [service]);
+
+  // Load on mount and when service changes (auth state change)
+  useEffect(() => {
+    loadSystems();
+  }, [loadSystems, isAuthenticated]);
 
   // Initialize with default system if not already initialized
   useEffect(() => {
     if (!localStorage.getItem(INITIALIZED_KEY)) {
-      setActiveSystemId('default-system');
+      setActiveSystemId(SYSTEM_IDS.DEFAULT);
       localStorage.setItem(INITIALIZED_KEY, 'true');
     } else if (allSystems.length > 0 && !activeSystemId) {
-      // If we have systems but no active one, set the first as active
       setActiveSystemId(allSystems[0].id);
     }
-    
-    // Clean up invalid theme IDs from storage
-    const validThemeIds: Record<string, string> = {};
-    Object.entries(activeThemeIds).forEach(([systemId, themeId]) => {
-      const system = allSystems.find(s => s.id === systemId);
-      if (system && system.themes.some(t => t.id === themeId)) {
-        validThemeIds[systemId] = themeId;
-      }
-    });
-    
-    // Only update if something changed
-    if (Object.keys(validThemeIds).length !== Object.keys(activeThemeIds).length) {
-      setActiveThemeIds(validThemeIds);
-    }
-  }, []);
+  }, [allSystems, activeSystemId]);
 
-  // Persist to localStorage (excluding pre-built systems)
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(systems));
-    } catch (error) {
-      console.error('Error saving design systems:', error);
-    }
-  }, [systems]);
-
+  // Persist active system/theme to localStorage
   useEffect(() => {
     try {
       if (activeSystemId) {
@@ -319,189 +363,115 @@ export function useDesignSystems() {
       if (system && system.themes && system.themes.length > 0) {
         const themeId = activeThemeIds[activeSystemId] || system.activeThemeId || system.themes[0].id;
         const theme = system.themes.find(t => t.id === themeId);
-        
         if (theme) {
-          // Apply the theme tokens immediately
-          const root = document.documentElement;
-
-          // Apply colors - wrap HSL values in hsl()
-          Object.entries(theme.colors || {}).forEach(([key, value]) => {
-            if (value.startsWith('#') || value.startsWith('rgb') || value.startsWith('hsl') || value.startsWith('oklch')) {
-              root.style.setProperty(`--${key}`, value);
-            } else {
-              root.style.setProperty(`--${key}`, `hsl(${value})`);
-            }
-          });
-
-          // Apply spacing
-          Object.entries(theme.spacing || {}).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
-          });
-
-          // Apply typography
-          Object.entries(theme.typography || {}).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
-            // Don't apply font-sans to document.body - only set CSS variable
-            // This prevents the theme font from affecting the design system UI itself
-          });
-
-          // Apply border radius
-          Object.entries(theme.borderRadius || {}).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
-            if (key === 'radius-lg') {
-              root.style.setProperty(`--radius`, value);
-            }
-          });
-
-          // Apply shadows
-          Object.entries(theme.shadows || {}).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
-          });
-
-          // Apply sidebar colors if provided
-          if (theme.sidebar) {
-            Object.entries(theme.sidebar).forEach(([key, value]) => {
-              const varName = key === 'background' ? '--sidebar' : `--sidebar-${key}`;
-              root.style.setProperty(varName, value);
-            });
-          }
-
-          // Apply opacity tokens if provided
-          if (theme.opacity) {
-            Object.entries(theme.opacity).forEach(([key, value]) => {
-              root.style.setProperty(`--${key}`, value);
-            });
-          }
-
-          // Apply visual effects if provided
-          if (theme.effects) {
-            Object.entries(theme.effects).forEach(([key, value]) => {
-              root.style.setProperty(`--${key}`, value);
-            });
-          }
+          applyThemeToDOM(theme);
         }
       }
     }
   }, [activeSystemId, activeThemeIds, allSystems]);
 
-  const addSystem = (system: Omit<DesignSystem, 'id' | 'createdAt'>) => {
+  const addSystem = useCallback(async (system: Omit<DesignSystem, 'id' | 'createdAt'>) => {
     const newSystem: DesignSystem = {
       ...system,
       id: `system-${Date.now()}`,
       createdAt: new Date().toISOString()
     };
-    setSystems(prev => [...prev, newSystem]);
-    return newSystem;
-  };
 
-  const updateSystem = (id: string, updates: Partial<DesignSystem>) => {
-    // Don't allow updating the default system (except activeThemeId)
-    if (id === 'default-system') {
-      // Only allow updating activeThemeId for theme switching
+    // Optimistic update
+    setUserSystems(prev => [...prev, newSystem]);
+
+    // Persist to service
+    const result = await service.create({
+      name: newSystem.name,
+      description: newSystem.description,
+      useIcons: newSystem.useIcons,
+      themes: newSystem.themes,
+      intents: newSystem.intents,
+    });
+
+    if (result.error) {
+      // Rollback on error
+      setUserSystems(prev => prev.filter(s => s.id !== newSystem.id));
+      console.error('Failed to save system:', result.error);
+      return null;
+    }
+
+    // Update with server-assigned ID if different
+    if (result.data && result.data.id !== newSystem.id) {
+      setUserSystems(prev => prev.map(s =>
+        s.id === newSystem.id ? { ...s, id: result.data!.id } : s
+      ));
+      return result.data;
+    }
+
+    return newSystem;
+  }, [service]);
+
+  const updateSystem = useCallback(async (id: string, updates: Partial<DesignSystem>) => {
+    // Don't allow updating prebuilt systems (except activeThemeId locally)
+    if (PREBUILT_IDS.includes(id)) {
       if (updates.activeThemeId) {
-        // This is a local state update, not persisted
-        return;
+        setActiveThemeIds(prev => ({ ...prev, [id]: updates.activeThemeId! }));
       }
       return;
     }
-    setSystems(prev => prev.map(system => 
+
+    // Optimistic update
+    setUserSystems(prev => prev.map(system =>
       system.id === id ? { ...system, ...updates } : system
     ));
-  };
 
-  const deleteSystem = (id: string) => {
-    // Don't allow deleting pre-built systems
-    const prebuiltIds = ['default-system', 'material-system', 'minimalist-system', 'candy-nest-system'];
-    if (prebuiltIds.includes(id)) {
+    // Persist to service
+    const result = await service.update(id, updates);
+    if (result.error) {
+      console.error('Failed to update system:', result.error);
+      // Could rollback here, but for now just log
+    }
+  }, [service]);
+
+  const deleteSystem = useCallback(async (id: string) => {
+    // Don't allow deleting prebuilt systems
+    if (PREBUILT_IDS.includes(id)) {
       return;
     }
-    setSystems(prev => prev.filter(system => system.id !== id));
+
+    const systemToDelete = userSystems.find(s => s.id === id);
+
+    // Optimistic update
+    setUserSystems(prev => prev.filter(system => system.id !== id));
     if (activeSystemId === id) {
       setActiveSystemId(undefined);
     }
-  };
 
-  const getSystem = (id: string) => {
+    // Persist to service
+    const result = await service.delete(id);
+    if (result.error) {
+      // Rollback on error
+      if (systemToDelete) {
+        setUserSystems(prev => [...prev, systemToDelete]);
+      }
+      console.error('Failed to delete system:', result.error);
+    }
+  }, [service, userSystems, activeSystemId]);
+
+  const getSystem = useCallback((id: string) => {
     return allSystems.find(system => system.id === id);
-  };
+  }, [allSystems]);
 
-  const applySystem = (id: string) => {
-    const system = getSystem(id);
+  const applySystem = useCallback((id: string) => {
+    const system = allSystems.find(s => s.id === id);
     if (!system || !system.themes || system.themes.length === 0) return false;
 
     const activeTheme = system.themes.find(t => t.id === system.activeThemeId) || system.themes[0];
     if (!activeTheme) return false;
 
-    const root = document.documentElement;
-
-    // Apply colors - wrap HSL values in hsl()
-    Object.entries(activeTheme.colors || {}).forEach(([key, value]) => {
-      // Check if value is already a complete color (starts with # or rgb/hsl/oklch)
-      if (value.startsWith('#') || value.startsWith('rgb') || value.startsWith('hsl') || value.startsWith('oklch')) {
-        root.style.setProperty(`--${key}`, value);
-      } else {
-        // Assume it's an HSL triplet and wrap it
-        root.style.setProperty(`--${key}`, `hsl(${value})`);
-      }
-    });
-
-    // Apply spacing
-    Object.entries(activeTheme.spacing || {}).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-    });
-
-    // Apply typography
-    Object.entries(activeTheme.typography || {}).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-      // Don't apply font-sans to document.body - only set CSS variable
-      // This prevents the theme font from affecting the design system UI itself
-    });
-
-    // Apply border radius
-    Object.entries(activeTheme.borderRadius || {}).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-      
-      // Map our theme border radius to Tailwind's --radius variable
-      // Use radius-lg as the base radius that Tailwind uses
-      if (key === 'radius-lg') {
-        root.style.setProperty(`--radius`, value);
-      }
-    });
-
-    // Apply shadows
-    Object.entries(activeTheme.shadows || {}).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-    });
-
-    // Apply sidebar colors if provided
-    if (activeTheme.sidebar) {
-      Object.entries(activeTheme.sidebar).forEach(([key, value]) => {
-        // Map 'background' to '--sidebar', others to '--sidebar-{key}'
-        const varName = key === 'background' ? '--sidebar' : `--sidebar-${key}`;
-        root.style.setProperty(varName, value);
-      });
-    }
-
-    // Apply opacity tokens if provided
-    if (activeTheme.opacity) {
-      Object.entries(activeTheme.opacity).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-      });
-    }
-
-    // Apply visual effects if provided
-    if (activeTheme.effects) {
-      Object.entries(activeTheme.effects).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-      });
-    }
-
+    applyThemeToDOM(activeTheme);
     setActiveSystemId(id);
     return true;
-  };
+  }, [allSystems]);
 
-  const exportSystem = (id: string) => {
-    const system = getSystem(id);
+  const exportSystem = useCallback((id: string) => {
+    const system = allSystems.find(s => s.id === id);
     if (!system) return;
 
     const exportData = {
@@ -520,16 +490,21 @@ export function useDesignSystems() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, [allSystems]);
 
   // Theme management within a system
-  const addThemeToSystem = (systemId: string, theme: Omit<Theme, 'id'>) => {
+  const addThemeToSystem = useCallback(async (systemId: string, theme: Omit<Theme, 'id'>) => {
     const newTheme: Theme = {
       ...theme,
       id: `theme-${Date.now()}`
     };
-    
-    setSystems(prev => prev.map(system => {
+
+    if (PREBUILT_IDS.includes(systemId)) {
+      return newTheme; // Don't persist for prebuilt systems
+    }
+
+    // Optimistic update
+    setUserSystems(prev => prev.map(system => {
       if (system.id === systemId) {
         return {
           ...system,
@@ -538,12 +513,23 @@ export function useDesignSystems() {
       }
       return system;
     }));
-    
-    return newTheme;
-  };
 
-  const updateThemeInSystem = (systemId: string, themeId: string, updates: Partial<Theme>) => {
-    setSystems(prev => prev.map(system => {
+    // Persist to service
+    const result = await service.addTheme(systemId, theme);
+    if (result.error) {
+      console.error('Failed to add theme:', result.error);
+    }
+
+    return result.data || newTheme;
+  }, [service]);
+
+  const updateThemeInSystem = useCallback(async (systemId: string, themeId: string, updates: Partial<Theme>) => {
+    if (PREBUILT_IDS.includes(systemId)) {
+      return; // Don't update prebuilt system themes
+    }
+
+    // Optimistic update
+    setUserSystems(prev => prev.map(system => {
       if (system.id === systemId) {
         return {
           ...system,
@@ -554,16 +540,26 @@ export function useDesignSystems() {
       }
       return system;
     }));
-  };
 
-  const deleteThemeFromSystem = (systemId: string, themeId: string) => {
-    setSystems(prev => prev.map(system => {
+    // Persist to service
+    const result = await service.updateTheme(systemId, themeId, updates);
+    if (result.error) {
+      console.error('Failed to update theme:', result.error);
+    }
+  }, [service]);
+
+  const deleteThemeFromSystem = useCallback(async (systemId: string, themeId: string) => {
+    if (PREBUILT_IDS.includes(systemId)) {
+      return; // Don't delete prebuilt system themes
+    }
+
+    // Optimistic update
+    setUserSystems(prev => prev.map(system => {
       if (system.id === systemId) {
         const updatedThemes = system.themes.filter(theme => theme.id !== themeId);
         return {
           ...system,
           themes: updatedThemes,
-          // If active theme was deleted, switch to first available
           activeThemeId: system.activeThemeId === themeId && updatedThemes.length > 0
             ? updatedThemes[0].id
             : system.activeThemeId
@@ -571,113 +567,61 @@ export function useDesignSystems() {
       }
       return system;
     }));
-  };
 
-  const setActiveTheme = (systemId: string, themeId: string) => {
-    const system = getSystem(systemId);
+    // Persist to service
+    const result = await service.deleteTheme(systemId, themeId);
+    if (result.error) {
+      console.error('Failed to delete theme:', result.error);
+    }
+  }, [service]);
+
+  const setActiveTheme = useCallback(async (systemId: string, themeId: string) => {
+    const system = allSystems.find(s => s.id === systemId);
     if (!system) return false;
 
     const theme = system.themes.find(t => t.id === themeId);
     if (!theme) return false;
 
     // Apply the theme tokens
-    const root = document.documentElement;
+    applyThemeToDOM(theme);
 
-    // Apply colors - wrap HSL values in hsl()
-    Object.entries(theme.colors).forEach(([key, value]) => {
-      // Check if value is already a complete color (starts with # or rgb/hsl/oklch)
-      if (value.startsWith('#') || value.startsWith('rgb') || value.startsWith('hsl') || value.startsWith('oklch')) {
-        root.style.setProperty(`--${key}`, value);
-      } else {
-        // Assume it's an HSL triplet and wrap it
-        root.style.setProperty(`--${key}`, `hsl(${value})`);
-      }
-    });
+    // Update active theme tracking
+    setActiveThemeIds(prev => ({ ...prev, [systemId]: themeId }));
 
-    Object.entries(theme.spacing).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-    });
-
-    Object.entries(theme.typography).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-      // Don't apply font-sans to document.body - only set CSS variable
-      // This prevents the theme font from affecting the design system UI itself
-    });
-
-    Object.entries(theme.borderRadius).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-      
-      // Map our theme border radius to Tailwind's --radius variable
-      // Use radius-lg as the base radius that Tailwind uses
-      if (key === 'radius-lg') {
-        root.style.setProperty(`--radius`, value);
-      }
-    });
-
-    Object.entries(theme.shadows).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-    });
-
-    // Apply sidebar colors if provided
-    if (theme.sidebar) {
-      Object.entries(theme.sidebar).forEach(([key, value]) => {
-        // Map 'background' to '--sidebar', others to '--sidebar-{key}'
-        const varName = key === 'background' ? '--sidebar' : `--sidebar-${key}`;
-        root.style.setProperty(varName, value);
-      });
+    // For user systems, also update the system itself
+    if (!PREBUILT_IDS.includes(systemId)) {
+      await updateSystem(systemId, { activeThemeId: themeId });
     }
 
-    // Apply opacity tokens if provided
-    if (theme.opacity) {
-      Object.entries(theme.opacity).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-      });
-    }
-
-    // Apply visual effects if provided
-    if (theme.effects) {
-      Object.entries(theme.effects).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-      });
-    }
-
-    // Update active theme in system
-    updateSystem(systemId, { activeThemeId: themeId });
-    
-    // Update active theme for the system in local storage
-    setActiveThemeIds(prev => ({
-      ...prev,
-      [systemId]: themeId
-    }));
-    
     return true;
-  };
+  }, [allSystems, updateSystem]);
 
-  const getActiveTheme = (systemId: string): Theme | undefined => {
-    const system = getSystem(systemId);
+  const getActiveTheme = useCallback((systemId: string): Theme | undefined => {
+    const system = allSystems.find(s => s.id === systemId);
     if (!system) return undefined;
-    
-    return system.themes.find(t => t.id === system.activeThemeId) || system.themes[0];
-  };
+
+    const themeId = activeThemeIds[systemId] || system.activeThemeId;
+    return system.themes.find(t => t.id === themeId) || system.themes[0];
+  }, [allSystems, activeThemeIds]);
 
   // Version management
-  const addVersion = (systemId: string, versionType: VersionType, notes: string, author?: string) => {
-    const system = getSystem(systemId);
+  const addVersion = useCallback((systemId: string, versionType: VersionType, notes: string, author?: string) => {
+    const system = allSystems.find(s => s.id === systemId);
     if (!system) return null;
 
     const { createVersionSnapshot, pruneVersions } = require('../lib/version-utilities');
-    
+
     const previousVersion = system.versions && system.versions.length > 0
       ? system.versions[system.versions.length - 1]
       : undefined;
 
     const newVersion = createVersionSnapshot(system, versionType, notes, previousVersion, author);
-    
-    setSystems(prev => prev.map(s => {
+
+    setUserSystems(prev => prev.map(s => {
       if (s.id === systemId) {
         const updatedVersions = [...(s.versions || []), newVersion];
-        const prunedVersions = pruneVersions(updatedVersions, 50); // Keep last 50 versions
-        
+        const prunedVersions = pruneVersions(updatedVersions, 50);
+
         return {
           ...s,
           versions: prunedVersions,
@@ -686,18 +630,18 @@ export function useDesignSystems() {
       }
       return s;
     }));
-    
-    return newVersion;
-  };
 
-  const restoreVersion = (systemId: string, version: DesignSystemVersion) => {
-    setSystems(prev => prev.map(s => {
+    return newVersion;
+  }, [allSystems]);
+
+  const restoreVersion = useCallback((systemId: string, version: DesignSystemVersion) => {
+    setUserSystems(prev => prev.map(s => {
       if (s.id === systemId) {
         return {
           ...s,
           name: version.snapshot.name,
           description: version.snapshot.description,
-          themes: JSON.parse(JSON.stringify(version.snapshot.themes)), // Deep clone
+          themes: JSON.parse(JSON.stringify(version.snapshot.themes)),
           activeThemeId: version.snapshot.activeThemeId,
           currentVersionId: version.id
         };
@@ -705,14 +649,13 @@ export function useDesignSystems() {
       return s;
     }));
 
-    // Re-apply the system to update the UI
     applySystem(systemId);
-  };
+  }, [applySystem]);
 
-  const exportVersionAsJSON = (version: DesignSystemVersion) => {
+  const exportVersionAsJSON = useCallback((version: DesignSystemVersion) => {
     const { exportVersion } = require('../lib/version-utilities');
     const json = exportVersion(version);
-    
+
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -722,10 +665,10 @@ export function useDesignSystems() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, []);
 
-  const deleteVersion = (systemId: string, versionId: string) => {
-    setSystems(prev => prev.map(s => {
+  const deleteVersion = useCallback((systemId: string, versionId: string) => {
+    setUserSystems(prev => prev.map(s => {
       if (s.id === systemId) {
         return {
           ...s,
@@ -734,12 +677,21 @@ export function useDesignSystems() {
       }
       return s;
     }));
-  };
+  }, []);
+
+  // Reload data (useful after migration or auth change)
+  const refresh = useCallback(() => {
+    loadSystems();
+  }, [loadSystems]);
 
   return {
-    systems: allSystems, // Return all systems including the dynamic default
+    systems: allSystems,
     activeSystemId,
-    activeThemeIds, // Expose active theme IDs for each system
+    activeThemeIds,
+    isLoading,
+    error,
+    mode, // 'local' or 'supabase'
+    isAuthenticated,
     addSystem,
     updateSystem,
     deleteSystem,
@@ -756,6 +708,8 @@ export function useDesignSystems() {
     addVersion,
     restoreVersion,
     exportVersionAsJSON,
-    deleteVersion
+    deleteVersion,
+    // Refresh
+    refresh
   };
 }

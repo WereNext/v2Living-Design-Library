@@ -4,22 +4,24 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
-import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package, Loader2 } from "lucide-react";
+import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
 import { IntentCreator } from "./IntentCreator";
 import { ComponentImportDialog } from "./ComponentImportDialog";
+import { LDLImportDialog } from "./LDLImportDialog";
 import { useDesignSystems } from "../hooks/useDesignSystems";
-import { 
-  parseTokens, 
-  parseCSSVariables, 
-  tokenSetToCSS, 
+import {
+  parseTokens,
+  parseCSSVariables,
+  tokenSetToCSS,
   applyTokensToDocument,
   validateTokenSet,
-  type TokenSet 
+  type TokenSet
 } from "../lib/token-utilities";
+import { LDLTokenDocument, isColorWithForeground } from "../lib/ldl";
 
 interface ImportConfigProps {
   onIntentCreated?: (intent: any) => void;
@@ -34,10 +36,72 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
   const [showPreview, setShowPreview] = useState(false);
   const [previewTokens, setPreviewTokens] = useState<TokenSet | null>(null);
   const [showComponentImport, setShowComponentImport] = useState(false);
+  const [showLDLImport, setShowLDLImport] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
   const { systems, activeSystemId } = useDesignSystems();
+
+  // Handle LDL import
+  const handleLDLImport = (document: LDLTokenDocument, css: string) => {
+    // Convert LDL document to TokenSet format for compatibility
+    const tokenSet: TokenSet = {
+      colors: {},
+      spacing: {},
+      typography: {},
+      borderRadius: {},
+      shadows: {}
+    };
+
+    // Convert colors
+    if (document.color) {
+      for (const [name, token] of Object.entries(document.color)) {
+        if (token === undefined) continue;
+        tokenSet.colors[name] = isColorWithForeground(token) ? token.value : token;
+        if (isColorWithForeground(token)) {
+          tokenSet.colors[`${name}-foreground`] = token.foreground;
+        }
+      }
+    }
+
+    // Convert space
+    if (document.space) {
+      for (const [name, value] of Object.entries(document.space)) {
+        tokenSet.spacing[name] = value;
+      }
+    }
+
+    // Convert radius
+    if (document.radius) {
+      for (const [name, value] of Object.entries(document.radius)) {
+        tokenSet.borderRadius[name] = value;
+      }
+    }
+
+    // Convert shadows
+    if (document.shadow) {
+      for (const [name, value] of Object.entries(document.shadow)) {
+        tokenSet.shadows[name] = value;
+      }
+    }
+
+    // Convert font
+    if (document.font) {
+      if (document.font.family) {
+        for (const [name, value] of Object.entries(document.font.family)) {
+          tokenSet.typography[`font-${name}`] = value;
+        }
+      }
+      if (document.font.size) {
+        for (const [name, value] of Object.entries(document.font.size)) {
+          tokenSet.typography[`text-${name}`] = value;
+        }
+      }
+    }
+
+    // Apply tokens
+    applyTokensToDocument(tokenSet);
+  };
 
   // Get current tokens from the active system or generate from CSS variables
   const getCurrentTokens = () => {
@@ -216,6 +280,42 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
           to learn how the token system works and how to import your brand's design system.
         </AlertDescription>
       </Alert>
+
+      {/* Smart LDL Import - Primary CTA */}
+      <Card className="border-primary/50 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            Smart Token Import (LDL)
+          </CardTitle>
+          <CardDescription>
+            Auto-detect and import from any format: LDL, W3C, Figma, Tokens Studio, Style Dictionary
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Alert>
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Universal import:</strong> Paste tokens from any source - format is auto-detected.
+                Includes real-time validation, preview, and export to 9+ formats.
+              </AlertDescription>
+            </Alert>
+
+            <Button onClick={() => setShowLDLImport(true)} className="w-full" size="lg">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Open Smart Import
+            </Button>
+
+            <div className="grid grid-cols-4 gap-2 text-xs text-center text-muted-foreground">
+              <div className="p-2 bg-muted rounded-md">LDL</div>
+              <div className="p-2 bg-muted rounded-md">W3C DTCG</div>
+              <div className="p-2 bg-muted rounded-md">Figma</div>
+              <div className="p-2 bg-muted rounded-md">Tokens Studio</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Upload from file */}
       <Card>
@@ -765,6 +865,13 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
           toast.success(`Component "${component.name}" imported successfully!`);
           setShowComponentImport(false);
         }}
+      />
+
+      {/* LDL Import Dialog */}
+      <LDLImportDialog
+        open={showLDLImport}
+        onOpenChange={setShowLDLImport}
+        onImport={handleLDLImport}
       />
     </div>
   );

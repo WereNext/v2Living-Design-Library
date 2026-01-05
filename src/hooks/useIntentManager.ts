@@ -1,146 +1,181 @@
-import { useState, useEffect } from 'react';
-import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS } from '../lib/constants';
+/**
+ * Intent Manager Hook
+ *
+ * Manages design intents with support for both
+ * local storage and Supabase backends.
+ */
 
-export interface ComponentCategory {
-  name: string;
-  icon: string;
-  id: string;
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useServices } from '../services';
+import type { DesignIntent, IntentCreate, IntentCategory } from '../services/types';
+
+// Re-export types for backward compatibility
+export type { DesignIntent, IntentCategory };
+
+// Alias for backward compatibility
+export type ComponentCategory = IntentCategory;
+
+// =============================================================================
+// Types
+// =============================================================================
+
+interface UseIntentManagerReturn {
+  /** All intents (default + custom) */
+  intents: DesignIntent[];
+  /** Loading state */
+  isLoading: boolean;
+  /** Error state */
+  error: Error | null;
+  /** Add a new custom intent */
+  addIntent: (
+    intent: Omit<DesignIntent, 'isCustom' | 'createdAt' | 'updatedAt'>
+  ) => Promise<DesignIntent | null>;
+  /** Update an existing intent */
+  updateIntent: (id: string, updates: Partial<DesignIntent>) => Promise<void>;
+  /** Delete an intent */
+  deleteIntent: (id: string) => Promise<void>;
+  /** Get an intent by ID */
+  getIntent: (id: string) => DesignIntent | undefined;
+  /** Refresh intents from service */
+  refresh: () => Promise<void>;
 }
 
-export interface DesignIntent {
-  id: string;
-  label: string;
-  description?: string;
-  categories: ComponentCategory[];
-  tokens?: unknown;
-  isCustom?: boolean;
-  createdAt?: string;
-}
+// =============================================================================
+// Hook Implementation
+// =============================================================================
 
-const STORAGE_KEY = STORAGE_KEYS.DESIGN_INTENTS;
+export function useIntentManager(): UseIntentManagerReturn {
+  const { intents: service, isAuthenticated } = useServices();
+  const [intents, setIntents] = useState<DesignIntent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-const defaultIntents: DesignIntent[] = [
-  {
-    id: 'web-app',
-    label: 'Web App',
-    description: 'Components optimized for web applications',
-    categories: [
-      { name: "Code Playground", icon: "Code2", id: "playground" },
-      { name: "Buttons & Actions", icon: "Mouse", id: "buttons" },
-      { name: "Forms & Inputs", icon: "Type", id: "forms" },
-      { name: "Layout Components", icon: "Layout", id: "layout" },
-      { name: "Overlays & Dialogs", icon: "Box", id: "overlays" },
-      { name: "Navigation", icon: "Menu", id: "navigation" },
-      { name: "Data Display", icon: "Palette", id: "data" },
-      { name: "AI Components", icon: "Sparkles", id: "ai" }
-    ],
-    isCustom: false
-  },
-  {
-    id: 'ecommerce',
-    label: 'E-commerce',
-    description: 'Components for online stores and marketplaces',
-    categories: [
-      { name: "Code Playground", icon: "Code2", id: "playground" },
-      { name: "Product Cards", icon: "ShoppingBag", id: "product-cards" },
-      { name: "Shopping Cart", icon: "ShoppingBag", id: "shopping-cart" },
-      { name: "Checkout Flow", icon: "CreditCard", id: "checkout" },
-      { name: "Reviews & Ratings", icon: "Star", id: "reviews" },
-      { name: "Filters & Search", icon: "Filter", id: "filters" },
-      { name: "Buttons & Actions", icon: "Mouse", id: "buttons" },
-      { name: "Forms & Inputs", icon: "Type", id: "forms" }
-    ],
-    isCustom: false
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile Experience',
-    description: 'Touch-optimized components for mobile apps',
-    categories: [
-      { name: "Code Playground", icon: "Code2", id: "playground" },
-      { name: "Bottom Navigation", icon: "Menu", id: "bottom-nav" },
-      { name: "Swipe Actions", icon: "Hand", id: "swipe-actions" },
-      { name: "Pull to Refresh", icon: "RefreshCw", id: "pull-refresh" },
-      { name: "Mobile Menu", icon: "AlignLeft", id: "mobile-menu" },
-      { name: "Touch Gestures", icon: "Zap", id: "touch-gestures" },
-      { name: "Mobile Forms", icon: "Smartphone", id: "mobile-forms" },
-      { name: "Buttons & Actions", icon: "Mouse", id: "buttons" }
-    ],
-    isCustom: false
-  },
-  {
-    id: 'landing',
-    label: 'Landing Page',
-    description: 'Marketing and conversion-focused components',
-    categories: [
-      { name: "Code Playground", icon: "Code2", id: "playground" },
-      { name: "Hero Sections", icon: "Megaphone", id: "hero" },
-      { name: "CTA Blocks", icon: "Mouse", id: "cta-blocks" },
-      { name: "Testimonials", icon: "MessageSquare", id: "testimonials" },
-      { name: "Pricing Tables", icon: "DollarSign", id: "pricing" },
-      { name: "Feature Grids", icon: "Grid3x3", id: "features" },
-      { name: "Email Capture", icon: "Mail", id: "email-capture" },
-      { name: "Buttons & Actions", icon: "Mouse", id: "buttons" }
-    ],
-    isCustom: false
-  }
-];
+  // Load intents on mount and when auth changes
+  const loadIntents = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-export function useIntentManager() {
-  const [intents, setIntents] = useState<DesignIntent[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Merge with defaults to ensure we always have base intents
-        const customIntents = parsed.filter((i: DesignIntent) => i.isCustom);
-        return [...defaultIntents, ...customIntents];
-      }
-    } catch (error) {
-      console.error('Error loading intents:', error);
+    const result = await service.getAll();
+
+    if (result.error) {
+      setError(result.error);
+      setIntents([]);
+    } else {
+      setIntents(result.data || []);
     }
-    return defaultIntents;
-  });
+
+    setIsLoading(false);
+  }, [service]);
 
   useEffect(() => {
-    try {
-      // Only save custom intents to localStorage
-      const customIntents = intents.filter(i => i.isCustom);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(customIntents));
-    } catch (error) {
-      console.error('Error saving intents:', error);
-    }
-  }, [intents]);
+    loadIntents();
+  }, [loadIntents, isAuthenticated]);
 
-  const addIntent = (intent: Omit<DesignIntent, 'isCustom' | 'createdAt'>) => {
-    const newIntent: DesignIntent = {
-      ...intent,
-      isCustom: true,
-      createdAt: new Date().toISOString()
-    };
-    setIntents(prev => [...prev, newIntent]);
-    return newIntent;
-  };
+  // ==========================================================================
+  // Read Operations
+  // ==========================================================================
 
-  const updateIntent = (id: string, updates: Partial<DesignIntent>) => {
-    setIntents(prev => prev.map(intent => 
-      intent.id === id ? { ...intent, ...updates } : intent
-    ));
-  };
+  const getIntent = useCallback(
+    (id: string): DesignIntent | undefined => {
+      return intents.find((intent) => intent.id === id);
+    },
+    [intents]
+  );
 
-  const deleteIntent = (id: string) => {
-    setIntents(prev => prev.filter(intent => intent.id !== id));
-  };
+  // ==========================================================================
+  // Write Operations
+  // ==========================================================================
 
-  const getIntent = (id: string) => {
-    return intents.find(intent => intent.id === id);
-  };
+  const addIntent = useCallback(
+    async (
+      intent: Omit<DesignIntent, 'isCustom' | 'createdAt' | 'updatedAt'>
+    ): Promise<DesignIntent | null> => {
+      const createData: IntentCreate = {
+        id: intent.id,
+        label: intent.label,
+        description: intent.description,
+        categories: intent.categories,
+        tokens: intent.tokens,
+      };
 
-  return {
-    intents,
-    addIntent,
-    updateIntent,
-    deleteIntent,
-    getIntent
-  };
+      const result = await service.create(createData);
+
+      if (result.error) {
+        console.error('Failed to create intent:', result.error);
+        return null;
+      }
+
+      if (result.data) {
+        setIntents((prev) => [...prev, result.data!]);
+        return result.data;
+      }
+
+      return null;
+    },
+    [service]
+  );
+
+  const updateIntent = useCallback(
+    async (id: string, updates: Partial<DesignIntent>): Promise<void> => {
+      const result = await service.update(id, {
+        label: updates.label,
+        description: updates.description,
+        categories: updates.categories,
+        tokens: updates.tokens,
+      });
+
+      if (result.error) {
+        console.error('Failed to update intent:', result.error);
+        return;
+      }
+
+      if (result.data) {
+        setIntents((prev) =>
+          prev.map((intent) => (intent.id === id ? result.data! : intent))
+        );
+      }
+    },
+    [service]
+  );
+
+  const deleteIntent = useCallback(
+    async (id: string): Promise<void> => {
+      const result = await service.delete(id);
+
+      if (result.error) {
+        console.error('Failed to delete intent:', result.error);
+        return;
+      }
+
+      setIntents((prev) => prev.filter((intent) => intent.id !== id));
+    },
+    [service]
+  );
+
+  // ==========================================================================
+  // Return
+  // ==========================================================================
+
+  return useMemo(
+    () => ({
+      intents,
+      isLoading,
+      error,
+      addIntent,
+      updateIntent,
+      deleteIntent,
+      getIntent,
+      refresh: loadIntents,
+    }),
+    [
+      intents,
+      isLoading,
+      error,
+      addIntent,
+      updateIntent,
+      deleteIntent,
+      getIntent,
+      loadIntents,
+    ]
+  );
 }
