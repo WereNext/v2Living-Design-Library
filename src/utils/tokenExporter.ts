@@ -1,6 +1,6 @@
 import { Theme } from "../hooks/useDesignSystems";
 
-export type ExportFormat = 
+export type ExportFormat =
   | "css"
   | "scss"
   | "tailwind"
@@ -9,10 +9,15 @@ export type ExportFormat =
   | "android-xml"
   | "figma-tokens";
 
+// Type for nested token data structure
+type TokenData = Theme | TokenRecord;
+type TokenRecord = Record<string, string | TokenRecord>;
+type TokenValue = string | TokenRecord;
+
 interface ExportOptions {
   theme: Theme;
   changesOnly?: boolean;
-  changes?: Record<string, any>;
+  changes?: TokenRecord;
 }
 
 export function exportTokens(format: ExportFormat, options: ExportOptions): string {
@@ -39,14 +44,14 @@ export function exportTokens(format: ExportFormat, options: ExportOptions): stri
   }
 }
 
-function exportToCSS(data: any, themeName: string): string {
+function exportToCSS(data: TokenData, themeName: string): string {
   let css = `/* ${themeName} Theme - CSS Variables */\n:root {\n`;
-  
-  const processObject = (obj: any, prefix: string = "") => {
+
+  const processObject = (obj: TokenData, prefix: string = "") => {
     Object.entries(obj).forEach(([key, value]) => {
       if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        processObject(value, prefix ? `${prefix}-${key}` : key);
-      } else {
+        processObject(value as TokenRecord, prefix ? `${prefix}-${key}` : key);
+      } else if (typeof value === "string") {
         const varName = prefix ? `--${prefix}-${key}` : `--${key}`;
         css += `  ${varName}: ${value};\n`;
       }
@@ -58,14 +63,14 @@ function exportToCSS(data: any, themeName: string): string {
   return css;
 }
 
-function exportToSCSS(data: any, themeName: string): string {
+function exportToSCSS(data: TokenData, themeName: string): string {
   let scss = `// ${themeName} Theme - SCSS Variables\n\n`;
-  
-  const processObject = (obj: any, prefix: string = "") => {
+
+  const processObject = (obj: TokenData, prefix: string = "") => {
     Object.entries(obj).forEach(([key, value]) => {
       if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        processObject(value, prefix ? `${prefix}-${key}` : key);
-      } else {
+        processObject(value as TokenRecord, prefix ? `${prefix}-${key}` : key);
+      } else if (typeof value === "string") {
         const varName = prefix ? `$${prefix}-${key}` : `$${key}`;
         scss += `${varName}: ${value};\n`;
       }
@@ -76,64 +81,71 @@ function exportToSCSS(data: any, themeName: string): string {
   return scss;
 }
 
-function exportToTailwind(data: any): string {
-  const config = {
+interface TailwindConfig {
+  theme: {
+    extend: {
+      colors?: Record<string, string>;
+      spacing?: Record<string, string>;
+      borderRadius?: Record<string, string>;
+      fontFamily?: Record<string, string>;
+      boxShadow?: Record<string, string>;
+    };
+  };
+}
+
+function exportToTailwind(data: TokenData): string {
+  const config: TailwindConfig = {
     theme: {
       extend: {}
     }
   };
 
-  const processColors = (colors: any) => {
-    const result: any = {};
-    Object.entries(colors).forEach(([key, value]) => {
-      result[key] = value;
-    });
-    return result;
-  };
+  const dataRecord = data as Record<string, unknown>;
 
-  if (data.colors) {
-    (config.theme.extend as any).colors = processColors(data.colors);
+  if (dataRecord.colors && typeof dataRecord.colors === 'object') {
+    config.theme.extend.colors = dataRecord.colors as Record<string, string>;
   }
 
-  if (data.spacing) {
-    (config.theme.extend as any).spacing = data.spacing;
+  if (dataRecord.spacing && typeof dataRecord.spacing === 'object') {
+    config.theme.extend.spacing = dataRecord.spacing as Record<string, string>;
   }
 
-  if (data.borderRadius) {
-    (config.theme.extend as any).borderRadius = data.borderRadius;
+  if (dataRecord.borderRadius && typeof dataRecord.borderRadius === 'object') {
+    config.theme.extend.borderRadius = dataRecord.borderRadius as Record<string, string>;
   }
 
-  if (data.typography) {
-    (config.theme.extend as any).fontFamily = data.typography;
+  if (dataRecord.typography && typeof dataRecord.typography === 'object') {
+    config.theme.extend.fontFamily = dataRecord.typography as Record<string, string>;
   }
 
-  if (data.shadows) {
-    (config.theme.extend as any).boxShadow = data.shadows;
+  if (dataRecord.shadows && typeof dataRecord.shadows === 'object') {
+    config.theme.extend.boxShadow = dataRecord.shadows as Record<string, string>;
   }
 
   return `// Tailwind CSS Configuration\nmodule.exports = ${JSON.stringify(config, null, 2)}`;
 }
 
-function exportToJSON(data: any): string {
+function exportToJSON(data: TokenData): string {
   return JSON.stringify(data, null, 2);
 }
 
-function exportToIOSSwift(data: any, themeName: string): string {
+function exportToIOSSwift(data: TokenData, themeName: string): string {
   let swift = `// ${themeName} Theme - iOS Swift\nimport UIKit\n\nenum ${themeName.replace(/\s+/g, "")}Theme {\n`;
+  const dataRecord = data as Record<string, unknown>;
 
-  if (data.colors) {
+  if (dataRecord.colors && typeof dataRecord.colors === 'object') {
     swift += "    // Colors\n";
-    Object.entries(data.colors).forEach(([key, value]) => {
+    Object.entries(dataRecord.colors as Record<string, string>).forEach(([key, value]) => {
       const colorName = key.replace(/-/g, "_");
       swift += `    static let ${colorName} = UIColor(/* ${value} */)\n`;
     });
   }
 
-  if (data.spacing) {
+  if (dataRecord.spacing && typeof dataRecord.spacing === 'object') {
     swift += "\n    // Spacing\n";
-    Object.entries(data.spacing).forEach(([key, value]) => {
+    Object.entries(dataRecord.spacing as Record<string, string>).forEach(([key, value]) => {
       const spacingName = key.replace(/-/g, "_");
-      swift += `    static let spacing_${spacingName}: CGFloat = ${parseFloat(value as string) || 0}\n`;
+      swift += `    static let spacing_${spacingName}: CGFloat = ${parseFloat(value) || 0}\n`;
     });
   }
 
@@ -141,20 +153,21 @@ function exportToIOSSwift(data: any, themeName: string): string {
   return swift;
 }
 
-function exportToAndroidXML(data: any, themeName: string): string {
+function exportToAndroidXML(data: TokenData, themeName: string): string {
   let xml = `<?xml version="1.0" encoding="utf-8"?>\n<!-- ${themeName} Theme - Android Resources -->\n<resources>\n`;
+  const dataRecord = data as Record<string, unknown>;
 
-  if (data.colors) {
+  if (dataRecord.colors && typeof dataRecord.colors === 'object') {
     xml += "    <!-- Colors -->\n";
-    Object.entries(data.colors).forEach(([key, value]) => {
+    Object.entries(dataRecord.colors as Record<string, string>).forEach(([key, value]) => {
       const colorName = key.replace(/-/g, "_");
       xml += `    <color name="${colorName}"><!-- ${value} --></color>\n`;
     });
   }
 
-  if (data.spacing) {
+  if (dataRecord.spacing && typeof dataRecord.spacing === 'object') {
     xml += "\n    <!-- Spacing -->\n";
-    Object.entries(data.spacing).forEach(([key, value]) => {
+    Object.entries(dataRecord.spacing as Record<string, string>).forEach(([key, value]) => {
       const spacingName = key.replace(/-/g, "_");
       xml += `    <dimen name="spacing_${spacingName}">${value}</dimen>\n`;
     });
@@ -164,13 +177,22 @@ function exportToAndroidXML(data: any, themeName: string): string {
   return xml;
 }
 
-function exportToFigmaTokens(data: any, themeName: string): string {
-  const figmaTokens: any = {
+interface FigmaToken {
+  value: string;
+  type: string;
+}
+
+type FigmaTokenCategory = Record<string, FigmaToken>;
+type FigmaTokenTheme = Record<string, FigmaTokenCategory>;
+type FigmaTokensOutput = Record<string, FigmaTokenTheme>;
+
+function exportToFigmaTokens(data: TokenData, themeName: string): string {
+  const figmaTokens: FigmaTokensOutput = {
     [themeName]: {}
   };
 
-  const convertToFigmaFormat = (obj: any, category: string) => {
-    const result: any = {};
+  const convertToFigmaFormat = (obj: Record<string, string>, category: string): FigmaTokenCategory => {
+    const result: FigmaTokenCategory = {};
     Object.entries(obj).forEach(([key, value]) => {
       result[key] = {
         value: value,
@@ -193,8 +215,8 @@ function exportToFigmaTokens(data: any, themeName: string): string {
   };
 
   Object.entries(data).forEach(([category, values]) => {
-    if (typeof values === "object" && values !== null) {
-      figmaTokens[themeName][category] = convertToFigmaFormat(values, category);
+    if (typeof values === "object" && values !== null && !Array.isArray(values)) {
+      figmaTokens[themeName][category] = convertToFigmaFormat(values as Record<string, string>, category);
     }
   });
 

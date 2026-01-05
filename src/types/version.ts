@@ -2,6 +2,19 @@
 
 export type VersionType = 'major' | 'minor' | 'patch';
 
+// Theme snapshot type for versioning
+export interface ThemeSnapshot {
+  id: string;
+  name: string;
+  description?: string;
+  colors?: Record<string, string>;
+  spacing?: Record<string, string>;
+  typography?: Record<string, string>;
+  borderRadius?: Record<string, string>;
+  shadows?: Record<string, string>;
+  [key: string]: string | Record<string, string> | undefined;
+}
+
 export interface DesignSystemVersion {
   id: string;
   version: string; // semver format: "1.0.0"
@@ -9,12 +22,12 @@ export interface DesignSystemVersion {
   notes: string;
   author?: string;
   changes: VersionChange[];
-  
+
   // Complete snapshot of the system at this version
   snapshot: {
     name: string;
     description: string;
-    themes: any[]; // Full theme data
+    themes: ThemeSnapshot[];
     activeThemeId: string;
   };
 }
@@ -23,8 +36,8 @@ export interface VersionChange {
   type: 'added' | 'modified' | 'removed';
   category: 'colors' | 'typography' | 'spacing' | 'borderRadius' | 'shadows' | 'theme' | 'system';
   path: string; // e.g., "colors.primary", "themes.dark"
-  oldValue?: any;
-  newValue?: any;
+  oldValue?: string;
+  newValue?: string;
   description?: string;
 }
 

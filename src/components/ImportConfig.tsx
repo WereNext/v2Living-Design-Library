@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
-import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package } from "lucide-react";
+import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package, Loader2 } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
@@ -32,8 +32,10 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
   const [copied, setCopied] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
-  const [previewTokens, setPreviewTokens] = useState<any>(null);
+  const [previewTokens, setPreviewTokens] = useState<TokenSet | null>(null);
   const [showComponentImport, setShowComponentImport] = useState(false);
+  const [isFileLoading, setIsFileLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const { systems, activeSystemId } = useDesignSystems();
 
@@ -74,49 +76,57 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
 
   const currentTokens = getCurrentTokens();
 
-  const handleImportJSON = () => {
+  const handleImportJSON = async () => {
+    setIsImporting(true);
     try {
       const parsed = JSON.parse(jsonConfig);
-      
+
       // Use token utilities to parse and validate
       const tokenSet = parseTokens(parsed);
       const validation = validateTokenSet(tokenSet);
-      
+
       if (!validation.valid) {
         toast.error(`Invalid tokens: ${validation.errors.join(', ')}`);
+        setIsImporting(false);
         return;
       }
-      
+
       // Apply tokens using utility function
       applyTokensToDocument(tokenSet);
       setValidationError("");
       toast.success("Design tokens imported successfully!");
-    } catch (error: any) {
-      const errorMessage = error.message || "Invalid JSON format. Please check your input.";
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid JSON format. Please check your input.";
       setValidationError(errorMessage);
       toast.error(errorMessage);
+    } finally {
+      setIsImporting(false);
     }
   };
 
-  const handleImportCSS = () => {
+  const handleImportCSS = async () => {
+    setIsImporting(true);
     try {
       // Parse CSS variables using utility function
       const tokenSet = parseCSSVariables(cssVariables);
       const validation = validateTokenSet(tokenSet);
-      
+
       if (!validation.valid) {
         toast.error(`Invalid tokens: ${validation.errors.join(', ')}`);
+        setIsImporting(false);
         return;
       }
-      
+
       // Apply tokens
       applyTokensToDocument(tokenSet);
       setValidationError("");
       toast.success("CSS variables imported successfully!");
-    } catch (error: any) {
-      const errorMessage = error.message || "Error importing CSS variables.";
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Error importing CSS variables.";
       setValidationError(errorMessage);
       toast.error(errorMessage);
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -220,9 +230,11 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
             <Input
               type="file"
               accept=".json,.css"
+              disabled={isFileLoading}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  setIsFileLoading(true);
                   const reader = new FileReader();
                   reader.onload = (event) => {
                     const content = event.target?.result as string;
@@ -246,6 +258,11 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
                         toast.error("Invalid CSS file");
                       }
                     }
+                    setIsFileLoading(false);
+                  };
+                  reader.onerror = () => {
+                    toast.error("Error reading file");
+                    setIsFileLoading(false);
                   };
                   reader.readAsText(file);
                 }
@@ -253,11 +270,15 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
               className="hidden"
               id="file-upload"
             />
-            <label htmlFor="file-upload" className="cursor-pointer">
+            <label htmlFor="file-upload" className={`cursor-pointer ${isFileLoading ? 'opacity-50 pointer-events-none' : ''}`}>
               <div className="flex flex-col items-center gap-2">
-                <Upload className="w-8 h-8 text-muted-foreground" />
+                {isFileLoading ? (
+                  <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                ) : (
+                  <Upload className="w-8 h-8 text-muted-foreground" />
+                )}
                 <p className="text-sm">
-                  Click to upload or drag and drop
+                  {isFileLoading ? "Processing file..." : "Click to upload or drag and drop"}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   JSON or CSS files only
@@ -382,9 +403,18 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
                     className="font-mono text-xs h-48 mt-2"
                   />
                 </div>
-                <Button onClick={handleImportJSON} className="w-full">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import JSON
+                <Button onClick={handleImportJSON} className="w-full" disabled={isImporting || !jsonConfig}>
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import JSON
+                    </>
+                  )}
                 </Button>
                 <Button onClick={handlePreview} variant="outline" className="w-full">
                   <Eye className="w-4 h-4 mr-2" />
@@ -403,9 +433,18 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
                     className="font-mono text-xs h-48 mt-2"
                   />
                 </div>
-                <Button onClick={handleImportCSS} className="w-full">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import CSS
+                <Button onClick={handleImportCSS} className="w-full" disabled={isImporting || !cssVariables}>
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import CSS
+                    </>
+                  )}
                 </Button>
               </TabsContent>
             </Tabs>

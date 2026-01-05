@@ -1,6 +1,21 @@
 // Utility functions for design system versioning
 
-import { DesignSystemVersion, VersionChange, VersionType, VersionComparison } from '../types/version';
+import { DesignSystemVersion, VersionChange, VersionType, VersionComparison, ThemeSnapshot } from '../types/version';
+
+// System input type for createVersionSnapshot
+interface SystemInput {
+  name: string;
+  description?: string;
+  themes: ThemeSnapshot[];
+  activeThemeId?: string;
+}
+
+// Snapshot type for detectChanges
+interface SystemSnapshot {
+  name?: string;
+  description?: string;
+  themes?: ThemeSnapshot[];
+}
 
 /**
  * Parse semantic version string
@@ -59,7 +74,7 @@ export function getLatestVersion(versions: DesignSystemVersion[]): DesignSystemV
  * Create version snapshot from design system
  */
 export function createVersionSnapshot(
-  system: any,
+  system: SystemInput,
   versionType: VersionType,
   notes: string,
   previousVersion?: DesignSystemVersion,
@@ -82,9 +97,9 @@ export function createVersionSnapshot(
     changes,
     snapshot: {
       name: system.name,
-      description: system.description,
-      themes: JSON.parse(JSON.stringify(system.themes)), // Deep clone
-      activeThemeId: system.activeThemeId,
+      description: system.description || '',
+      themes: JSON.parse(JSON.stringify(system.themes)) as ThemeSnapshot[], // Deep clone
+      activeThemeId: system.activeThemeId || '',
     },
   };
 }
@@ -92,16 +107,16 @@ export function createVersionSnapshot(
 /**
  * Detect changes between two system snapshots
  */
-export function detectChanges(oldSnapshot: any, newSnapshot: any): VersionChange[] {
+export function detectChanges(oldSnapshot: SystemSnapshot, newSnapshot: SystemSnapshot): VersionChange[] {
   const changes: VersionChange[] = [];
-  
+
   // Compare themes
   const oldThemes = oldSnapshot.themes || [];
   const newThemes = newSnapshot.themes || [];
-  
+
   // Find added themes
-  newThemes.forEach((newTheme: any) => {
-    const oldTheme = oldThemes.find((t: any) => t.id === newTheme.id);
+  newThemes.forEach((newTheme: ThemeSnapshot) => {
+    const oldTheme = oldThemes.find((t: ThemeSnapshot) => t.id === newTheme.id);
     if (!oldTheme) {
       changes.push({
         type: 'added',
@@ -116,10 +131,10 @@ export function detectChanges(oldSnapshot: any, newSnapshot: any): VersionChange
       changes.push(...themeChanges);
     }
   });
-  
+
   // Find removed themes
-  oldThemes.forEach((oldTheme: any) => {
-    const newTheme = newThemes.find((t: any) => t.id === oldTheme.id);
+  oldThemes.forEach((oldTheme: ThemeSnapshot) => {
+    const newTheme = newThemes.find((t: ThemeSnapshot) => t.id === oldTheme.id);
     if (!newTheme) {
       changes.push({
         type: 'removed',
@@ -130,7 +145,7 @@ export function detectChanges(oldSnapshot: any, newSnapshot: any): VersionChange
       });
     }
   });
-  
+
   // Compare system-level properties
   if (oldSnapshot.name !== newSnapshot.name) {
     changes.push({
@@ -142,7 +157,7 @@ export function detectChanges(oldSnapshot: any, newSnapshot: any): VersionChange
       description: `Renamed system from "${oldSnapshot.name}" to "${newSnapshot.name}"`,
     });
   }
-  
+
   if (oldSnapshot.description !== newSnapshot.description) {
     changes.push({
       type: 'modified',
@@ -153,30 +168,33 @@ export function detectChanges(oldSnapshot: any, newSnapshot: any): VersionChange
       description: 'Updated system description',
     });
   }
-  
+
   return changes;
 }
+
+// Token category type for version changes
+type TokenCategory = 'colors' | 'spacing' | 'typography' | 'borderRadius' | 'shadows';
 
 /**
  * Compare tokens between two theme snapshots
  */
-function compareThemeTokens(oldTheme: any, newTheme: any): VersionChange[] {
+function compareThemeTokens(oldTheme: ThemeSnapshot, newTheme: ThemeSnapshot): VersionChange[] {
   const changes: VersionChange[] = [];
-  const categories = ['colors', 'spacing', 'typography', 'borderRadius', 'shadows'];
-  
+  const categories: TokenCategory[] = ['colors', 'spacing', 'typography', 'borderRadius', 'shadows'];
+
   categories.forEach(category => {
     const oldTokens = oldTheme[category] || {};
     const newTokens = newTheme[category] || {};
-    
+
     // Find added and modified tokens
     Object.keys(newTokens).forEach(key => {
-      const oldValue = oldTokens[key];
-      const newValue = newTokens[key];
-      
+      const oldValue = (oldTokens as Record<string, string>)[key];
+      const newValue = (newTokens as Record<string, string>)[key];
+
       if (oldValue === undefined) {
         changes.push({
           type: 'added',
-          category: category as any,
+          category: category,
           path: `themes.${newTheme.id}.${category}.${key}`,
           newValue,
           description: `Added ${category} token "${key}"`,
@@ -184,7 +202,7 @@ function compareThemeTokens(oldTheme: any, newTheme: any): VersionChange[] {
       } else if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
         changes.push({
           type: 'modified',
-          category: category as any,
+          category: category,
           path: `themes.${newTheme.id}.${category}.${key}`,
           oldValue,
           newValue,
@@ -192,21 +210,21 @@ function compareThemeTokens(oldTheme: any, newTheme: any): VersionChange[] {
         });
       }
     });
-    
+
     // Find removed tokens
     Object.keys(oldTokens).forEach(key => {
-      if (newTokens[key] === undefined) {
+      if ((newTokens as Record<string, string>)[key] === undefined) {
         changes.push({
           type: 'removed',
-          category: category as any,
+          category: category,
           path: `themes.${newTheme.id}.${category}.${key}`,
-          oldValue: oldTokens[key],
+          oldValue: (oldTokens as Record<string, string>)[key],
           description: `Removed ${category} token "${key}"`,
         });
       }
     });
   });
-  
+
   return changes;
 }
 

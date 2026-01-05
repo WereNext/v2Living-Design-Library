@@ -29,17 +29,35 @@ export interface MultiThemeSystem {
   themes: Theme[];
 }
 
+// Figma color value type
+interface FigmaColorValue {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+}
+
+// Figma variable mode value can be color, number, string, or boolean
+type FigmaModeValue = FigmaColorValue | number | string | boolean;
+
 export interface FigmaVariable {
   id: string;
   name: string;
   resolvedType: 'COLOR' | 'FLOAT' | 'STRING' | 'BOOLEAN';
-  valuesByMode: Record<string, any>;
+  valuesByMode: Record<string, FigmaModeValue>;
+}
+
+export interface FigmaCollection {
+  id: string;
+  name: string;
+  modes: Array<{ modeId: string; name: string }>;
+  variableIds: string[];
 }
 
 export interface FigmaExport {
   name?: string;
   variables?: FigmaVariable[];
-  collections?: any[];
+  collections?: FigmaCollection[];
 }
 
 /**
@@ -54,25 +72,48 @@ export interface FigmaExport {
  * - CSS Variables
  * - Any nested structure
  */
-export function parseTokens(input: any): TokenSet {
+// Input types for parseTokens
+type TokenInput =
+  | { tokens: Partial<TokenSet> }
+  | FigmaExport
+  | NestedTokenStructure
+  | Partial<TokenSet>;
+
+// Nested token structure (W3C, Style Dictionary, etc.)
+interface TokenWithValue {
+  $value?: string | number;
+  value?: string | number;
+  $type?: string;
+  type?: string;
+}
+
+type NestedTokenValue = string | number | TokenWithValue | NestedTokenStructure;
+
+interface NestedTokenStructure {
+  [key: string]: NestedTokenValue;
+}
+
+export function parseTokens(input: TokenInput): TokenSet {
+  const inputRecord = input as Record<string, unknown>;
+
   // Already in standard format
-  if (input.tokens && typeof input.tokens === 'object') {
-    return normalizeTokenSet(input.tokens);
+  if (inputRecord.tokens && typeof inputRecord.tokens === 'object') {
+    return normalizeTokenSet(inputRecord.tokens as Partial<TokenSet>);
   }
 
   // Figma Variables format
-  if (input.variables && Array.isArray(input.variables)) {
-    return parseFigmaVariables(input);
+  if (inputRecord.variables && Array.isArray(inputRecord.variables)) {
+    return parseFigmaVariables(input as FigmaExport);
   }
-  
+
   // W3C Design Tokens format (nested with $value or value)
   if (isNestedTokenStructure(input)) {
-    return parseNestedTokens(input);
+    return parseNestedTokens(input as NestedTokenStructure);
   }
 
   // Direct token object (flat categories)
-  if (input.colors || input.spacing || input.typography) {
-    return normalizeTokenSet(input);
+  if (inputRecord.colors || inputRecord.spacing || inputRecord.typography) {
+    return normalizeTokenSet(input as Partial<TokenSet>);
   }
 
   throw new Error('Unable to parse token format. Please check the structure.');
@@ -81,17 +122,18 @@ export function parseTokens(input: any): TokenSet {
 /**
  * Check if input is a nested token structure (W3C, Style Dictionary, etc.)
  */
-function isNestedTokenStructure(obj: any): boolean {
+function isNestedTokenStructure(obj: unknown): obj is NestedTokenStructure {
   if (!obj || typeof obj !== 'object') return false;
-  
+
   // Check for nested objects with $value or value properties
-  const hasValueProperties = Object.values(obj).some((val: any) => {
+  const hasValueProperties = Object.values(obj as Record<string, unknown>).some((val: unknown) => {
     if (val && typeof val === 'object') {
-      return '$value' in val || 'value' in val || isNestedTokenStructure(val);
+      const valRecord = val as Record<string, unknown>;
+      return '$value' in valRecord || 'value' in valRecord || isNestedTokenStructure(val);
     }
     return false;
   });
-  
+
   return hasValueProperties;
 }
 
@@ -103,7 +145,7 @@ function isNestedTokenStructure(obj: any): boolean {
  * - { "color": { "primary": "#000" } }
  * - Deeply nested structures with any depth
  */
-function parseNestedTokens(input: any, parentPath: string[] = []): TokenSet {
+function parseNestedTokens(input: NestedTokenStructure, _parentPath: string[] = []): TokenSet {
   const tokens: TokenSet = {
     colors: {},
     spacing: {},
@@ -111,24 +153,26 @@ function parseNestedTokens(input: any, parentPath: string[] = []): TokenSet {
     borderRadius: {},
     shadows: {},
   };
-  
-  function traverse(obj: any, path: string[] = []) {
+
+  function traverse(obj: NestedTokenStructure, path: string[] = []) {
     for (const [key, value] of Object.entries(obj)) {
       const currentPath = [...path, key];
-      
+
       // W3C Design Tokens format with $value
-      if (value && typeof value === 'object' && ('$value' in value || 'value' in value)) {
-        const tokenValue = value.$value || value.value;
-        const tokenType = value.$type || value.type;
-        const tokenName = currentPath.join('-');
-        
-        // Use type if available, otherwise infer from path/name
-        const category = inferCategory(tokenType, currentPath.join('/'));
-        addTokenToCategory(tokens, category, tokenName, tokenValue);
-      }
-      // Nested object - traverse deeper
-      else if (value && typeof value === 'object' && !Array.isArray(value)) {
-        traverse(value, currentPath);
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        const valueRecord = value as Record<string, unknown>;
+        if ('$value' in valueRecord || 'value' in valueRecord) {
+          const tokenValue = (valueRecord.$value || valueRecord.value) as string | number;
+          const tokenType = (valueRecord.$type || valueRecord.type) as string | undefined;
+          const tokenName = currentPath.join('-');
+
+          // Use type if available, otherwise infer from path/name
+          const category = inferCategory(tokenType, currentPath.join('/'));
+          addTokenToCategory(tokens, category, tokenName, tokenValue);
+        } else {
+          // Nested object - traverse deeper
+          traverse(value as NestedTokenStructure, currentPath);
+        }
       }
       // Direct value - use path to determine category
       else if (value !== null && value !== undefined) {
@@ -138,7 +182,7 @@ function parseNestedTokens(input: any, parentPath: string[] = []): TokenSet {
       }
     }
   }
-  
+
   traverse(input);
   return tokens;
 }
@@ -180,9 +224,9 @@ function inferCategory(type: string | null | undefined, path: string): keyof Tok
 /**
  * Add token to appropriate category with normalization
  */
-function addTokenToCategory(tokens: TokenSet, category: keyof TokenSet, name: string, value: any) {
+function addTokenToCategory(tokens: TokenSet, category: keyof TokenSet, name: string, value: string | number) {
   const normalizedName = normalizeTokenName(name);
-  
+
   if (category === 'colors') {
     tokens.colors[normalizedName] = normalizeColorValue(String(value));
   } else if (category === 'spacing') {
@@ -706,14 +750,14 @@ ${cssVars}
 
 /**
  * Parse theme-aware tokens with naming convention: {ThemeName}/{Category}/{TokenName}
- * 
+ *
  * Examples:
  * - "Light/colors/primary" -> Theme: Light, Category: colors, Token: primary
  * - "Dark/spacing/md" -> Theme: Dark, Category: spacing, Token: md
- * 
+ *
  * Returns a MultiThemeSystem with all themes grouped
  */
-export function parseThemeAwareTokens(input: Record<string, any>): MultiThemeSystem {
+export function parseThemeAwareTokens(input: Record<string, string | number>): MultiThemeSystem {
   const themeMap = new Map<string, TokenSet>();
   
   // Process each token path
@@ -807,7 +851,7 @@ export function parseThemeAwareTokens(input: Record<string, any>): MultiThemeSys
 function categorizeAndNormalizeToken(
   categoryHint: string,
   tokenName: string,
-  value: any
+  value: string | number
 ): { category: keyof TokenSet; name: string; value: string } {
   const lowerCategory = categoryHint.toLowerCase();
   const lowerName = tokenName.toLowerCase();
@@ -865,7 +909,7 @@ function categorizeAndNormalizeToken(
 /**
  * Check if tokens follow theme-aware naming convention
  */
-export function isThemeAware(input: Record<string, any>): boolean {
+export function isThemeAware(input: Record<string, unknown>): boolean {
   const paths = Object.keys(input);
   
   // Check if majority of paths have at least 2 segments (theme/category)

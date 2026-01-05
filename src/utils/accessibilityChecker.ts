@@ -110,7 +110,11 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   ];
 }
 
-export function validateThemeAccessibility(theme: any): AccessibilityIssue[] {
+interface ThemeWithColors {
+  colors?: Record<string, string>;
+}
+
+export function validateThemeAccessibility(theme: ThemeWithColors): AccessibilityIssue[] {
   const issues: AccessibilityIssue[] = [];
 
   if (!theme.colors) return issues;

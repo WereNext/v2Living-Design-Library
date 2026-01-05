@@ -14,10 +14,10 @@ export function searchTokens(theme: Theme, query: string): TokenSearchResult[] {
   const results: TokenSearchResult[] = [];
   const lowerQuery = query.toLowerCase();
 
-  const searchInObject = (obj: any, category: string, prefix: string = "") => {
+  const searchInObject = (obj: Record<string, unknown>, category: string, prefix: string = "") => {
     Object.entries(obj).forEach(([key, value]) => {
       if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        searchInObject(value, category, prefix ? `${prefix}.${key}` : key);
+        searchInObject(value as Record<string, unknown>, category, prefix ? `${prefix}.${key}` : key);
       } else {
         const fullPath = prefix ? `${category}.${prefix}.${key}` : `${category}.${key}`;
         const valueStr = String(value).toLowerCase();
@@ -70,9 +70,9 @@ export function searchTokens(theme: Theme, query: string): TokenSearchResult[] {
   ];
 
   categories.forEach(category => {
-    const categoryData = (theme as any)[category];
-    if (categoryData) {
-      searchInObject(categoryData, category);
+    const categoryData = (theme as Record<string, unknown>)[category];
+    if (categoryData && typeof categoryData === 'object') {
+      searchInObject(categoryData as Record<string, unknown>, category);
     }
   });
 
@@ -98,7 +98,7 @@ export function filterTokens(
   filters: {
     category?: string;
     modified?: boolean;
-    editedTokens?: Map<string, any>;
+    editedTokens?: Map<string, string>;
   }
 ): TokenSearchResult[] {
   let filtered = [...results];
