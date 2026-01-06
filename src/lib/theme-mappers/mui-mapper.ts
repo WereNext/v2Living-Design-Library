@@ -3,19 +3,46 @@
  */
 import type { ThemeOptions } from '@mui/material/styles';
 import type { Theme } from '../../hooks/useDesignSystems';
-import { parseBorderRadius, parseSpacing, extractThemeColors } from './color-utils';
+import { parseBorderRadius, parseSpacing, extractThemeColors, safeGet } from './color-utils';
+
+/**
+ * Parse transition duration string to number (ms)
+ */
+function parseTransitionDuration(value: string): number {
+  if (value.endsWith('ms')) {
+    return parseFloat(value);
+  }
+  if (value.endsWith('s')) {
+    return parseFloat(value) * 1000;
+  }
+  return parseFloat(value) || 300;
+}
 
 export function mapTokensToMUI(theme: Theme): ThemeOptions {
   const c = extractThemeColors(theme.colors);
 
-  // Parse spacing - use the theme's spacing values or defaults
-  const baseSpacing = parseSpacing(theme.spacing?.md || theme.spacing?.['space-md'] || '1rem');
+  // Parse spacing - use the theme's spacing values or defaults (with multiple key fallbacks)
+  const spacingValue = safeGet(theme.spacing, ['md', 'space-md', 'spacing-md', '4'], '1rem');
+  const baseSpacing = parseSpacing(spacingValue);
 
-  // Parse border radius
-  const borderRadius = parseBorderRadius(theme.borderRadius?.['radius-md'] || theme.borderRadius?.md || '0.5rem');
+  // Parse border radius (with multiple key fallbacks)
+  const radiusValue = safeGet(theme.borderRadius, ['radius-md', 'md', 'base'], '0.5rem');
+  const borderRadius = parseBorderRadius(radiusValue);
 
-  // Parse typography
-  const fontFamily = theme.typography?.['font-sans'] || theme.typography?.['font-family'] || 'Inter, system-ui, sans-serif';
+  // Parse typography (with multiple key fallbacks)
+  const fontFamily = safeGet(theme.typography, ['font-sans', 'font-family', 'fontFamily', 'sans'], 'Inter, system-ui, sans-serif');
+
+  // Parse animation/transition tokens
+  const durationShortest = parseTransitionDuration(safeGet(theme.effects, ['duration-instant', 'duration-fastest', 'transition-fastest'], '150ms'));
+  const durationShort = parseTransitionDuration(safeGet(theme.effects, ['duration-fast', 'transition-fast'], '200ms'));
+  const durationStandard = parseTransitionDuration(safeGet(theme.effects, ['duration-normal', 'duration-base', 'transition-normal'], '300ms'));
+  const durationComplex = parseTransitionDuration(safeGet(theme.effects, ['duration-slow', 'transition-slow'], '375ms'));
+
+  // Parse easing functions
+  const easingEaseInOut = safeGet(theme.effects, ['ease-in-out', 'easing-default'], 'cubic-bezier(0.4, 0, 0.2, 1)');
+  const easingEaseOut = safeGet(theme.effects, ['ease-out', 'easing-decelerate'], 'cubic-bezier(0.0, 0, 0.2, 1)');
+  const easingEaseIn = safeGet(theme.effects, ['ease-in', 'easing-accelerate'], 'cubic-bezier(0.4, 0, 1, 1)');
+  const easingSharp = safeGet(theme.effects, ['ease-sharp', 'easing-sharp'], 'cubic-bezier(0.4, 0, 0.6, 1)');
 
   return {
     palette: {
@@ -94,6 +121,23 @@ export function mapTokensToMUI(theme: Theme): ThemeOptions {
       },
     },
     spacing: baseSpacing / 4, // MUI uses factor * spacing, so we need the base unit
+    transitions: {
+      duration: {
+        shortest: durationShortest,
+        shorter: durationShort,
+        short: durationShort,
+        standard: durationStandard,
+        complex: durationComplex,
+        enteringScreen: durationStandard,
+        leavingScreen: durationShort,
+      },
+      easing: {
+        easeInOut: easingEaseInOut,
+        easeOut: easingEaseOut,
+        easeIn: easingEaseIn,
+        sharp: easingSharp,
+      },
+    },
     components: {
       MuiButton: {
         styleOverrides: {
