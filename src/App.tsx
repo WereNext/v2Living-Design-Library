@@ -25,6 +25,9 @@ import { ActiveThemeProvider } from "./contexts/ActiveThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QuickStartWizard } from "./components/QuickStartWizard";
 import { DecisionGate } from "./components/DecisionGate";
+import { EmptyStateOnboarding } from "./components/EmptyStateOnboarding";
+import { useEmptyStateInit } from "./hooks/useEmptyStateInit";
+import { features } from "./config";
 import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
 import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS, UI_LIBRARY_LABELS } from "./lib/constants";
@@ -161,7 +164,11 @@ function AppContent() {
   const [isThemeSidebarOpen, setIsThemeSidebarOpen] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
   const [showDecisionGate, setShowDecisionGate] = useState(false);
+  const [showEmptyStateOnboarding, setShowEmptyStateOnboarding] = useState(false);
   const [showComponentImport, setShowComponentImport] = useState(false);
+
+  // Empty state initialization
+  const { isFirstVisit, initializeStarterSystems } = useEmptyStateInit();
   
   // Get all state from centralized context
   const {
@@ -195,9 +202,14 @@ function AppContent() {
   useEffect(() => {
     const hasSeenDecisionGate = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_DECISION_GATE);
     if (!hasSeenDecisionGate) {
-      setShowDecisionGate(true);
+      // Use new empty state onboarding if feature is enabled
+      if (features.showEmptyStateOnboarding && isFirstVisit) {
+        setShowEmptyStateOnboarding(true);
+      } else {
+        setShowDecisionGate(true);
+      }
     }
-  }, []);
+  }, [isFirstVisit]);
 
   // Mark decision gate as seen and close it
   const handleCloseDecisionGate = () => {
@@ -222,6 +234,36 @@ function AppContent() {
     handleCloseDecisionGate();
     setShowComponentImport(true);
     setSelectedCategory("imported-components");
+  };
+
+  // === Empty State Onboarding Handlers ===
+  const handleCloseEmptyStateOnboarding = () => {
+    localStorage.setItem(STORAGE_KEYS.HAS_SEEN_DECISION_GATE, 'true');
+    setShowEmptyStateOnboarding(false);
+  };
+
+  const handleEmptyStateImportFigma = () => {
+    handleCloseEmptyStateOnboarding();
+    setSelectedCategory("import-config");
+    toast.success("Let's import your Figma tokens!");
+  };
+
+  const handleEmptyStateImportJson = () => {
+    handleCloseEmptyStateOnboarding();
+    setShowWizard(true);
+  };
+
+  const handleEmptyStateUseStarter = (systemId: string) => {
+    handleCloseEmptyStateOnboarding();
+    initializeStarterSystems();
+    applySystem(systemId);
+    toast.success("Starter library loaded! You can customize it anytime.");
+  };
+
+  const handleEmptyStateSkipToDemo = () => {
+    handleCloseEmptyStateOnboarding();
+    initializeStarterSystems();
+    toast.success("Welcome! Explore the demo components.");
   };
 
   // Mark wizard as seen and close it
@@ -677,6 +719,18 @@ function AppContent() {
         {showDecisionGate && (
           <ErrorBoundary section="Decision Gate" onError={() => setShowDecisionGate(false)}>
             <DecisionGate onClose={handleCloseDecisionGate} onViewDemo={handleViewDemo} onImportSystem={handleImportSystem} onImportComponent={handleImportComponent} />
+          </ErrorBoundary>
+        )}
+        {/* Empty State Onboarding (import-first flow) */}
+        {showEmptyStateOnboarding && (
+          <ErrorBoundary section="Empty State Onboarding" onError={() => setShowEmptyStateOnboarding(false)}>
+            <EmptyStateOnboarding
+              onImportFigma={handleEmptyStateImportFigma}
+              onImportJson={handleEmptyStateImportJson}
+              onUseStarterLibrary={handleEmptyStateUseStarter}
+              onSkipToDemo={handleEmptyStateSkipToDemo}
+              onClose={handleCloseEmptyStateOnboarding}
+            />
           </ErrorBoundary>
         )}
       </SidebarProvider>
