@@ -1,6 +1,6 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui-adapters/Card";
+import { Button } from "../ui-adapters/Button";
 import { Separator } from "../ui/separator";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ScrollArea } from "../ui/scroll-area";

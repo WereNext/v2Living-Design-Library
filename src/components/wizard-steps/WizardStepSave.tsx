@@ -2,8 +2,10 @@ import { Check } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import type { DesignTokens } from '../../types/design-tokens';
 import { getTokenSummary } from '../../lib/wizard-token-parser';
+import { UI_LIBRARIES, UI_LIBRARY_LABELS, UILibrary } from '../../lib/constants';
 
 interface WizardStepSaveProps {
   systemName: string;
@@ -11,6 +13,8 @@ interface WizardStepSaveProps {
   systemDescription: string;
   onSystemDescriptionChange: (description: string) => void;
   tokens: DesignTokens | null;
+  uiLibrary: UILibrary;
+  onUILibraryChange: (library: UILibrary) => void;
 }
 
 export function WizardStepSave({
@@ -19,11 +23,13 @@ export function WizardStepSave({
   systemDescription,
   onSystemDescriptionChange,
   tokens,
+  uiLibrary,
+  onUILibraryChange,
 }: WizardStepSaveProps) {
   const summary = tokens ? getTokenSummary(tokens) : null;
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
+    <div className="space-y-6 max-w-2xl mx-auto">
       <div className="space-y-4">
         <div>
           <Label htmlFor="system-name">Design System Name *</Label>
@@ -46,6 +52,30 @@ export function WizardStepSave({
             className="mt-2"
             rows={3}
           />
+        </div>
+
+        <div>
+          <Label htmlFor="ui-library">UI Component Library</Label>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Choose which component library to use with this design system
+          </p>
+          <Select value={uiLibrary} onValueChange={(value) => onUILibraryChange(value as UILibrary)}>
+            <SelectTrigger id="ui-library" className="mt-1">
+              <SelectValue placeholder="Select a library" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(UI_LIBRARIES).map(([key, value]) => (
+                <SelectItem key={value} value={value}>
+                  <div className="flex flex-col">
+                    <span>{UI_LIBRARY_LABELS[value]}</span>
+                    {value === 'custom' && (
+                      <span className="text-xs text-muted-foreground">Use your imported components</span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

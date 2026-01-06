@@ -1,8 +1,8 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../ui-adapters/Button";
+import { Input } from "../ui-adapters/Input";
 import { Label } from "../ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui-adapters/Card";
 import { Checkbox } from "../ui/checkbox";
 import { Mail, Send, Gift, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner@2.0.3";

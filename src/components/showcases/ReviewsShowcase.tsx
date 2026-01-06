@@ -1,7 +1,7 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui-adapters/Button";
+import { Badge } from "../ui-adapters/Badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui-adapters/Card";
 import { Progress } from "../ui/progress";
 import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
 import { toast } from "sonner@2.0.3";

@@ -30,7 +30,7 @@ export function PricingCard() {
   ];
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <CardTitle>Pro Plan</CardTitle>
@@ -61,7 +61,7 @@ export function PricingCard() {
   );
 }`,
   preview: (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <CardTitle>Pro Plan</CardTitle>

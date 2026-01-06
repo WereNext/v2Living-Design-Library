@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui-adapters/Card";
+import { Button } from "../ui-adapters/Button";
 import { Sparkles } from "lucide-react";
 
 interface PlaceholderShowcaseProps {

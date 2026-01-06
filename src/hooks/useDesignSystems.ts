@@ -4,7 +4,7 @@ import { MATERIAL_THEMES } from '../lib/material-themes';
 import { MINIMALIST_THEMES } from '../lib/minimalist-themes';
 import { CANDY_NEST_THEMES } from '../lib/candy-nest-themes';
 import { DesignSystemVersion, VersionType } from '../types/version';
-import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS } from '../lib/constants';
+import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS, UILibrary, UI_LIBRARIES } from '../lib/constants';
 import { useServices } from '../services/ServiceFactory';
 
 // Theme = A variable set (colors, spacing, typography, etc.)
@@ -43,6 +43,7 @@ export interface DesignSystem {
   name: string;
   description?: string;
   createdAt: string;
+  uiLibrary: UILibrary; // Which UI component library this system uses
   useIcons?: boolean; // Whether to display icons in UI components (default: true)
   // Multiple themes within the system
   themes: Theme[];
@@ -82,6 +83,7 @@ const createDefaultSystem = (): DesignSystem => ({
   name: 'Default Design System',
   description: 'The base design system with 4 curated themes',
   createdAt: new Date().toISOString(),
+  uiLibrary: UI_LIBRARIES.SHADCN,
   themes: DEFAULT_THEMES,
   activeThemeId: THEME_IDS.APPLE,
   intents: [
@@ -121,6 +123,7 @@ const createMaterialSystem = (): DesignSystem => ({
   name: 'Material Design System',
   description: 'Google Material Design 3 with 3 theme variations',
   createdAt: new Date().toISOString(),
+  uiLibrary: UI_LIBRARIES.MUI,
   themes: MATERIAL_THEMES,
   activeThemeId: 'material-light',
   intents: [
@@ -146,6 +149,7 @@ const createMinimalistSystem = (): DesignSystem => ({
   name: 'Minimalist Design System',
   description: 'Clean and refined minimal design with 3 themes',
   createdAt: new Date().toISOString(),
+  uiLibrary: UI_LIBRARIES.CHAKRA,
   useIcons: false, // Minimalist design removes icons for purity
   themes: MINIMALIST_THEMES,
   activeThemeId: 'swiss-minimal',
@@ -172,6 +176,7 @@ const createCandyNestSystem = (): DesignSystem => ({
   name: 'Candy Nest Design System',
   description: 'Editorial design system inspired by premier magazine brands',
   createdAt: new Date().toISOString(),
+  uiLibrary: UI_LIBRARIES.ANTD,
   themes: CANDY_NEST_THEMES,
   activeThemeId: 'gq-theme',
   intents: [
@@ -384,6 +389,7 @@ export function useDesignSystems() {
     const result = await service.create({
       name: newSystem.name,
       description: newSystem.description,
+      uiLibrary: newSystem.uiLibrary,
       useIcons: newSystem.useIcons,
       themes: newSystem.themes,
       intents: newSystem.intents,

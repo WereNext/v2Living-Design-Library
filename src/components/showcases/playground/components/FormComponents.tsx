@@ -112,7 +112,7 @@ import { Label } from "./components/ui/label";
 
 export function CheckboxesSwitches() {
   return (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-4 max-w-lg">
       <div className="flex items-center space-x-2">
         <Checkbox id="terms" />
         <Label htmlFor="terms" className="cursor-pointer">
@@ -144,7 +144,7 @@ export function CheckboxesSwitches() {
   );
 }`,
   preview: (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-4 max-w-lg">
       <div className="flex items-center space-x-2">
         <Checkbox id="demo-terms" />
         <Label htmlFor="demo-terms" className="cursor-pointer">
@@ -184,7 +184,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export function SelectRadio() {
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <div className="space-y-2">
         <Label>Select Framework</Label>
         <Select>
@@ -227,7 +227,7 @@ export function SelectRadio() {
   );
 }`,
   preview: (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <div className="space-y-2">
         <Label>Select Framework</Label>
         <Select>

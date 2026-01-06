@@ -18,7 +18,7 @@ export function SlidersPreview({ theme }: SlidersPreviewProps) {
   const mutedColor = getColor('muted', '#e5e5e5');
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium text-muted-foreground">Volume Slider</h4>

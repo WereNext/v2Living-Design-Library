@@ -5,8 +5,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../ui-adapters/Button";
+import { Input } from "../ui-adapters/Input";
 import { Label } from "../ui/label";
 import { toast } from "sonner@2.0.3";
 import { CalendarDays } from "lucide-react";

@@ -1,6 +1,6 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
+import { Button } from "../ui-adapters/Button";
+import { Badge } from "../ui-adapters/Badge";
 import { Toggle } from "../ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Heart, Share2, Bookmark, Bold, Italic, Underline, ShoppingCart, CreditCard } from "lucide-react";

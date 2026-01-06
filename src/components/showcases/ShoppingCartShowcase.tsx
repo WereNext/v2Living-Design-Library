@@ -1,8 +1,8 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
+import { Button } from "../ui-adapters/Button";
+import { Badge } from "../ui-adapters/Badge";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui-adapters/Card";
+import { Input } from "../ui-adapters/Input";
 import { Minus, Plus, Trash2, ShoppingBag, Tag } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";

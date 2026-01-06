@@ -1,7 +1,7 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
+import { Button } from "../ui-adapters/Button";
+import { Input } from "../ui-adapters/Input";
+import { Badge } from "../ui-adapters/Badge";
 import { ArrowRight, Play, Star, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";

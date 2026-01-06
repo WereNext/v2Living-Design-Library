@@ -1,6 +1,6 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
+import { Button } from "../ui-adapters/Button";
+import { Badge } from "../ui-adapters/Badge";
 import { Home, Search, Bell, User, ShoppingBag, Heart, MessageCircle, PlusCircle } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";

@@ -23,6 +23,7 @@ import {
   WizardStepPreview,
   WizardStepSave,
 } from './wizard-steps';
+import { UILibrary, UI_LIBRARIES } from '../lib/constants';
 
 interface QuickStartWizardProps {
   onClose: () => void;
@@ -68,6 +69,7 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
   const [systemDescription, setSystemDescription] = useState('');
   const [parsedTokens, setParsedTokens] = useState<DesignTokens | null>(null);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('visual');
+  const [uiLibrary, setUILibrary] = useState<UILibrary>(UI_LIBRARIES.SHADCN);
 
   const { addDesignSystem } = useAppState();
 
@@ -128,6 +130,7 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
       id: systemName.toLowerCase().replace(/\s+/g, '-'),
       name: systemName,
       description: systemDescription,
+      uiLibrary,
       themes: [theme],
       activeThemeId: theme.id,
       intents: [
@@ -224,6 +227,8 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
               systemDescription={systemDescription}
               onSystemDescriptionChange={setSystemDescription}
               tokens={parsedTokens}
+              uiLibrary={uiLibrary}
+              onUILibraryChange={setUILibrary}
             />
           )}
         </div>

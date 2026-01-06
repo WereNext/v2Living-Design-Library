@@ -22,7 +22,7 @@ export function InputsPreview({ theme }: InputsPreviewProps) {
   };
 
   return (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-4 max-w-lg">
       <h4 className="text-sm font-medium text-muted-foreground">Text Inputs</h4>
       <div className="grid gap-4">
         <input

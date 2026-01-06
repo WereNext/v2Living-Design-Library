@@ -1,7 +1,7 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
+import { Button } from "../ui-adapters/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui-adapters/Card";
+import { Input } from "../ui-adapters/Input";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { ChevronRight, Check } from "lucide-react";

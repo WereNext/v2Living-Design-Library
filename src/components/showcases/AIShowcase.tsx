@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../ui-adapters/Button";
+import { Input } from "../ui-adapters/Input";
 import { Textarea } from "../ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui-adapters/Card";
+import { Badge } from "../ui-adapters/Badge";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";

@@ -1,6 +1,6 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Badge } from "../ui/badge";
-import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui-adapters/Badge";
+import { Card, CardContent } from "../ui-adapters/Card";
 import { Quote } from "lucide-react";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 

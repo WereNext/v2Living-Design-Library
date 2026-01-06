@@ -11,7 +11,7 @@ function SliderProgressPreview() {
   const progress = 60;
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <div className="space-y-2">
         <Label>Volume: {sliderValue[0]}%</Label>
         <Slider
@@ -53,7 +53,7 @@ export function SliderProgress() {
   const [value, setValue] = useState([50]);
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <div className="space-y-2">
         <Label>Volume: {value[0]}%</Label>
         <Slider

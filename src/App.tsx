@@ -27,7 +27,8 @@ import { QuickStartWizard } from "./components/QuickStartWizard";
 import { DecisionGate } from "./components/DecisionGate";
 import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
-import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS } from "./lib/constants";
+import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS, UI_LIBRARY_LABELS } from "./lib/constants";
+import { UILibraryProvider } from "./providers/UILibraryProvider";
 import { dataMigrationService } from "./services/migration";
 
 // Web App Categories (default)
@@ -341,8 +342,12 @@ function AppContent() {
     // Add more token types as needed
   };
 
+  // Get the UI library from the active system (default to shadcn)
+  const activeUILibrary = activeSystem?.uiLibrary || 'shadcn';
+
   return (
     <ActiveThemeProvider activeTheme={activeTheme}>
+      <UILibraryProvider library={activeUILibrary} theme={activeTheme}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <Sidebar>
@@ -365,8 +370,8 @@ function AppContent() {
                       <Palette className="w-3.5 h-3.5" />
                       Design System
                     </Label>
-                    <Select 
-                      value={activeSystemId || designSystems[0]?.id} 
+                    <Select
+                      value={activeSystemId || designSystems[0]?.id}
                       onValueChange={handleDesignSystemChange}
                     >
                       <SelectTrigger id="design-system" className="h-9 bg-background">
@@ -375,11 +380,21 @@ function AppContent() {
                       <SelectContent>
                         {designSystems.map(system => (
                           <SelectItem key={system.id} value={system.id}>
-                            {system.name}
+                            <span className="flex items-center justify-between w-full gap-2">
+                              <span>{system.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {UI_LIBRARY_LABELS[system.uiLibrary] || 'shadcn/ui'}
+                              </span>
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {/* UI Library Badge */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Code2 className="w-3 h-3" />
+                      <span>UI Library: <span className="text-foreground font-medium">{UI_LIBRARY_LABELS[activeUILibrary]}</span></span>
+                    </div>
                   </div>
 
                   {/* Theme Selector */}
@@ -664,6 +679,7 @@ function AppContent() {
           </ErrorBoundary>
         )}
       </SidebarProvider>
+      </UILibraryProvider>
     </ActiveThemeProvider>
   );
 }

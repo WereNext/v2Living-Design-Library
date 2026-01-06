@@ -19,7 +19,7 @@ export function FormsPreview({ theme }: FormsPreviewProps) {
     theme.borderRadius?.[key] || fallback;
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <h4 className="text-sm font-medium text-muted-foreground">Interactive Form Elements</h4>
 
       <div className="space-y-4">

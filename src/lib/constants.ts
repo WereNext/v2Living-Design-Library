@@ -200,6 +200,31 @@ export const VISUAL_FEELS = {
 } as const;
 
 // =============================================================================
+// UI COMPONENT LIBRARIES
+// =============================================================================
+
+export const UI_LIBRARIES = {
+  SHADCN: 'shadcn',
+  MUI: 'mui',
+  CHAKRA: 'chakra',
+  ANTD: 'antd',
+  BOOTSTRAP: 'bootstrap',
+  CUSTOM: 'custom', // User-uploaded custom components
+} as const;
+
+export type UILibrary = typeof UI_LIBRARIES[keyof typeof UI_LIBRARIES];
+
+// UI Library display names for UI
+export const UI_LIBRARY_LABELS: Record<UILibrary, string> = {
+  shadcn: 'shadcn/ui',
+  mui: 'Material UI',
+  chakra: 'Chakra UI',
+  antd: 'Ant Design',
+  bootstrap: 'Bootstrap',
+  custom: 'Custom Library',
+};
+
+// =============================================================================
 // FRAMEWORK OPTIONS (for code generation)
 // =============================================================================
 

@@ -1,5 +1,5 @@
 import { ShowcaseSection } from "../ShowcaseSection";
-import { Input } from "../ui/input";
+import { Input } from "../ui-adapters/Input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
@@ -33,7 +33,7 @@ import { Checkbox } from "./components/ui/checkbox";
 
 export function LoginForm() {
   return (
-    <div className="space-y-4 max-w-sm">
+    <div className="space-y-4 max-w-md">
       <div>
         <Label htmlFor="email">Email</Label>
         <Input 
@@ -72,7 +72,7 @@ import { Label } from "./components/ui/label";
 
 export function SelectExample() {
   return (
-    <div className="max-w-sm">
+    <div className="max-w-md">
       <Label htmlFor="framework">Framework</Label>
       <Select onValueChange={(value) => console.log(value)}>
         <SelectTrigger id="framework">
@@ -99,7 +99,7 @@ export function ControlsExample() {
   const [enabled, setEnabled] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-sm">
+    <div className="space-y-6 max-w-md">
       <div className="flex items-center justify-between">
         <Label htmlFor="notifications">Enable notifications</Label>
         <Switch 
@@ -179,7 +179,7 @@ import { Label } from "./components/ui/label";
 
 export function TextareaExample() {
   return (
-    <div className="max-w-sm">
+    <div className="max-w-md">
       <Label htmlFor="message">Message</Label>
       <Textarea 
         id="message" 
