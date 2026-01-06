@@ -228,12 +228,49 @@ export function isLightTheme(backgroundHsl: string | undefined): boolean {
 
 /**
  * Extract a color from theme with fallback to defaults
+ * Tries multiple key variations for compatibility
  */
 export function getThemeColor(
   colors: Record<string, string> | undefined,
   key: keyof typeof DEFAULT_COLORS
 ): string {
-  return hslStringToHex(colors?.[key] || DEFAULT_COLORS[key]);
+  if (!colors) {
+    return hslStringToHex(DEFAULT_COLORS[key]);
+  }
+
+  // Try the exact key first
+  if (colors[key]) {
+    return hslStringToHex(colors[key]);
+  }
+
+  // Try without hyphen (e.g., "primaryForeground" for "primary-foreground")
+  const camelKey = key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  if (colors[camelKey]) {
+    return hslStringToHex(colors[camelKey]);
+  }
+
+  // Fallback to default
+  return hslStringToHex(DEFAULT_COLORS[key]);
+}
+
+/**
+ * Safely get a value from an object with fallback
+ * Tries multiple key variations
+ */
+export function safeGet<T>(
+  obj: Record<string, T> | undefined,
+  keys: string[],
+  fallback: T
+): T {
+  if (!obj) return fallback;
+
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null) {
+      return obj[key];
+    }
+  }
+
+  return fallback;
 }
 
 /**

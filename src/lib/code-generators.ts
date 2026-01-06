@@ -52,63 +52,151 @@ export function generateCSSVariables(theme: Theme): string {
   return lines.join('\n');
 }
 
+// Helper to normalize color values for Tailwind
+function normalizeTailwindColor(value: string): string {
+  if (value.startsWith('hsl') || value.startsWith('#') || value.startsWith('rgb')) {
+    return value;
+  }
+  // Raw HSL values like "221.2 83.2% 53.3%" -> wrap in hsl()
+  return `hsl(${value})`;
+}
+
+// Helper to build nested color structure for Tailwind
+// Converts flat keys like "primary", "primary-foreground" into nested { primary: { DEFAULT, foreground } }
+function buildNestedColors(colors: Record<string, string>): Record<string, string | Record<string, string>> {
+  const result: Record<string, string | Record<string, string>> = {};
+  const processed = new Set<string>();
+
+  // First pass: identify base colors and their variants
+  const colorGroups: Record<string, Record<string, string>> = {};
+
+  Object.entries(colors).forEach(([key, value]) => {
+    const normalized = normalizeTailwindColor(value);
+
+    // Check if this is a variant (contains hyphen that's not at the start)
+    const lastHyphen = key.lastIndexOf('-');
+    if (lastHyphen > 0) {
+      const potentialBase = key.substring(0, lastHyphen);
+      const variant = key.substring(lastHyphen + 1);
+
+      // Check if the base color exists
+      if (colors[potentialBase] !== undefined) {
+        if (!colorGroups[potentialBase]) {
+          colorGroups[potentialBase] = {};
+        }
+        colorGroups[potentialBase][variant] = normalized;
+        processed.add(key);
+        return;
+      }
+    }
+
+    // This is a base color
+    if (!colorGroups[key]) {
+      colorGroups[key] = {};
+    }
+    colorGroups[key]['DEFAULT'] = normalized;
+    processed.add(key);
+  });
+
+  // Build the result
+  Object.entries(colorGroups).forEach(([base, variants]) => {
+    if (Object.keys(variants).length === 1 && variants['DEFAULT']) {
+      // Single color, no variants - keep flat
+      result[base] = variants['DEFAULT'];
+    } else {
+      // Has variants - use nested structure
+      result[base] = variants;
+    }
+  });
+
+  return result;
+}
+
 // Generate Tailwind Config
 export function generateTailwindConfig(theme: Theme): string {
-  const config: any = {
+  const config: Record<string, unknown> = {
     theme: {
-      extend: {}
+      extend: {} as Record<string, unknown>
     }
   };
-  
-  // Colors
+
+  const extend = (config.theme as Record<string, unknown>).extend as Record<string, unknown>;
+
+  // Colors - properly nested structure
   if (theme.colors) {
-    config.theme.extend.colors = {};
-    Object.entries(theme.colors).forEach(([key, value]) => {
-      const cssValue = value.startsWith('hsl') || value.startsWith('#') || value.startsWith('rgb') 
-        ? value 
-        : `hsl(${value})`;
-      config.theme.extend.colors[key] = cssValue;
-    });
+    extend.colors = buildNestedColors(theme.colors);
   }
-  
+
   // Font Family
   if (theme.typography) {
-    config.theme.extend.fontFamily = {};
+    const fontFamily: Record<string, string[]> = {};
     Object.entries(theme.typography).forEach(([key, value]) => {
       if (key.includes('font-')) {
         const fontName = key.replace('font-', '');
-        config.theme.extend.fontFamily[fontName] = [value];
+        fontFamily[fontName] = [value, 'system-ui', 'sans-serif'];
       }
     });
+    if (Object.keys(fontFamily).length > 0) {
+      extend.fontFamily = fontFamily;
+    }
   }
-  
-  // Spacing
+
+  // Spacing - clean up keys
   if (theme.spacing) {
-    config.theme.extend.spacing = {};
+    const spacing: Record<string, string> = {};
     Object.entries(theme.spacing).forEach(([key, value]) => {
-      config.theme.extend.spacing[key] = value;
+      // Remove prefixes like "space-" or "spacing-"
+      const cleanKey = key.replace(/^(space-|spacing-)/, '');
+      spacing[cleanKey] = value;
     });
+    extend.spacing = spacing;
   }
-  
+
   // Border Radius
   if (theme.borderRadius) {
-    config.theme.extend.borderRadius = {};
+    const borderRadius: Record<string, string> = {};
     Object.entries(theme.borderRadius).forEach(([key, value]) => {
       const radiusName = key.replace('radius-', '');
-      config.theme.extend.borderRadius[radiusName] = value;
+      borderRadius[radiusName] = value;
     });
+    extend.borderRadius = borderRadius;
   }
-  
+
   // Box Shadow
   if (theme.shadows) {
-    config.theme.extend.boxShadow = {};
+    const boxShadow: Record<string, string> = {};
     Object.entries(theme.shadows).forEach(([key, value]) => {
       const shadowName = key.replace('shadow-', '');
-      config.theme.extend.boxShadow[shadowName] = value;
+      boxShadow[shadowName] = value;
     });
+    extend.boxShadow = boxShadow;
   }
-  
-  return `/** @type {import('tailwindcss').Config} */\nexport default ${JSON.stringify(config, null, 2)}`;
+
+  // Animation tokens (if present)
+  if (theme.effects) {
+    const transitionDuration: Record<string, string> = {};
+    const transitionTimingFunction: Record<string, string> = {};
+
+    Object.entries(theme.effects).forEach(([key, value]) => {
+      if (key.includes('duration')) {
+        const name = key.replace(/^(duration-|transition-)/, '');
+        transitionDuration[name] = value;
+      } else if (key.includes('ease') || key.includes('timing')) {
+        const name = key.replace(/^(ease-|timing-)/, '');
+        transitionTimingFunction[name] = value;
+      }
+    });
+
+    if (Object.keys(transitionDuration).length > 0) {
+      extend.transitionDuration = transitionDuration;
+    }
+    if (Object.keys(transitionTimingFunction).length > 0) {
+      extend.transitionTimingFunction = transitionTimingFunction;
+    }
+  }
+
+  return `/** @type {import('tailwindcss').Config} */
+export default ${JSON.stringify(config, null, 2)}`;
 }
 
 // Generate React Component using tokens
