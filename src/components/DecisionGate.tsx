@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Eye, Upload, Sparkles, Package, FileImage } from "lucide-react";
+import { branding } from "../config";
 
 interface DecisionGateProps {
   onViewDemo: () => void;
@@ -18,9 +19,9 @@ export function DecisionGate({ onViewDemo, onImportSystem, onImportComponent, on
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-4xl mb-4">Welcome to Living Design Library</h1>
+          <h1 className="text-4xl mb-4">{branding.welcomeMessage}</h1>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            Choose how you'd like to get started with your interactive component showcase and design system builder.
+            {branding.welcomeDescription}
           </p>
         </div>
 

@@ -28,6 +28,7 @@ import { DecisionGate } from "./components/DecisionGate";
 import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
 import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS, UI_LIBRARY_LABELS } from "./lib/constants";
+import { branding } from "./config";
 import { UILibraryProvider } from "./providers/UILibraryProvider";
 import { dataMigrationService } from "./services/migration";
 
@@ -353,8 +354,8 @@ function AppContent() {
           <Sidebar>
             <SidebarContent>
               <div className="p-4 sm:p-6">
-                <h1 className="text-xl sm:text-2xl">Living Design Library</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">Build, customize, and export production-ready components</p>
+                <h1 className="text-xl sm:text-2xl">{branding.appName}</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{branding.tagline}</p>
               </div>
 
               {/* DESIGN FOUNDATION SECTION */}
