@@ -45,21 +45,28 @@ export function EmptyStateOnboarding({
   const defaultSystem = getDefaultStarterSystem();
 
   return (
-    <div className="fixed inset-0 z-50 bg-background min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-5xl w-full">
-        {/* Welcome Step */}
-        {step === 'welcome' && (
-          <>
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                <Sparkles className="w-10 h-10 text-primary" />
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 50,
+      backgroundColor: 'var(--background)',
+      overflow: 'auto',
+      padding: '1rem',
+    }}>
+      <div style={{ minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+        <div style={{ maxWidth: '64rem', width: '100%', margin: '0 auto', display: 'block' }}>
+          {/* Welcome Step */}
+          {step === 'welcome' && (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                <div style={{ width: '5rem', height: '5rem', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '1.5rem', background: 'linear-gradient(to bottom right, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05))' }}>
+                  <Sparkles className="w-10 h-10 text-primary" />
+                </div>
+                <h1 className="text-4xl font-bold mb-4">{branding.welcomeMessage}</h1>
+                <p style={{ maxWidth: '42rem', margin: '0 auto' }} className="text-muted-foreground text-lg leading-relaxed">
+                  Create production-ready design systems from your Figma tokens, or start with our pre-built libraries and customize from there.
+                </p>
               </div>
-              <h1 className="text-4xl font-bold mb-4">{branding.welcomeMessage}</h1>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Create production-ready design systems from your Figma tokens,
-                or start with our pre-built libraries and customize from there.
-              </p>
-            </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
               {/* Import Your Own - Primary CTA */}
@@ -73,9 +80,9 @@ export function EmptyStateOnboarding({
                     Recommended
                   </span>
                 </div>
-                <CardHeader className="relative pt-10">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="w-7 h-7 text-primary-foreground" />
+                <CardHeader className="relative pt-8">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Upload className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <CardTitle className="text-2xl">Import Your Design System</CardTitle>
                   <CardDescription className="text-base">
@@ -110,9 +117,9 @@ export function EmptyStateOnboarding({
                 onClick={() => setStep('starter-choice')}
               >
                 <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-muted/50 to-transparent rounded-bl-full" />
-                <CardHeader className="relative pt-10">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-muted-foreground/20 to-muted flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Layers className="w-7 h-7 text-muted-foreground" />
+                <CardHeader className="relative pt-8">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted-foreground/20 to-muted flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Layers className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <CardTitle className="text-2xl">Start with a Template</CardTitle>
                   <CardDescription className="text-base">
@@ -150,7 +157,7 @@ export function EmptyStateOnboarding({
                 Skip and explore the demo
               </button>
             </p>
-          </>
+          </div>
         )}
 
         {/* Import Choice Step */}
@@ -163,9 +170,9 @@ export function EmptyStateOnboarding({
               ← Back
             </button>
 
-            <div className="text-center mb-10">
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <h2 className="text-3xl font-bold mb-3">How would you like to import?</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
+              <p style={{ maxWidth: '36rem', margin: '0 auto' }} className="text-muted-foreground">
                 Choose your preferred method to bring your design tokens into {branding.appName}
               </p>
             </div>
@@ -247,9 +254,9 @@ export function EmptyStateOnboarding({
               ← Back
             </button>
 
-            <div className="text-center mb-10">
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <h2 className="text-3xl font-bold mb-3">Choose a Starter Template</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
+              <p style={{ maxWidth: '36rem', margin: '0 auto' }} className="text-muted-foreground">
                 Select a pre-built design system to start with. You can customize everything later.
               </p>
             </div>
@@ -263,7 +270,10 @@ export function EmptyStateOnboarding({
                       ? 'border-primary bg-primary/5'
                       : 'hover:border-muted-foreground/50'
                   }`}
-                  onClick={() => setSelectedStarter(system.id)}
+                  onClick={() => {
+                    console.log('[EmptyStateOnboarding] Card clicked, setting selectedStarter to:', system.id);
+                    setSelectedStarter(system.id);
+                  }}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
@@ -306,7 +316,13 @@ export function EmptyStateOnboarding({
               <Button
                 size="lg"
                 disabled={!selectedStarter}
-                onClick={() => selectedStarter && onUseStarterLibrary(selectedStarter)}
+                onClick={() => {
+                  console.log('[EmptyStateOnboarding] Button clicked, selectedStarter:', selectedStarter);
+                  if (selectedStarter) {
+                    console.log('[EmptyStateOnboarding] Calling onUseStarterLibrary');
+                    onUseStarterLibrary(selectedStarter);
+                  }
+                }}
               >
                 Use This Template
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -314,6 +330,7 @@ export function EmptyStateOnboarding({
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );

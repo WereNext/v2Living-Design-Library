@@ -12,10 +12,18 @@ interface DecisionGateProps {
 
 export function DecisionGate({ onViewDemo, onImportSystem, onImportComponent, onClose }: DecisionGateProps) {
   return (
-    <div className="fixed inset-0 z-50 bg-background min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl w-full">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 50,
+      backgroundColor: 'var(--background)',
+      overflow: 'auto',
+      padding: '1rem',
+    }}>
+      <div style={{ minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: '80rem', width: '100%', display: 'block' }}>
         {/* Header */}
-        <div className="text-center mb-12">
+        <div style={{ textAlign: 'center', marginBottom: '3rem', width: '100%', display: 'block' }}>
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
@@ -184,6 +192,7 @@ export function DecisionGate({ onViewDemo, onImportSystem, onImportComponent, on
         <p className="text-center text-sm text-muted-foreground mt-8">
           You can always switch between demo mode and your custom systems later
         </p>
+        </div>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ interface EmptyStateInitResult {
   isInitialized: boolean;
   isFirstVisit: boolean;
   hasStarterSystems: boolean;
-  initializeStarterSystems: () => void;
+  initializeStarterSystems: (applySystemId?: string) => void;
   resetToEmptyState: () => void;
 }
 
@@ -28,7 +28,7 @@ interface EmptyStateInitResult {
  * Hook to manage empty state initialization
  */
 export function useEmptyStateInit(): EmptyStateInitResult {
-  const { designSystems, addDesignSystem, setActiveSystemId } = useAppState();
+  const { designSystems, addDesignSystem, applySystem } = useAppState();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
 
@@ -46,8 +46,9 @@ export function useEmptyStateInit(): EmptyStateInitResult {
 
   /**
    * Initialize the app with starter design systems
+   * @param applySystemId - Optional system ID to set as active (defaults to the default starter)
    */
-  const initializeStarterSystems = useCallback(() => {
+  const initializeStarterSystems = useCallback((applySystemId?: string) => {
     if (!EMPTY_STATE_CONFIG.preloadDemoSystems) {
       return;
     }
@@ -93,13 +94,13 @@ export function useEmptyStateInit(): EmptyStateInitResult {
       addDesignSystem(newSystem);
     });
 
-    // Set the default system as active
-    const defaultSystem = getDefaultStarterSystem();
-    setActiveSystemId(defaultSystem.id);
+    // Set the specified system as active, or fall back to default
+    const targetSystemId = applySystemId || getDefaultStarterSystem().id;
+    applySystem(targetSystemId);
 
     // Mark as initialized
     localStorage.setItem(STORAGE_KEYS.DESIGN_SYSTEMS_INITIALIZED, 'true');
-  }, [designSystems, addDesignSystem, setActiveSystemId]);
+  }, [designSystems, addDesignSystem, applySystem]);
 
   /**
    * Reset to a clean empty state (for testing or white-label setup)

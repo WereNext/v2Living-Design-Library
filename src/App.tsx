@@ -28,6 +28,7 @@ import { DecisionGate } from "./components/DecisionGate";
 import { EmptyStateOnboarding } from "./components/EmptyStateOnboarding";
 import { useEmptyStateInit } from "./hooks/useEmptyStateInit";
 import { features } from "./config";
+import { DevPreview, parseDevHash } from "./components/DevPreview";
 import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
 import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS, UI_LIBRARY_LABELS } from "./lib/constants";
@@ -146,6 +147,35 @@ async function handleFirstSignIn(userId: string) {
 }
 
 export default function App() {
+  // Check for dev mode via URL hash (#dev, #dev/onboarding, etc.)
+  const [devMode, setDevMode] = useState(() => parseDevHash());
+
+  // Listen for hash changes
+  useEffect(() => {
+    const handleHashChange = () => setDevMode(parseDevHash());
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Dev mode - render components in isolation (still needs providers for hooks)
+  if (devMode) {
+    return (
+      <ErrorBoundary section="Dev Preview">
+        <AuthProvider>
+          <AppStateProvider>
+            <DevPreview
+              initialComponent={devMode === 'selector' ? null : devMode}
+              onClose={() => {
+                window.location.hash = '';
+                setDevMode(null);
+              }}
+            />
+          </AppStateProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary section="Application">
       <AuthProvider onFirstSignIn={handleFirstSignIn}>
@@ -255,8 +285,11 @@ function AppContent() {
 
   const handleEmptyStateUseStarter = (systemId: string) => {
     handleCloseEmptyStateOnboarding();
-    initializeStarterSystems();
-    applySystem(systemId);
+    initializeStarterSystems(systemId);
+    // Use setTimeout to allow state to update before applying system
+    setTimeout(() => {
+      applySystem(systemId);
+    }, 0);
     toast.success("Starter library loaded! You can customize it anytime.");
   };
 

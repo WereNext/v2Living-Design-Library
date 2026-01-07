@@ -159,8 +159,28 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
   const canProceed = step !== 1 || parsedTokens !== null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-      <div className="bg-card border rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 50,
+      overflow: 'auto',
+      padding: '1rem',
+      backgroundColor: 'rgba(var(--background), 0.8)',
+      backdropFilter: 'blur(4px)',
+    }}>
+      <div style={{ minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem 0' }}>
+        <div style={{
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '0.5rem',
+          boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+          maxWidth: '56rem',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
         {/* Header */}
         <div className="p-6 border-b flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -191,7 +211,7 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 min-w-0">
           {step === 0 && <WizardStepWelcome />}
 
           {step === 1 && (
@@ -276,6 +296,7 @@ export function QuickStartWizard({ onClose }: QuickStartWizardProps) {
               </>
             )}
           </button>
+        </div>
         </div>
       </div>
     </div>

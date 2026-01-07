@@ -2,15 +2,14 @@ import { Sparkles, Upload, Wand2, Edit3, FileJson } from 'lucide-react';
 
 export function WizardStepWelcome() {
   return (
-    <div className="space-y-6">
-      <div className="text-center max-w-2xl mx-auto">
+    <div className="space-y-6 w-full min-w-0">
+      <div className="text-center max-w-2xl mx-auto w-full">
         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
         <h3 className="text-2xl mb-3">Let's Build Your Design System</h3>
-        <p className="text-muted-foreground">
-          This wizard will guide you through creating a custom design system with your own tokens.
-          You can upload Figma variables, start from a template, or build from scratch.
+        <p className="text-muted-foreground leading-relaxed">
+          This wizard will guide you through creating a custom design system with your own tokens. You can upload Figma variables, start from a template, or build from scratch.
         </p>
       </div>
 

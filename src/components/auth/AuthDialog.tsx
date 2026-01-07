@@ -85,15 +85,16 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Sign in to sync your designs</DialogTitle>
-          <DialogDescription>
-            Sign in to save your design systems to the cloud, access them from
-            anywhere, and share them with your team.
-          </DialogDescription>
-        </DialogHeader>
+        <div style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+          <h2 style={{ display: 'block', fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.5, marginBottom: '0.5rem' }}>
+            Sign in to sync your designs
+          </h2>
+          <p style={{ display: 'block', fontSize: '0.875rem', color: 'var(--muted-foreground)', lineHeight: 1.5 }}>
+            Sign in to save your design systems to the cloud, access them from anywhere, and share them with your team.
+          </p>
+        </div>
 
-        <div className="space-y-4 py-4">
+        <div style={{ display: 'block', paddingTop: '1rem', paddingBottom: '1rem' }}>
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -116,8 +117,8 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </Button>
         </div>
 
-        <div className="border-t pt-4">
-          <p className="text-sm text-muted-foreground text-center">
+        <div style={{ display: 'block', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+          <p style={{ display: 'block', fontSize: '0.875rem', color: 'var(--muted-foreground)', textAlign: 'center', lineHeight: 1.5 }}>
             You can continue using the app without signing in.
             <br />
             Your data will be stored locally in your browser.
