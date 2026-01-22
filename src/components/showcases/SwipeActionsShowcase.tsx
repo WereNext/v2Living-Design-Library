@@ -2,7 +2,7 @@ import { ShowcaseSection } from "../ShowcaseSection";
 import { Button } from "../ui-adapters/Button";
 import { Card, CardContent } from "../ui-adapters/Card";
 import { Trash2, Archive, Star, Mail } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { useState } from "react";
 

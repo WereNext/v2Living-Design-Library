@@ -3,7 +3,7 @@ import { Button } from "../ui-adapters/Button";
 import { Card, CardContent } from "../ui-adapters/Card";
 import { Badge } from "../ui-adapters/Badge";
 import { Menu, X, Home, Search, User, Settings, Bell, ChevronRight, LogOut } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { useState } from "react";
 

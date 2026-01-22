@@ -8,7 +8,7 @@ import { Theme } from "../../hooks/useDesignSystems";
 import { searchTokens, filterTokens, TokenSearchResult } from "../../utils/tokenSearch";
 import { Button } from "../ui/button";
 import { copyToClipboard } from "../../utils/tokenExporter";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { useTokenEditor } from "../../contexts/TokenEditorContext";
 
 interface TokenSearchProps {

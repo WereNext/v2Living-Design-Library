@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui-adap
 import { Input } from "../ui-adapters/Input";
 import { Label } from "../ui/label";
 import { CreditCard, Lock, ShoppingBag, Truck } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { useState } from "react";
 

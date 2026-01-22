@@ -7,7 +7,7 @@ import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Slider } from "../ui/slider";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { useState } from "react";
 

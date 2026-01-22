@@ -3,7 +3,7 @@ import { Button } from "../ui-adapters/Button";
 import { Badge } from "../ui-adapters/Badge";
 import { Card, CardContent } from "../ui-adapters/Card";
 import { ArrowRight, Bookmark, Share2, Facebook, Twitter, Linkedin, Mail } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { Separator } from "../ui/separator";
 

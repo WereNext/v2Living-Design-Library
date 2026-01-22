@@ -2,7 +2,7 @@ import { ShowcaseSection } from "../ShowcaseSection";
 import { Button } from "../ui-adapters/Button";
 import { Input } from "../ui-adapters/Input";
 import { ArrowRight, Sparkles, Zap, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 
 export function CTABlocksShowcase() {

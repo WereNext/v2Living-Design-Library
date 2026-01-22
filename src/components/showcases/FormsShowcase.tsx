@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "../ui/switch";
 import { Slider } from "../ui/slider";
 import { useState } from "react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { CodePlayground } from "../CodePlayground";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 
@@ -124,7 +124,7 @@ export function ControlsExample() {
 
   const checkboxCode = `import { Checkbox } from "./components/ui/checkbox";
 import { Label } from "./components/ui/label";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function CheckboxExample() {
   return (
@@ -150,7 +150,7 @@ export function CheckboxExample() {
 
   const radioCode = `import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import { Label } from "./components/ui/label";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function RadioExample() {
   return (

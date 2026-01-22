@@ -7,7 +7,7 @@ import { Separator } from "../ui/separator";
 import { Download, Copy, Check, FileCode, Code2 } from "lucide-react";
 import { Theme } from "../../hooks/useDesignSystems";
 import { ExportFormat, exportTokens, downloadTokens, copyToClipboard } from "../../utils/tokenExporter";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { useTokenEditor } from "../../contexts/TokenEditorContext";
 
 interface TokenExporterProps {

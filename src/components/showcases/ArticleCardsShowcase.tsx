@@ -3,7 +3,7 @@ import { Button } from "../ui-adapters/Button";
 import { Badge } from "../ui-adapters/Badge";
 import { Card, CardContent } from "../ui-adapters/Card";
 import { ArrowRight, Bookmark, Clock, User } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 
 export function ArticleCardsShowcase() {

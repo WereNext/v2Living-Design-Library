@@ -7,7 +7,7 @@ import { Separator } from "../ui/separator";
 import { Edit3, RotateCcw, Save, Eye, Code2 } from "lucide-react";
 import { Theme } from "../../hooks/useDesignSystems";
 import { useTokenEditor } from "../../contexts/TokenEditorContext";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface LiveTokenEditorProps {

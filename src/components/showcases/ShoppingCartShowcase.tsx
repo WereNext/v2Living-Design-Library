@@ -4,7 +4,7 @@ import { Badge } from "../ui-adapters/Badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui-adapters/Card";
 import { Input } from "../ui-adapters/Input";
 import { Minus, Plus, Trash2, ShoppingBag, Tag } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { useState } from "react";
 

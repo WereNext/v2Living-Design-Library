@@ -4,7 +4,7 @@ import { Badge } from "../ui-adapters/Badge";
 import { Toggle } from "../ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Heart, Share2, Bookmark, Bold, Italic, Underline, ShoppingCart, CreditCard } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { CodePlayground } from "../CodePlayground";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { ConditionalIcon } from "../ConditionalIcon";
@@ -27,7 +27,7 @@ export function ButtonsShowcase({ designIntent = "web-app" }: ButtonsShowcasePro
   ];
 
   const buttonVariantsCode = `import { Button } from "./components/ui/button";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function ButtonVariants() {
   return (
@@ -46,7 +46,7 @@ export function ButtonVariants() {
 
   const iconButtonsCode = `import { Button } from "./components/ui/button";
 import { Heart, Share2, Bookmark, ShoppingCart, CreditCard } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function IconButtons() {
   return (
@@ -117,7 +117,7 @@ export function ToggleExample() {
 
   const toggleGroupCode = `import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 import { Bold, Italic, Underline } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function TextFormatting() {
   return (

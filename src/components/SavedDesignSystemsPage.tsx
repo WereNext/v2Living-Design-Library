@@ -3,7 +3,7 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { BookOpen, Package, Info } from "lucide-react";
 import { SavedDesignSystems } from "./SavedDesignSystems";
 import { useDesignSystems } from "../hooks/useDesignSystems";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function SavedDesignSystemsPage() {
   const { systems, activeSystemId, applySystem, deleteSystem, exportSystem } = useDesignSystems();

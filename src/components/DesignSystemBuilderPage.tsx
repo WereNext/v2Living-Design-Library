@@ -1,6 +1,6 @@
 import { DesignSystemBuilder } from "./DesignSystemBuilder";
 import { useDesignSystems } from "../hooks/useDesignSystems";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export function DesignSystemBuilderPage() {
   const { addSystem, applySystem } = useDesignSystems();

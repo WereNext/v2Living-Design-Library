@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Plus, X, Check, Sparkles, Target, GripVertical } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import type { ComponentCategory } from "../hooks/useIntentManager";
 
 interface IntentCreatorProps {

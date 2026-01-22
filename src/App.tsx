@@ -5,7 +5,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 import { Palette, Mouse, Layout, Type, Box, Menu, Settings, ChevronLeft, ChevronRight, Code2, Upload, Target, ShoppingBag, CreditCard, Star, Filter, Smartphone, Hand, RefreshCw, AlignLeft, Zap, Megaphone, DollarSign, MessageSquare, Grid3x3, Mail, Plug, Rocket, Package, Sparkles, Layers, Wand2 } from "lucide-react";
 import { Button } from "./components/ui/button";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ImportConfig } from "./components/ImportConfig";
 import { QuickStartGuide } from "./components/QuickStartGuide";
 import { MCPConfig } from "./components/MCPConfig";

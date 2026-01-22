@@ -5,7 +5,7 @@ import { Label } from "../ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui-adapters/Card";
 import { Checkbox } from "../ui/checkbox";
 import { Mail, Send, Gift, Sparkles, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 
 export function EmailCaptureShowcase() {
