@@ -1,9 +1,6 @@
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
-
-// Extend Vitest's expect with jest-dom matchers
-expect.extend(matchers);
+import '@testing-library/jest-dom';
 
 // Cleanup after each test case (e.g., clearing jsdom)
 afterEach(() => {
@@ -55,3 +52,24 @@ global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
 } as any;
+
+// Mock window.location
+delete (window as any).location;
+window.location = {
+  hash: '',
+  host: 'localhost:3000',
+  hostname: 'localhost',
+  href: 'http://localhost:3000',
+  origin: 'http://localhost:3000',
+  pathname: '/',
+  port: '3000',
+  protocol: 'http:',
+  search: '',
+  assign: vi.fn(),
+  reload: vi.fn(),
+  replace: vi.fn(),
+} as any;
+
+// Mock window.history
+window.history.replaceState = vi.fn();
+window.history.pushState = vi.fn();

@@ -6,14 +6,6 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from './ui/dialog';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
@@ -37,16 +29,19 @@ import {
   Palette,
   Box,
   Type,
-  Layers
+  Layers,
+  Target,
+  X,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 import {
   parse,
   validate,
   generate,
   detectFormat,
-  formatIssues,
   LDLTokenDocument,
   ValidationIssue,
   InputFormat,
@@ -54,10 +49,16 @@ import {
   isColorWithForeground
 } from '../lib/ldl';
 
+interface DesignSystemIntent {
+  id: string;
+  label: string;
+  description?: string;
+}
+
 interface LDLImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (document: LDLTokenDocument, css: string) => void;
+  onImport: (document: LDLTokenDocument, css: string, selectedIntent?: DesignSystemIntent) => void;
 }
 
 const FORMAT_LABELS: Record<InputFormat, { label: string; icon: string; color: string }> = {
@@ -115,20 +116,6 @@ const EXAMPLE_TEMPLATES = {
     }
   }
 }`,
-  figma: `{
-  "meta": {
-    "variables": {
-      "var1": {
-        "id": "var1",
-        "name": "colors/primary",
-        "resolvedType": "COLOR",
-        "valuesByMode": {
-          "mode1": { "r": 0.231, "g": 0.51, "b": 0.965, "a": 1 }
-        }
-      }
-    }
-  }
-}`,
   tokensStudio: `{
   "$themes": [],
   "global": {
@@ -143,6 +130,12 @@ const EXAMPLE_TEMPLATES = {
 }`
 };
 
+const STEPS = [
+  { title: 'Import', description: 'Paste or upload tokens' },
+  { title: 'Preview', description: 'Review your tokens' },
+  { title: 'Export', description: 'Choose output format' },
+];
+
 export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialogProps) {
   const [input, setInput] = useState('');
   const [detectedFormat, setDetectedFormat] = useState<InputFormat>('unknown');
@@ -150,9 +143,11 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'paste' | 'preview' | 'export'>('paste');
+  const [step, setStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const [selectedExportFormat, setSelectedExportFormat] = useState<OutputFormat>('css');
+  const [availableIntents, setAvailableIntents] = useState<DesignSystemIntent[]>([]);
+  const [selectedIntent, setSelectedIntent] = useState<DesignSystemIntent | null>(null);
 
   // Process input whenever it changes
   const processInput = useCallback((text: string) => {
@@ -161,18 +156,33 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
       setParsedDocument(null);
       setValidationIssues([]);
       setParseErrors([]);
+      setAvailableIntents([]);
+      setSelectedIntent(null);
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // Detect format first
       const parsed = JSON.parse(text);
       const format = detectFormat(parsed);
       setDetectedFormat(format);
 
-      // Parse to LDL
+      if (parsed.intents && Array.isArray(parsed.intents)) {
+        const intents: DesignSystemIntent[] = parsed.intents.map((intent: Record<string, string>) => ({
+          id: intent.id,
+          label: intent.label,
+          description: intent.description
+        }));
+        setAvailableIntents(intents);
+        if (intents.length > 0) {
+          setSelectedIntent(intents[0]);
+        }
+      } else {
+        setAvailableIntents([]);
+        setSelectedIntent(null);
+      }
+
       const parseResult = parse(parsed);
 
       if (!parseResult.success || !parseResult.document) {
@@ -182,8 +192,6 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
       } else {
         setParseErrors([]);
         setParsedDocument(parseResult.document);
-
-        // Validate
         const validationResult = validate(parseResult.document);
         setValidationIssues(validationResult.issues);
       }
@@ -192,17 +200,17 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
       setDetectedFormat('unknown');
       setParsedDocument(null);
       setValidationIssues([]);
+      setAvailableIntents([]);
+      setSelectedIntent(null);
     } finally {
       setIsProcessing(false);
     }
   }, []);
 
-  // Debounced processing
   useEffect(() => {
     const timer = setTimeout(() => {
       processInput(input);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [input, processInput]);
 
@@ -234,7 +242,6 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
       return;
     }
 
-    // Generate CSS
     const cssResult = generate(parsedDocument, { format: 'css', includeModes: true });
 
     if (!cssResult.success) {
@@ -242,13 +249,11 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
       return;
     }
 
-    onImport(parsedDocument, cssResult.output);
-    toast.success(`Imported "${parsedDocument.$name}" successfully!`);
-    onOpenChange(false);
+    onImport(parsedDocument, cssResult.output, selectedIntent || undefined);
 
-    // Reset state
-    setInput('');
-    setParsedDocument(null);
+    const intentMsg = selectedIntent ? ` with "${selectedIntent.label}" intent` : '';
+    toast.success(`Imported "${parsedDocument.$name}"${intentMsg} successfully!`);
+    handleClose();
   };
 
   const handleCopyExport = async () => {
@@ -299,9 +304,17 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
     toast.success('Template loaded');
   };
 
+  const handleClose = () => {
+    setInput('');
+    setParsedDocument(null);
+    setAvailableIntents([]);
+    setSelectedIntent(null);
+    setStep(0);
+    onOpenChange(false);
+  };
+
   const errorCount = validationIssues.filter(i => i.severity === 'error').length;
   const warningCount = validationIssues.filter(i => i.severity === 'warning').length;
-  const infoCount = validationIssues.filter(i => i.severity === 'info').length;
 
   const tokenStats = parsedDocument ? {
     colors: Object.keys(parsedDocument.color || {}).length,
@@ -315,272 +328,266 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
     )
   } : null;
 
+  const canProceed = step === 0 ? parsedDocument && errorCount === 0 : true;
+
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            Smart Token Import
-          </DialogTitle>
-          <DialogDescription>
-            Paste or upload design tokens in any format - LDL auto-detects and converts
-          </DialogDescription>
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 overflow-auto bg-background/80 backdrop-blur-sm">
+      <div className="min-h-full flex items-center justify-center p-4">
+        <div className="bg-card border rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="p-6 border-b flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-lg">Smart Token Import</h2>
+                <p className="text-sm text-muted-foreground">
+                  Auto-detect and import from any format
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleClose}
+              className="w-8 h-8 rounded-lg hover:bg-muted transition-colors flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="paste">Import</TabsTrigger>
-            <TabsTrigger value="preview" disabled={!parsedDocument}>
-              Preview {parsedDocument && <Badge variant="secondary" className="ml-1">{tokenStats?.colors || 0}</Badge>}
-            </TabsTrigger>
-            <TabsTrigger value="export" disabled={!parsedDocument}>Export</TabsTrigger>
-          </TabsList>
+          {/* Progress */}
+          <div className="h-1 bg-muted shrink-0">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+            />
+          </div>
 
-          <TabsContent value="paste" className="flex-1 flex flex-col min-h-0 mt-4">
-            <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-              {/* Input Panel */}
-              <div className="flex flex-col min-h-0">
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Paste Tokens</Label>
-                  <div className="flex gap-1">
+          {/* Step Tabs */}
+          <div className="flex border-b shrink-0">
+            {STEPS.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => i <= (parsedDocument ? 2 : 0) && setStep(i)}
+                disabled={i > 0 && !parsedDocument}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  step === i
+                    ? 'border-primary text-primary'
+                    : i <= (parsedDocument ? 2 : 0)
+                    ? 'border-transparent hover:text-foreground text-muted-foreground'
+                    : 'border-transparent text-muted-foreground/50 cursor-not-allowed'
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <span className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
+                    step === i ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                  }`}>
+                    {i + 1}
+                  </span>
+                  {s.title}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6 min-h-0">
+            {/* Step 0: Import */}
+            {step === 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                {/* Left: Input */}
+                <div className="flex flex-col min-h-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-medium">Paste Tokens (JSON)</Label>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => loadTemplate('ldl')}>LDL</Button>
+                      <Button variant="ghost" size="sm" onClick={() => loadTemplate('w3c')}>W3C</Button>
+                      <Button variant="ghost" size="sm" onClick={() => loadTemplate('tokensStudio')}>TS</Button>
+                    </div>
+                  </div>
+
+                  <Textarea
+                    placeholder="Paste your design tokens here (JSON)..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="flex-1 font-mono text-xs resize-none min-h-[300px]"
+                  />
+
+                  <div className="mt-3">
+                    <input
+                      type="file"
+                      accept=".json,.tokens,.tokens.json"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="ldl-file-upload"
+                    />
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => loadTemplate('ldl')}
-                      title="Load LDL example"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => document.getElementById('ldl-file-upload')?.click()}
                     >
-                      LDL
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => loadTemplate('w3c')}
-                      title="Load W3C example"
-                    >
-                      W3C
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => loadTemplate('tokensStudio')}
-                      title="Load Tokens Studio example"
-                    >
-                      TS
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload File
                     </Button>
                   </div>
                 </div>
 
-                <Textarea
-                  placeholder="Paste your design tokens here (JSON)..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="flex-1 font-mono text-xs resize-none min-h-[300px]"
-                />
+                {/* Right: Validation */}
+                <div className="flex flex-col min-h-0">
+                  <Label className="text-sm font-medium mb-3">Validation Status</Label>
 
-                {/* File Upload */}
-                <div className="mt-2">
-                  <input
-                    type="file"
-                    accept=".json,.tokens,.tokens.json"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="ldl-file-upload"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => document.getElementById('ldl-file-upload')?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload File
-                  </Button>
-                </div>
-              </div>
-
-              {/* Validation Panel */}
-              <div className="flex flex-col min-h-0">
-                <Label className="mb-2">Validation</Label>
-
-                <ScrollArea className="flex-1 border rounded-md p-3 min-h-[300px]">
-                  {/* Format Detection */}
-                  {input.trim() && (
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 border rounded-lg p-4 overflow-y-auto min-h-[300px] space-y-4">
+                    {/* Format Detection */}
+                    {input.trim() && (
+                      <div className="flex items-center gap-2">
                         {isProcessing ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                           <FileJson className="w-4 h-4" />
                         )}
-                        <span className="text-sm font-medium">Format Detected:</span>
+                        <span className="text-sm">Format:</span>
                         <Badge className={FORMAT_LABELS[detectedFormat].color}>
                           {FORMAT_LABELS[detectedFormat].icon} {FORMAT_LABELS[detectedFormat].label}
                         </Badge>
                       </div>
+                    )}
 
-                      {parsedDocument && (
-                        <p className="text-xs text-muted-foreground">
-                          Converting to LDL format...
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    {/* Parse Errors */}
+                    {parseErrors.length > 0 && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Parse Error</AlertTitle>
+                        <AlertDescription className="text-xs">
+                          {parseErrors.map((err, i) => <div key={i}>{err}</div>)}
+                        </AlertDescription>
+                      </Alert>
+                    )}
 
-                  {/* Parse Errors */}
-                  {parseErrors.length > 0 && (
-                    <Alert variant="destructive" className="mb-4">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Parse Error</AlertTitle>
-                      <AlertDescription>
-                        {parseErrors.map((err, i) => (
-                          <div key={i} className="text-xs">{err}</div>
+                    {/* Token Stats */}
+                    {tokenStats && (
+                      <div className="grid grid-cols-5 gap-2">
+                        {[
+                          { icon: Palette, label: 'Colors', count: tokenStats.colors },
+                          { icon: Box, label: 'Space', count: tokenStats.space },
+                          { icon: Layers, label: 'Radius', count: tokenStats.radius },
+                          { icon: Layers, label: 'Shadow', count: tokenStats.shadow },
+                          { icon: Type, label: 'Font', count: tokenStats.font },
+                        ].map(({ icon: Icon, label, count }) => (
+                          <div key={label} className="flex flex-col items-center p-2 bg-muted rounded-md">
+                            <Icon className="w-4 h-4 mb-1" />
+                            <span className="text-lg font-bold">{count}</span>
+                            <span className="text-[10px] text-muted-foreground">{label}</span>
+                          </div>
                         ))}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                      </div>
+                    )}
 
-                  {/* Token Stats */}
-                  {tokenStats && (
-                    <div className="grid grid-cols-5 gap-2 mb-4">
-                      <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                        <Palette className="w-4 h-4 mb-1" />
-                        <span className="text-lg font-bold">{tokenStats.colors}</span>
-                        <span className="text-xs text-muted-foreground">Colors</span>
+                    {/* Intent Selection */}
+                    {availableIntents.length > 0 && (
+                      <div className="p-3 border rounded-md bg-primary/5 border-primary/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Target className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">Design Intent</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {availableIntents.map((intent) => (
+                            <Button
+                              key={intent.id}
+                              variant={selectedIntent?.id === intent.id ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setSelectedIntent(intent)}
+                            >
+                              {intent.label}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                        <Box className="w-4 h-4 mb-1" />
-                        <span className="text-lg font-bold">{tokenStats.space}</span>
-                        <span className="text-xs text-muted-foreground">Space</span>
-                      </div>
-                      <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                        <Layers className="w-4 h-4 mb-1" />
-                        <span className="text-lg font-bold">{tokenStats.radius}</span>
-                        <span className="text-xs text-muted-foreground">Radius</span>
-                      </div>
-                      <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                        <Layers className="w-4 h-4 mb-1" />
-                        <span className="text-lg font-bold">{tokenStats.shadow}</span>
-                        <span className="text-xs text-muted-foreground">Shadow</span>
-                      </div>
-                      <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                        <Type className="w-4 h-4 mb-1" />
-                        <span className="text-lg font-bold">{tokenStats.font}</span>
-                        <span className="text-xs text-muted-foreground">Font</span>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Validation Summary */}
-                  {validationIssues.length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium">Issues:</span>
-                        {errorCount > 0 && (
-                          <Badge variant="destructive">{errorCount} errors</Badge>
-                        )}
-                        {warningCount > 0 && (
-                          <Badge variant="outline" className="border-yellow-500 text-yellow-600">
-                            {warningCount} warnings
-                          </Badge>
-                        )}
-                        {infoCount > 0 && (
-                          <Badge variant="secondary">{infoCount} suggestions</Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Validation Issues List */}
-                  {validationIssues.length > 0 && (
-                    <div className="space-y-2">
-                      {validationIssues.map((issue, i) => (
-                        <div
-                          key={i}
-                          className={`p-2 rounded-md text-xs ${
-                            issue.severity === 'error'
-                              ? 'bg-destructive/10 border border-destructive/20'
-                              : issue.severity === 'warning'
-                              ? 'bg-yellow-500/10 border border-yellow-500/20'
-                              : 'bg-blue-500/10 border border-blue-500/20'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2">
-                            {issue.severity === 'error' ? (
-                              <AlertCircle className="w-3 h-3 mt-0.5 text-destructive" />
-                            ) : issue.severity === 'warning' ? (
-                              <AlertTriangle className="w-3 h-3 mt-0.5 text-yellow-600" />
-                            ) : (
-                              <Info className="w-3 h-3 mt-0.5 text-blue-500" />
-                            )}
-                            <div className="flex-1">
-                              <code className="text-[10px] text-muted-foreground">{issue.path}</code>
-                              <p className="mt-0.5">{issue.message}</p>
-                              {issue.suggestion && (
-                                <p className="mt-1 text-muted-foreground">→ {issue.suggestion}</p>
+                    {/* Validation Issues */}
+                    {validationIssues.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Issues:</span>
+                          {errorCount > 0 && <Badge variant="destructive">{errorCount} errors</Badge>}
+                          {warningCount > 0 && <Badge variant="outline">{warningCount} warnings</Badge>}
+                        </div>
+                        {validationIssues.slice(0, 5).map((issue, i) => (
+                          <div
+                            key={i}
+                            className={`p-2 rounded-md text-xs ${
+                              issue.severity === 'error'
+                                ? 'bg-destructive/10 border border-destructive/20'
+                                : 'bg-yellow-500/10 border border-yellow-500/20'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {issue.severity === 'error' ? (
+                                <AlertCircle className="w-3 h-3 mt-0.5 text-destructive" />
+                              ) : (
+                                <AlertTriangle className="w-3 h-3 mt-0.5 text-yellow-600" />
                               )}
+                              <div>
+                                <code className="text-[10px] text-muted-foreground">{issue.path}</code>
+                                <p className="mt-0.5">{issue.message}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Success State */}
-                  {parsedDocument && errorCount === 0 && (
-                    <Alert className="border-green-500/50 bg-green-500/10">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-600">Ready to Import</AlertTitle>
-                      <AlertDescription className="text-green-600/80">
-                        "{parsedDocument.$name}" validated successfully
-                        {parsedDocument.$version && ` (v${parsedDocument.$version})`}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                    {/* Success State */}
+                    {parsedDocument && errorCount === 0 && (
+                      <Alert className="border-green-500/50 bg-green-500/10">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <AlertTitle className="text-green-600">Ready to Import</AlertTitle>
+                        <AlertDescription className="text-green-600/80">
+                          "{parsedDocument.$name}" validated successfully
+                        </AlertDescription>
+                      </Alert>
+                    )}
 
-                  {/* Empty State */}
-                  {!input.trim() && (
-                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                      <FileCode className="w-12 h-12 mb-4 opacity-20" />
-                      <p className="text-sm">Paste or upload your tokens</p>
-                      <p className="text-xs mt-1">Supports LDL, W3C, Figma, Tokens Studio</p>
-                    </div>
-                  )}
-                </ScrollArea>
+                    {/* Empty State */}
+                    {!input.trim() && (
+                      <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-8">
+                        <FileCode className="w-12 h-12 mb-4 opacity-20" />
+                        <p className="text-sm">Paste or upload your tokens</p>
+                        <p className="text-xs mt-1">Supports LDL, W3C, Figma, Tokens Studio</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </TabsContent>
+            )}
 
-          <TabsContent value="preview" className="flex-1 flex flex-col min-h-0 mt-4">
-            {parsedDocument && (
-              <ScrollArea className="flex-1 border rounded-md p-4">
+            {/* Step 1: Preview */}
+            {step === 1 && parsedDocument && (
+              <div className="space-y-6">
                 {/* Colors */}
                 {parsedDocument.color && Object.keys(parsedDocument.color).length > 0 && (
-                  <div className="mb-6">
+                  <div>
                     <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <Palette className="w-4 h-4" />
                       Colors ({Object.keys(parsedDocument.color).length})
                     </h3>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                       {Object.entries(parsedDocument.color).map(([name, token]) => {
                         const value = isColorWithForeground(token) ? token.value : token;
                         const foreground = isColorWithForeground(token) ? token.foreground : null;
 
                         return (
-                          <div key={name} className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                          <div key={name} className="space-y-1">
                             <div
-                              className="w-8 h-8 rounded-md border flex items-center justify-center text-xs font-bold"
-                              style={{
-                                backgroundColor: value,
-                                color: foreground || undefined
-                              }}
+                              className="aspect-square rounded-lg border shadow-sm flex items-center justify-center text-xs font-bold"
+                              style={{ backgroundColor: value, color: foreground || undefined }}
                             >
                               {foreground && 'Aa'}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium truncate">{name}</p>
-                              <p className="text-[10px] text-muted-foreground truncate">{value}</p>
-                            </div>
+                            <p className="text-xs font-medium truncate">{name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{value}</p>
                           </div>
                         );
                       })}
@@ -590,22 +597,17 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
 
                 {/* Space */}
                 {parsedDocument.space && Object.keys(parsedDocument.space).length > 0 && (
-                  <div className="mb-6">
+                  <div>
                     <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <Box className="w-4 h-4" />
                       Spacing ({Object.keys(parsedDocument.space).length})
                     </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-3">
                       {Object.entries(parsedDocument.space).map(([name, value]) => (
                         <div key={name} className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                          <div
-                            className="h-4 bg-primary rounded"
-                            style={{ width: value }}
-                          />
-                          <div>
-                            <span className="text-xs font-medium">{name}</span>
-                            <span className="text-xs text-muted-foreground ml-1">({value})</span>
-                          </div>
+                          <div className="h-4 bg-primary rounded" style={{ width: value }} />
+                          <span className="text-xs font-medium">{name}</span>
+                          <span className="text-xs text-muted-foreground">({value})</span>
                         </div>
                       ))}
                     </div>
@@ -614,22 +616,17 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
 
                 {/* Radius */}
                 {parsedDocument.radius && Object.keys(parsedDocument.radius).length > 0 && (
-                  <div className="mb-6">
+                  <div>
                     <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <Layers className="w-4 h-4" />
                       Border Radius ({Object.keys(parsedDocument.radius).length})
                     </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-3">
                       {Object.entries(parsedDocument.radius).map(([name, value]) => (
                         <div key={name} className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                          <div
-                            className="w-8 h-8 bg-primary"
-                            style={{ borderRadius: value }}
-                          />
-                          <div>
-                            <span className="text-xs font-medium">{name}</span>
-                            <span className="text-xs text-muted-foreground ml-1">({value})</span>
-                          </div>
+                          <div className="w-8 h-8 bg-primary" style={{ borderRadius: value }} />
+                          <span className="text-xs font-medium">{name}</span>
+                          <span className="text-xs text-muted-foreground">({value})</span>
                         </div>
                       ))}
                     </div>
@@ -638,84 +635,116 @@ export function LDLImportDialog({ open, onOpenChange, onImport }: LDLImportDialo
 
                 {/* Shadow */}
                 {parsedDocument.shadow && Object.keys(parsedDocument.shadow).length > 0 && (
-                  <div className="mb-6">
+                  <div>
                     <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <Layers className="w-4 h-4" />
                       Shadows ({Object.keys(parsedDocument.shadow).length})
                     </h3>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-4">
                       {Object.entries(parsedDocument.shadow).map(([name, value]) => (
-                        <div key={name} className="flex flex-col items-center p-3 bg-background rounded-md">
-                          <div
-                            className="w-16 h-16 bg-card rounded-md mb-2"
-                            style={{ boxShadow: value }}
-                          />
+                        <div key={name} className="flex flex-col items-center p-3">
+                          <div className="w-16 h-16 bg-card rounded-md mb-2" style={{ boxShadow: value }} />
                           <span className="text-xs font-medium">{name}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             )}
-          </TabsContent>
 
-          <TabsContent value="export" className="flex-1 flex flex-col min-h-0 mt-4">
-            {parsedDocument && (
-              <div className="flex flex-col gap-4 h-full">
-                <div className="flex items-center gap-2">
-                  <Label>Export Format:</Label>
-                  <select
-                    value={selectedExportFormat}
-                    onChange={(e) => setSelectedExportFormat(e.target.value as OutputFormat)}
-                    className="border rounded-md px-2 py-1 text-sm"
-                  >
-                    <option value="css">CSS Variables</option>
-                    <option value="scss">SCSS Variables</option>
-                    <option value="tailwind-config">Tailwind Config (v3)</option>
-                    <option value="tailwind-css">Tailwind CSS (v4)</option>
-                    <option value="typescript">TypeScript</option>
-                    <option value="json">JSON (LDL)</option>
-                    <option value="ios-swift">iOS Swift</option>
-                    <option value="android-xml">Android XML</option>
-                    <option value="w3c-dtcg">W3C Design Tokens</option>
-                  </select>
+            {/* Step 2: Export */}
+            {step === 2 && parsedDocument && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Export Format</Label>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'css', label: 'CSS Variables' },
+                      { value: 'scss', label: 'SCSS Variables' },
+                      { value: 'tailwind-config', label: 'Tailwind Config (v3)' },
+                      { value: 'tailwind-css', label: 'Tailwind CSS (v4)' },
+                      { value: 'typescript', label: 'TypeScript' },
+                      { value: 'json', label: 'JSON (LDL)' },
+                      { value: 'ios-swift', label: 'iOS Swift' },
+                      { value: 'android-xml', label: 'Android XML' },
+                      { value: 'w3c-dtcg', label: 'W3C Design Tokens' },
+                    ].map((format) => (
+                      <button
+                        key={format.value}
+                        onClick={() => setSelectedExportFormat(format.value as OutputFormat)}
+                        className={`w-full px-3 py-2 rounded-md text-left text-sm transition-colors ${
+                          selectedExportFormat === format.value
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        {format.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <ScrollArea className="flex-1 border rounded-md">
-                  <pre className="p-4 text-xs font-mono whitespace-pre-wrap">
+                <div className="lg:col-span-2 flex flex-col min-h-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-medium">Generated Code</Label>
+                    <div className="flex gap-2">
+                      <Button onClick={handleCopyExport} variant="outline" size="sm">
+                        {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
+                        {copied ? 'Copied!' : 'Copy'}
+                      </Button>
+                      <Button onClick={handleDownloadExport} variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                  <pre className="flex-1 border rounded-md p-4 text-xs font-mono whitespace-pre-wrap overflow-auto bg-muted min-h-[300px]">
                     {generate(parsedDocument, { format: selectedExportFormat }).output}
                   </pre>
-                </ScrollArea>
-
-                <div className="flex gap-2">
-                  <Button onClick={handleCopyExport} variant="outline" className="flex-1">
-                    {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                    {copied ? 'Copied!' : 'Copy'}
-                  </Button>
-                  <Button onClick={handleDownloadExport} variant="outline" className="flex-1">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
                 </div>
               </div>
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
 
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleImport}
-            disabled={!parsedDocument || errorCount > 0}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Import Tokens
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          {/* Footer */}
+          <div className="p-6 border-t flex items-center justify-between shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => step > 0 ? setStep(step - 1) : handleClose()}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {step > 0 ? 'Back' : 'Cancel'}
+            </Button>
+
+            <div className="flex gap-2">
+              {STEPS.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    i === step ? 'bg-primary' : i < step ? 'bg-primary/50' : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {step < 2 ? (
+              <Button
+                onClick={() => setStep(step + 1)}
+                disabled={!canProceed}
+              >
+                Next
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button onClick={handleImport} disabled={!parsedDocument || errorCount > 0}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import Tokens
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

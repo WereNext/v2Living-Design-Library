@@ -1,0 +1,70 @@
+{
+  "name": "FinTech Mobile",
+  "description": "Bold fintech design system optimized for mobile banking apps",
+  "version": "1.0.0",
+  "themes": [
+    {
+      "id": "fintech-main",
+      "name": "FinTech",
+      "colors": {
+        "background": "#0a0a0a",
+        "foreground": "#fafafa",
+        "card": "#171717",
+        "card-foreground": "#fafafa",
+        "primary": "#22c55e",
+        "primary-foreground": "#052e16",
+        "secondary": "#262626",
+        "secondary-foreground": "#a3a3a3",
+        "muted": "#262626",
+        "muted-foreground": "#737373",
+        "accent": "#14532d",
+        "accent-foreground": "#bbf7d0",
+        "destructive": "#ef4444",
+        "destructive-foreground": "#ffffff",
+        "border": "#262626",
+        "input": "#262626",
+        "ring": "#22c55e",
+        "success": "#22c55e",
+        "warning": "#eab308",
+        "positive": "#22c55e",
+        "negative": "#ef4444"
+      },
+      "typography": {
+        "font-sans": "Space Grotesk",
+        "font-mono": "JetBrains Mono"
+      },
+      "spacing": {
+        "xs": "0.5rem",
+        "sm": "0.75rem",
+        "md": "1rem",
+        "lg": "1.5rem",
+        "xl": "2rem",
+        "2xl": "2.5rem"
+      },
+      "borderRadius": {
+        "sm": "0.5rem",
+        "md": "0.75rem",
+        "lg": "1rem",
+        "xl": "1.5rem",
+        "full": "9999px"
+      },
+      "shadows": {
+        "sm": "0 2px 4px 0 rgb(34 197 94 / 0.1)",
+        "md": "0 4px 8px -2px rgb(34 197 94 / 0.15)",
+        "lg": "0 8px 16px -4px rgb(34 197 94 / 0.2)"
+      }
+    }
+  ],
+  "intents": [
+    {
+      "id": "mobile",
+      "label": "Mobile Experience",
+      "description": "Touch-optimized mobile patterns"
+    },
+    {
+      "id": "dashboard",
+      "label": "Dashboard & Analytics",
+      "description": "Financial data and metrics display"
+    }
+  ]
+}

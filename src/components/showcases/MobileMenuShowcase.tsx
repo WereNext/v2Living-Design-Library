@@ -34,7 +34,7 @@ export function MobileMenuShowcase() {
       >
         <div className="max-w-md mx-auto">
           <Card>
-            <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
+            <div className="border-b p-md flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
               <Button
                 size="icon"
                 variant="ghost"
@@ -55,13 +55,13 @@ export function MobileMenuShowcase() {
                   return (
                     <button
                       key={item.label}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted transition-colors text-left"
+                      className="w-full px-md py-sm flex items-center justify-between hover:bg-muted transition-colors text-left"
                       onClick={() => {
                         toast(`Navigating to ${item.label}`);
                         setIsOpen(false);
                       }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-sm">
                         <Icon className="w-5 h-5 text-muted-foreground" />
                         <span>{item.label}</span>
                       </div>
@@ -71,16 +71,16 @@ export function MobileMenuShowcase() {
                     </button>
                   );
                 })}
-                <div className="p-4 border-t">
+                <div className="p-md border-t">
                   <Button variant="outline" className="w-full" onClick={() => toast("Logging out...")}>
-                    <LogOut className="w-4 h-4 mr-2" />
+                    <LogOut className="w-4 h-4 mr-xs" />
                     Log Out
                   </Button>
                 </div>
               </div>
             )}
 
-            <CardContent className="p-8 text-center text-muted-foreground">
+            <CardContent className="p-xl text-center text-muted-foreground">
               <p className="text-sm">
                 {isOpen ? "Menu is open" : "Tap the menu icon to open"}
               </p>
@@ -97,7 +97,7 @@ export function MobileMenuShowcase() {
         <div className="max-w-md mx-auto">
           <div className="relative">
             <Card>
-              <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50">
+              <div className="border-b p-md flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50">
                 <Button
                   size="icon"
                   variant="ghost"
@@ -108,7 +108,7 @@ export function MobileMenuShowcase() {
                 <h4>Dashboard</h4>
                 <div className="w-10" />
               </div>
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-xl text-center">
                 <p className="text-sm text-muted-foreground">
                   Main content area
                 </p>
@@ -129,8 +129,8 @@ export function MobileMenuShowcase() {
                 slideMenuOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
-              <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                <div className="flex items-center gap-3">
+              <div className="p-md border-b flex items-center justify-between bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                <div className="flex items-center gap-sm">
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
                     👤
                   </div>
@@ -149,23 +149,23 @@ export function MobileMenuShowcase() {
                 </Button>
               </div>
 
-              <div className="p-2">
+              <div className="p-xs">
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <button
                       key={item.label}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted rounded-lg transition-colors text-left"
+                      className="w-full px-md py-sm flex items-center justify-between hover:bg-muted rounded-lg transition-colors text-left"
                       onClick={() => {
                         toast(`Navigating to ${item.label}`);
                         setSlideMenuOpen(false);
                       }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-sm">
                         <Icon className="w-5 h-5 text-muted-foreground" />
                         <span>{item.label}</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-xs">
                         {item.badge && (
                           <Badge variant="destructive" className="text-xs">
                             {item.badge}
@@ -178,16 +178,16 @@ export function MobileMenuShowcase() {
                 })}
               </div>
 
-              <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
+              <div className="absolute bottom-0 left-0 right-0 p-md border-t">
                 <Button variant="outline" className="w-full" onClick={() => toast("Logging out...")}>
-                  <LogOut className="w-4 h-4 mr-2" />
+                  <LogOut className="w-4 h-4 mr-xs" />
                   Log Out
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-md">
             <Button
               variant="outline"
               className="w-full"
@@ -206,7 +206,7 @@ export function MobileMenuShowcase() {
       >
         <div className="max-w-md mx-auto">
           <Card>
-            <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-orange-50 to-red-50">
+            <div className="border-b p-md flex items-center justify-between bg-gradient-to-r from-orange-50 to-red-50">
               <h4>Travel App</h4>
               <Button
                 size="icon"
@@ -217,8 +217,8 @@ export function MobileMenuShowcase() {
               </Button>
             </div>
             <CardContent className="p-0">
-              <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-8 text-white">
-                <div className="flex items-center justify-between mb-8">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-xl text-white">
+                <div className="flex items-center justify-between mb-xl">
                   <h2 className="text-white">Menu</h2>
                   <Button
                     size="icon"
@@ -238,14 +238,14 @@ export function MobileMenuShowcase() {
                   ].map((item, i) => (
                     <button
                       key={item}
-                      className="w-full text-left py-4 px-4 text-xl text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                      className="w-full text-left py-md px-md text-xl text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                       style={{ animationDelay: `${i * 100}ms` }}
                     >
                       {item}
                     </button>
                   ))}
                 </div>
-                <div className="mt-12 pt-6 border-t border-white/20">
+                <div className="mt-2xl pt-lg border-t border-white/20">
                   <Button variant="secondary" className="w-full">
                     Log Out
                   </Button>

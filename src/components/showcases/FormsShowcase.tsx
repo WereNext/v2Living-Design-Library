@@ -11,8 +11,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CodePlayground } from "../CodePlayground";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
+import { ShowcaseCard } from "../ShowcaseCard";
 
-export function FormsShowcase() {
+interface FormsShowcaseProps {
+  designIntent?: string;
+}
+
+export function FormsShowcase({ designIntent = "web-app" }: FormsShowcaseProps) {
   const [sliderValue, setSliderValue] = useState([50]);
   const [switchEnabled, setSwitchEnabled] = useState(false);
 
@@ -33,7 +38,7 @@ import { Checkbox } from "./components/ui/checkbox";
 
 export function LoginForm() {
   return (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-md max-w-md">
       <div>
         <Label htmlFor="email">Email</Label>
         <Input 
@@ -50,7 +55,7 @@ export function LoginForm() {
           placeholder="Enter your password" 
         />
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-xs">
         <Checkbox id="remember" />
         <Label htmlFor="remember" className="cursor-pointer">
           Remember me
@@ -99,7 +104,7 @@ export function ControlsExample() {
   const [enabled, setEnabled] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-lg max-w-md">
       <div className="flex items-center justify-between">
         <Label htmlFor="notifications">Enable notifications</Label>
         <Switch 
@@ -115,7 +120,7 @@ export function ControlsExample() {
           onValueChange={setSliderValue}
           max={100}
           step={1}
-          className="mt-2"
+          className="mt-xs"
         />
       </div>
     </div>
@@ -128,8 +133,8 @@ import { toast } from "sonner";
 
 export function CheckboxExample() {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-2">
+    <div className="space-y-md">
+      <div className="flex items-center space-x-xs">
         <Checkbox 
           id="terms" 
           onCheckedChange={(checked) => toast(\`Terms: \${checked}\`)} 
@@ -138,7 +143,7 @@ export function CheckboxExample() {
           Accept terms and conditions
         </Label>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-xs">
         <Checkbox id="marketing" />
         <Label htmlFor="marketing" className="cursor-pointer">
           Receive marketing emails
@@ -158,15 +163,15 @@ export function RadioExample() {
       defaultValue="card" 
       onValueChange={(value) => toast(\`Selected: \${value}\`)}
     >
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-xs">
         <RadioGroupItem value="card" id="card" />
         <Label htmlFor="card" className="cursor-pointer">Credit Card</Label>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-xs">
         <RadioGroupItem value="paypal" id="paypal" />
         <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-xs">
         <RadioGroupItem value="apple" id="apple" />
         <Label htmlFor="apple" className="cursor-pointer">Apple Pay</Label>
       </div>
@@ -193,9 +198,9 @@ export function TextareaExample() {
   return (
     <div>
       <ShowcaseWithNav sections={sections}>
-        <ShowcaseSection 
+        <ShowcaseSection
           id="text-input"
-          title="Text Input" 
+          title="Text Input"
           description="Basic text input fields"
         >
           <CodePlayground
@@ -203,26 +208,49 @@ export function TextareaExample() {
             title="Login Form Example"
             description="Complete login form with email, password, and remember me"
           >
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Enter your password" />
-              </div>
-              <div>
-                <Label htmlFor="disabled">Disabled Input</Label>
-                <Input id="disabled" disabled placeholder="Disabled input" />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+              <ShowcaseCard
+                defaultName="Email Input"
+                category="form"
+                designIntent={designIntent}
+                description="Email input field with validation"
+              >
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="Enter your email" />
+                </div>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Password Input"
+                category="form"
+                designIntent={designIntent}
+                description="Password input field with masking"
+              >
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" type="password" placeholder="Enter your password" />
+                </div>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Disabled Input"
+                category="form"
+                designIntent={designIntent}
+                description="Disabled input field state"
+              >
+                <div>
+                  <Label htmlFor="disabled">Disabled Input</Label>
+                  <Input id="disabled" disabled placeholder="Disabled input" />
+                </div>
+              </ShowcaseCard>
             </div>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="textarea"
-          title="Textarea" 
+          title="Textarea"
           description="Multi-line text input"
         >
           <CodePlayground
@@ -230,20 +258,27 @@ export function TextareaExample() {
             title="Textarea Example"
             description="Textarea with placeholder and rows"
           >
-            <div>
-              <Label htmlFor="message">Message</Label>
-              <Textarea 
-                id="message" 
-                placeholder="Type your message here..." 
-                rows={4} 
-              />
-            </div>
+            <ShowcaseCard
+              defaultName="Message Textarea"
+              category="form"
+              designIntent={designIntent}
+              description="Multi-line text input for messages or comments"
+            >
+              <div>
+                <Label htmlFor="message">Message</Label>
+                <Textarea
+                  id="message"
+                  placeholder="Type your message here..."
+                  rows={4}
+                />
+              </div>
+            </ShowcaseCard>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="checkbox"
-          title="Checkbox" 
+          title="Checkbox"
           description="Binary choice checkboxes"
         >
           <CodePlayground
@@ -251,29 +286,44 @@ export function TextareaExample() {
             title="Checkbox Example"
             description="Checkboxes with onCheckedChange events"
           >
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="terms" 
-                  onCheckedChange={(checked) => toast(`Terms: ${checked}`)} 
-                />
-                <Label htmlFor="terms" className="cursor-pointer">
-                  Accept terms and conditions
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="marketing" />
-                <Label htmlFor="marketing" className="cursor-pointer">
-                  Receive marketing emails
-                </Label>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+              <ShowcaseCard
+                defaultName="Terms Checkbox"
+                category="form"
+                designIntent={designIntent}
+                description="Checkbox for accepting terms and conditions"
+              >
+                <div className="flex items-center space-x-xs">
+                  <Checkbox
+                    id="terms"
+                    onCheckedChange={(checked) => toast(`Terms: ${checked}`)}
+                  />
+                  <Label htmlFor="terms" className="cursor-pointer">
+                    Accept terms and conditions
+                  </Label>
+                </div>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Marketing Checkbox"
+                category="form"
+                designIntent={designIntent}
+                description="Checkbox for optional marketing preferences"
+              >
+                <div className="flex items-center space-x-xs">
+                  <Checkbox id="marketing" />
+                  <Label htmlFor="marketing" className="cursor-pointer">
+                    Receive marketing emails
+                  </Label>
+                </div>
+              </ShowcaseCard>
             </div>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="radio-group"
-          title="Radio Group" 
+          title="Radio Group"
           description="Single selection from multiple options"
         >
           <CodePlayground
@@ -281,29 +331,36 @@ export function TextareaExample() {
             title="Radio Group Example"
             description="Radio group with onValueChange events"
           >
-            <RadioGroup 
-              defaultValue="card" 
-              onValueChange={(value) => toast(`Selected: ${value}`)}
+            <ShowcaseCard
+              defaultName="Payment Method Selector"
+              category="form"
+              designIntent={designIntent}
+              description="Radio group for selecting payment method"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="card" id="card" />
-                <Label htmlFor="card" className="cursor-pointer">Credit Card</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="paypal" id="paypal" />
-                <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="apple" id="apple" />
-                <Label htmlFor="apple" className="cursor-pointer">Apple Pay</Label>
-              </div>
-            </RadioGroup>
+              <RadioGroup
+                defaultValue="card"
+                onValueChange={(value) => toast(`Selected: ${value}`)}
+              >
+                <div className="flex items-center space-x-xs">
+                  <RadioGroupItem value="card" id="card" />
+                  <Label htmlFor="card" className="cursor-pointer">Credit Card</Label>
+                </div>
+                <div className="flex items-center space-x-xs">
+                  <RadioGroupItem value="paypal" id="paypal" />
+                  <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
+                </div>
+                <div className="flex items-center space-x-xs">
+                  <RadioGroupItem value="apple" id="apple" />
+                  <Label htmlFor="apple" className="cursor-pointer">Apple Pay</Label>
+                </div>
+              </RadioGroup>
+            </ShowcaseCard>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="select"
-          title="Select" 
+          title="Select"
           description="Dropdown selection menu"
         >
           <CodePlayground
@@ -311,27 +368,34 @@ export function TextareaExample() {
             title="Select Example"
             description="Dropdown select with multiple options"
           >
-            <div>
-              <Label>Choose a framework</Label>
-              <Select onValueChange={(value) => toast(`Selected: ${value}`)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a framework" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="react">React</SelectItem>
-                  <SelectItem value="vue">Vue</SelectItem>
-                  <SelectItem value="angular">Angular</SelectItem>
-                  <SelectItem value="svelte">Svelte</SelectItem>
-                  <SelectItem value="solid">Solid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ShowcaseCard
+              defaultName="Framework Selector"
+              category="form"
+              designIntent={designIntent}
+              description="Dropdown select for choosing a framework"
+            >
+              <div>
+                <Label>Choose a framework</Label>
+                <Select onValueChange={(value) => toast(`Selected: ${value}`)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a framework" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="react">React</SelectItem>
+                    <SelectItem value="vue">Vue</SelectItem>
+                    <SelectItem value="angular">Angular</SelectItem>
+                    <SelectItem value="svelte">Svelte</SelectItem>
+                    <SelectItem value="solid">Solid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </ShowcaseCard>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="switch"
-          title="Switch" 
+          title="Switch"
           description="Toggle switch for boolean states"
         >
           <CodePlayground
@@ -339,45 +403,65 @@ export function TextareaExample() {
             title="Switch and Slider Example"
             description="Toggle switch and range slider"
           >
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch 
-                  id="airplane-mode" 
-                  checked={switchEnabled}
-                  onCheckedChange={(checked) => {
-                    setSwitchEnabled(checked);
-                    toast(checked ? "Switch enabled" : "Switch disabled");
-                  }} 
-                />
-                <Label htmlFor="airplane-mode" className="cursor-pointer">
-                  Airplane Mode {switchEnabled ? "(On)" : "(Off)"}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch id="disabled-switch" disabled />
-                <Label htmlFor="disabled-switch">Disabled switch</Label>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+              <ShowcaseCard
+                defaultName="Toggle Switch"
+                category="form"
+                designIntent={designIntent}
+                description="Toggle switch for enabling/disabling features"
+              >
+                <div className="flex items-center space-x-xs">
+                  <Switch
+                    id="airplane-mode"
+                    checked={switchEnabled}
+                    onCheckedChange={(checked) => {
+                      setSwitchEnabled(checked);
+                      toast(checked ? "Switch enabled" : "Switch disabled");
+                    }}
+                  />
+                  <Label htmlFor="airplane-mode" className="cursor-pointer">
+                    Airplane Mode {switchEnabled ? "(On)" : "(Off)"}
+                  </Label>
+                </div>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Disabled Switch"
+                category="form"
+                designIntent={designIntent}
+                description="Disabled switch state"
+              >
+                <div className="flex items-center space-x-xs">
+                  <Switch id="disabled-switch" disabled />
+                  <Label htmlFor="disabled-switch">Disabled switch</Label>
+                </div>
+              </ShowcaseCard>
             </div>
           </CodePlayground>
         </ShowcaseSection>
 
-        <ShowcaseSection 
+        <ShowcaseSection
           id="slider"
-          title="Slider" 
+          title="Slider"
           description="Range input slider"
         >
-          <div className="space-y-4">
+          <ShowcaseCard
+            defaultName="Volume Slider"
+            category="form"
+            designIntent={designIntent}
+            description="Range slider for adjusting volume or other numeric values"
+          >
             <div>
               <Label>Volume: {sliderValue[0]}%</Label>
-              <Slider 
-                value={sliderValue} 
+              <Slider
+                value={sliderValue}
                 onValueChange={setSliderValue}
                 max={100}
                 step={1}
-                className="mt-2"
+                className="mt-xs"
               />
             </div>
-          </div>
+          </ShowcaseCard>
         </ShowcaseSection>
       </ShowcaseWithNav>
     </div>

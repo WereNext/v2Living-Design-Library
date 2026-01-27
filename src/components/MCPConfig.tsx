@@ -1,43 +1,115 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Copy, Check, ExternalLink, Terminal, Plug, Info } from "lucide-react";
+import { Copy, Check, ExternalLink, Terminal, Info, Zap, Layout, Palette, Grid3X3 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { MCPExport } from "./MCPExport";
 
-export function MCPConfig() {
-  const [copied, setCopied] = useState(false);
-  const [copiedNPX, setCopiedNPX] = useState(false);
+interface ServerStatus {
+  detected: boolean;
+  checking: boolean;
+  port: number | null;
+  version: string | null;
+  designSystems: number;
+  error: string | null;
+}
 
-  // Get the absolute path - in production you'd need to configure this
-  const serverPath = "/absolute/path/to/your/project/mcp-server/index.js";
-  
-  const mcpConfig = {
+export function MCPConfig() {
+  const [copiedStdio, setCopiedStdio] = useState(false);
+  const [copiedHttp, setCopiedHttp] = useState(false);
+  const [serverStatus, setServerStatus] = useState<ServerStatus>({
+    detected: false,
+    checking: true,
+    port: null,
+    version: null,
+    designSystems: 0,
+    error: null,
+  });
+
+  // Check for running MCP server on common ports
+  useEffect(() => {
+    const checkPorts = [3005, 3006, 3007, 3008];
+
+    const checkServer = async () => {
+      for (const port of checkPorts) {
+        try {
+          const response = await fetch(`http://localhost:${port}/health`, {
+            method: 'GET',
+            signal: AbortSignal.timeout(2000),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.server === 'living-design-library-mcp') {
+              setServerStatus({
+                detected: true,
+                checking: false,
+                port,
+                version: data.version || null,
+                designSystems: data.designSystems || 0,
+                error: null,
+              });
+              return;
+            }
+          }
+        } catch {
+          // Port not responding or wrong server, try next
+        }
+      }
+      // No server found on any port
+      setServerStatus({
+        detected: false,
+        checking: false,
+        port: null,
+        version: null,
+        designSystems: 0,
+        error: 'MCP server not detected',
+      });
+    };
+
+    checkServer();
+    // Re-check every 10 seconds
+    const interval = setInterval(checkServer, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Template path - users replace with their actual project location
+  const templatePath = "/path/to/your/project/src/mcp-server/index.js";
+
+  // stdio transport config (requires path to server)
+  const stdioConfig = {
     mcpServers: {
       "living-design-library": {
         command: "node",
-        args: [serverPath]
+        args: [templatePath]
       }
     }
   };
 
-  const npxCommand = "npx living-design-library-mcp-server";
+  // HTTP transport config - only valid when server is detected
+  const httpConfig = serverStatus.detected && serverStatus.port ? {
+    mcpServers: {
+      "living-design-library": {
+        transport: "http",
+        url: `http://localhost:${serverStatus.port}/mcp`
+      }
+    }
+  } : null;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(JSON.stringify(mcpConfig, null, 2));
-    setCopied(true);
-    toast.success("MCP configuration copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyStdio = () => {
+    navigator.clipboard.writeText(JSON.stringify(stdioConfig, null, 2));
+    setCopiedStdio(true);
+    toast.success("stdio config copied - remember to update the path!");
+    setTimeout(() => setCopiedStdio(false), 2000);
   };
 
-  const handleCopyNPX = () => {
-    navigator.clipboard.writeText(npxCommand);
-    setCopiedNPX(true);
-    toast.success("Command copied to clipboard!");
-    setTimeout(() => setCopiedNPX(false), 2000);
+  const handleCopyHttp = () => {
+    navigator.clipboard.writeText(JSON.stringify(httpConfig, null, 2));
+    setCopiedHttp(true);
+    toast.success("HTTP config copied!");
+    setTimeout(() => setCopiedHttp(false), 2000);
   };
 
   return (
@@ -49,20 +121,384 @@ export function MCPConfig() {
         </p>
       </div>
 
-      {/* Export Component - FIRST */}
-      <MCPExport />
+      {/* Main Tabs */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="setup">Setup</TabsTrigger>
+        </TabsList>
 
-      {/* What is MCP */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          <strong>What is MCP?</strong> Model Context Protocol is an open standard that connects AI assistants 
-          to external tools and data sources. Once configured, you can ask Claude or other AI agents to 
-          import Figma tokens, create design systems, and export components in any framework using natural language.
-        </AlertDescription>
-      </Alert>
+        <TabsContent value="overview" className="space-y-6">
+          {/* What is MCP */}
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              <strong>What is MCP?</strong> Model Context Protocol is an open standard that connects AI assistants
+              to external tools and data sources. Once configured, you can ask Claude or other AI agents to
+              import Figma tokens, create design systems, and export components in any framework using natural language.
+            </AlertDescription>
+          </Alert>
 
-      {/* Visual-First Workflow - NEW */}
+          {/* MCP Apps - Interactive UI Components */}
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            MCP Apps
+            <Badge variant="secondary" className="text-xs">New</Badge>
+          </CardTitle>
+          <CardDescription>
+            Interactive UI components that display directly in AI conversations
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            MCP Apps are rich, interactive UI components that AI agents can render inline during conversations.
+            Instead of just text responses, the AI can show you visual previews, color palettes, and interactive galleries.
+          </p>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
+              <Layout className="w-5 h-5 text-primary mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium">Library Menu</h4>
+                <p className="text-xs text-muted-foreground">Browse all design systems with theme previews and color swatches</p>
+                <code className="text-xs text-muted-foreground">/ui/library-menu</code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
+              <Palette className="w-5 h-5 text-primary mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium">Token Viewer</h4>
+                <p className="text-xs text-muted-foreground">Visual display of all design tokens with live values</p>
+                <code className="text-xs text-muted-foreground">/ui/token-viewer</code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
+              <Grid3X3 className="w-5 h-5 text-primary mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium">Pattern Gallery</h4>
+                <p className="text-xs text-muted-foreground">Browse component patterns with code examples</p>
+                <code className="text-xs text-muted-foreground">/ui/pattern-gallery</code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
+              <Layout className="w-5 h-5 text-primary mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium">Dashboard</h4>
+                <p className="text-xs text-muted-foreground">Overview of your design system at a glance</p>
+                <code className="text-xs text-muted-foreground">/ui/dashboard</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Preview */}
+          <div className="rounded-lg border bg-slate-900 p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-lg">
+                🎨
+              </div>
+              <div>
+                <h4 className="text-white font-medium">Design Library</h4>
+                <p className="text-slate-400 text-xs">Available design systems & themes</p>
+              </div>
+            </div>
+            <div className="border-t border-slate-700 pt-3 space-y-2">
+              <p className="text-slate-400 text-xs uppercase tracking-wide">Design Systems</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 rounded bg-slate-800/50 border-l-2 border-blue-500">
+                  <div>
+                    <span className="text-white text-sm">Default Design System</span>
+                    <Badge variant="default" className="ml-2 text-[10px]">Active</Badge>
+                    <p className="text-slate-400 text-xs">6 themes available</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="w-4 h-4 rounded bg-slate-600"></div>
+                    <div className="w-4 h-4 rounded bg-slate-900"></div>
+                    <div className="w-4 h-4 rounded bg-blue-500"></div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-slate-800/30">
+                  <div>
+                    <span className="text-slate-300 text-sm">Material Design System</span>
+                    <p className="text-slate-500 text-xs">3 themes available</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="w-4 h-4 rounded bg-slate-500"></div>
+                    <div className="w-4 h-4 rounded bg-purple-500"></div>
+                    <div className="w-4 h-4 rounded bg-white"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-slate-500 text-xs text-center pt-2 border-t border-slate-700">
+              4 systems • 15 themes • <span className="text-blue-400">↻ Refresh</span>
+            </p>
+          </div>
+
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              <strong>How it works:</strong> When you ask the AI about design systems, it can respond with an interactive UI
+              instead of plain text. For example, asking "show me available design systems" might display the Library Menu
+              with clickable themes and color swatches.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Available Tools - Moved to Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Available MCP Tools</CardTitle>
+          <CardDescription>
+            What AI agents can do once connected to this server
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Design System Management</h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• List all design systems</li>
+                <li>• Get design system details</li>
+                <li>• Create new design systems</li>
+                <li>• Set active system</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Import & Templates</h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• Import Figma JSON tokens</li>
+                <li>• List library templates</li>
+                <li>• Load shadcn/ui, Material Design, etc.</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Components & Code</h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• List components</li>
+                <li>• Export in React/Vue/HTML/Svelte</li>
+                <li>• Components use your tokens</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Design Tokens</h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• Get colors, spacing, typography</li>
+                <li>• Access all token types</li>
+                <li>• Filter by token category</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">⭐ Page Templates</h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• Get complete page compositions</li>
+                <li>• 12 pre-built page types</li>
+                <li>• Multi-component layouts</li>
+              </ul>
+            </div>
+            <div className="space-y-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <h4 className="text-sm font-medium flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                MCP Apps
+              </h4>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• Interactive Library Menu</li>
+                <li>• Visual Token Viewer</li>
+                <li>• Pattern Gallery</li>
+                <li>• Design System Dashboard</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Example Conversations - Moved to Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Example Conversations</CardTitle>
+          <CardDescription>
+            What you can ask AI once the MCP server is connected
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="border-l-2 border-primary pl-3 space-y-1">
+            <p className="text-sm">"Import my Figma design tokens and create a design system called 'AcmeApp'"</p>
+            <p className="text-xs text-muted-foreground">Imports JSON and creates a working design system</p>
+          </div>
+          <div className="border-l-2 border-primary pl-3 space-y-1">
+            <p className="text-sm">"Load the shadcn/ui template for my dashboard project"</p>
+            <p className="text-xs text-muted-foreground">Loads pre-built library with all tokens</p>
+          </div>
+          <div className="border-l-2 border-primary pl-3 space-y-1">
+            <p className="text-sm">"Give me Button, Card, and Modal components in React"</p>
+            <p className="text-xs text-muted-foreground">Exports multiple components with your design tokens</p>
+          </div>
+          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/5 p-2 rounded">
+            <p className="text-sm"><strong>⭐ "Give me a complete dashboard page in React"</strong></p>
+            <p className="text-xs text-muted-foreground">Returns a full page with sidebar, header, data cards, and table</p>
+          </div>
+          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/10 p-2 rounded">
+            <p className="text-sm"><strong>🎨 [Upload Figma screenshot] "Code this using my MCP design library"</strong></p>
+            <p className="text-xs text-muted-foreground">AI analyzes the visual + pulls matching components with your exact tokens</p>
+          </div>
+        </CardContent>
+      </Card>
+        </TabsContent>
+
+        {/* Setup Tab */}
+        <TabsContent value="setup" className="space-y-6">
+          {/* MCP Server Configuration - Universal */}
+          <Card className="border-primary/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Terminal className="w-5 h-5" />
+                MCP Server Configuration
+              </CardTitle>
+              <CardDescription>
+                Choose a transport method and copy the configuration to your AI coding tool
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Transport Options */}
+              <Tabs defaultValue="http" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="http">
+                    <span className="flex items-center gap-1">
+                      HTTP Transport
+                      <Badge variant="secondary" className="text-[10px] ml-1">Recommended</Badge>
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger value="stdio">stdio Transport</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="http" className="space-y-3 mt-4">
+                  {/* Server Status Indicator */}
+                  {serverStatus.checking ? (
+                    <div className="p-3 rounded-lg bg-muted border animate-pulse">
+                      <p className="text-xs text-muted-foreground">
+                        Detecting MCP server...
+                      </p>
+                    </div>
+                  ) : serverStatus.detected ? (
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          <strong>Server detected on port {serverStatus.port}</strong>
+                          {serverStatus.version && <span className="ml-2">v{serverStatus.version}</span>}
+                        </p>
+                        <Badge variant="outline" className="text-[10px] bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30">
+                          {serverStatus.designSystems} design system{serverStatus.designSystems !== 1 ? 's' : ''} loaded
+                        </Badge>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                      <p className="text-xs text-amber-700 dark:text-amber-400">
+                        <strong>MCP server not detected.</strong> Start the app with <code className="bg-background px-1 rounded">npm run dev</code> to enable HTTP transport.
+                      </p>
+                    </div>
+                  )}
+                  {httpConfig ? (
+                    <div className="bg-muted p-4 rounded-md relative">
+                      <pre className="text-xs font-mono whitespace-pre-wrap overflow-auto max-h-48">
+                        {JSON.stringify(httpConfig, null, 2)}
+                      </pre>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="absolute top-2 right-2"
+                        onClick={handleCopyHttp}
+                      >
+                        {copiedHttp ? (
+                          <>
+                            <Check className="w-3 h-3 mr-1" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-muted/50 p-4 rounded-md border-2 border-dashed border-muted-foreground/20">
+                      <p className="text-xs text-muted-foreground text-center">
+                        Config will appear here once the MCP server is detected
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {serverStatus.detected && serverStatus.port ? (
+                      <>The AI tool connects to the running MCP server at <code className="bg-muted px-1 rounded">localhost:{serverStatus.port}</code>.</>
+                    ) : (
+                      <>Start the app to detect the server port. The config will update automatically.</>
+                    )}
+                  </p>
+                </TabsContent>
+
+                <TabsContent value="stdio" className="space-y-3 mt-4">
+                  <Alert variant="default" className="border-amber-500/30 bg-amber-500/5">
+                    <Info className="h-4 w-4 text-amber-600" />
+                    <AlertDescription className="text-xs">
+                      <strong>Path required:</strong> Replace <code className="bg-background px-1 rounded">/path/to/your/project</code> with your actual project directory.
+                    </AlertDescription>
+                  </Alert>
+                  <div className="bg-muted p-4 rounded-md relative">
+                    <pre className="text-xs font-mono whitespace-pre-wrap overflow-auto max-h-48">
+                      {JSON.stringify(stdioConfig, null, 2)}
+                    </pre>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="absolute top-2 right-2"
+                      onClick={handleCopyStdio}
+                    >
+                      {copiedStdio ? (
+                        <>
+                          <Check className="w-3 h-3 mr-1" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    The AI tool spawns the MCP server as a subprocess. Works even when the app isn't running,
+                    but requires the correct absolute path to the server script.
+                  </p>
+                </TabsContent>
+              </Tabs>
+
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  <strong>Where does this go?</strong> Each AI tool has a different config location:
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li>• <strong>Claude Code:</strong> <code className="bg-background px-1 rounded">~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+                    <li>• <strong>Cline:</strong> Settings → MCP Servers → Paste config</li>
+                    <li>• <strong>Continue.dev:</strong> <code className="bg-background px-1 rounded">~/.continue/config.json</code> → mcpServers section</li>
+                    <li>• <strong>Project-level:</strong> Some tools support <code className="bg-background px-1 rounded">.mcp/config.json</code> in your project root</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {/* Export Component */}
+          <MCPExport />
+
+          {/* Visual-First Workflow */}
       <Card className="border-accent bg-accent/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -155,15 +591,18 @@ export function MCPConfig() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="text-sm mb-2">Step 1: Install Dependencies</h4>
+                <h4 className="text-sm mb-2">Step 1: Launch the App with MCP</h4>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Navigate to the mcp-server directory and install packages:
+                  The easiest way to get started is to run both the app and MCP server together:
                 </p>
                 <div className="bg-muted p-3 rounded-md relative">
                   <code className="text-xs font-mono">
-                    cd mcp-server && npm install
+                    npm run dev:full
                   </code>
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This starts both the app (on http://localhost:3001) and the MCP server in parallel with color-coded logs.
+                </p>
               </div>
 
               <div>
@@ -190,36 +629,13 @@ export function MCPConfig() {
               <div>
                 <h4 className="text-sm mb-2">Step 3: Add MCP Server Configuration</h4>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Copy this JSON and add it to your config file. <strong>Update the path</strong> to match your actual project location:
+                  Copy the configuration from the "MCP Server Configuration" card above and paste it into your config file.
                 </p>
-                <div className="bg-muted p-4 rounded-md relative">
-                  <pre className="text-xs font-mono whitespace-pre-wrap overflow-auto max-h-64">
-                    {JSON.stringify(mcpConfig, null, 2)}
-                  </pre>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="absolute top-2 right-2"
-                    onClick={handleCopy}
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3 h-3 mr-1" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3 mr-1" />
-                        Copy
-                      </>
-                    )}
-                  </Button>
-                </div>
                 <Alert className="mt-2">
-                  <Terminal className="h-4 w-4" />
+                  <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    <strong>Important:</strong> Replace <code>/absolute/path/to/your/project/</code> with 
-                    the actual absolute path to where you've installed this design library.
+                    <strong>Recommended:</strong> Use the <strong>HTTP transport</strong> config - it's simpler and doesn't require path configuration.
+                    Just make sure the Living Design Library app is running.
                   </AlertDescription>
                 </Alert>
               </div>
@@ -227,7 +643,7 @@ export function MCPConfig() {
               <div>
                 <h4 className="text-sm mb-2">Step 4: Restart Claude Code</h4>
                 <p className="text-xs text-muted-foreground">
-                  After saving the config file, completely quit and restart Claude Code. The MCP tools will appear automatically.
+                  After saving the config file, completely quit and restart Claude Code. The MCP server will be available automatically.
                 </p>
               </div>
 
@@ -367,6 +783,121 @@ export function MCPConfig() {
             </CardContent>
           </Card>
 
+          {/* Kiro Setup */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Kiro Setup</CardTitle>
+              <CardDescription>
+                AI coding agent for VS Code with MCP integration
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm mb-2">Step 1: Install Kiro</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Install the Kiro extension from the VS Code marketplace.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm mb-2">Step 2: Open Kiro Settings</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Click the Kiro icon in VS Code sidebar → Open settings
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm mb-2">Step 3: Add MCP Server</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Add the MCP server configuration:
+                  </p>
+                  <div className="bg-muted p-3 rounded-md">
+                    <pre className="text-xs font-mono overflow-x-auto">
+{`{
+  "mcpServers": {
+    "design-library": {
+      "command": "node",
+      "args": ["/absolute/path/to/your/project/src/mcp-server/index.js"]
+    }
+  }
+}`}
+                    </pre>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm mb-2">Step 4: Restart Kiro</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Reload VS Code or restart the Kiro extension. The design library tools will be available in Kiro chat.
+                  </p>
+                </div>
+
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    <strong>Tip:</strong> Kiro supports screenshot uploads for visual-first coding.
+                    Upload your Figma designs and ask Kiro to code them using your MCP design library!
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Antigravity Setup */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Antigravity Setup</CardTitle>
+              <CardDescription>
+                AI coding assistant with MCP support
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm mb-2">Step 1: Install Antigravity</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Install Antigravity from your platform's marketplace or follow the official installation guide.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm mb-2">Step 2: Configure MCP Server</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Add the MCP server to Antigravity's configuration:
+                  </p>
+                  <div className="bg-muted p-3 rounded-md">
+                    <pre className="text-xs font-mono overflow-x-auto">
+{`{
+  "mcpServers": {
+    "design-library": {
+      "command": "node",
+      "args": ["/absolute/path/to/your/project/src/mcp-server/index.js"]
+    }
+  }
+}`}
+                    </pre>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm mb-2">Step 3: Restart Antigravity</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Restart Antigravity for the changes to take effect. The design library tools will be available automatically.
+                  </p>
+                </div>
+
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    <strong>Tip:</strong> Antigravity works great with visual-first workflows.
+                    Combine your design system tokens with AI-generated code for pixel-perfect results.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Zed Setup */}
           <Card>
             <CardHeader>
@@ -436,30 +967,11 @@ export function MCPConfig() {
                   Most MCP-compatible AI tools follow a similar configuration pattern. You'll need to provide the command and path to the server.
                 </p>
 
-                <h4 className="text-sm mb-2">Server Command</h4>
-                <div className="bg-muted p-3 rounded-md relative">
-                  <code className="text-xs font-mono">
-                    node /absolute/path/to/your/project/mcp-server/index.js
-                  </code>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="absolute top-2 right-2"
-                    onClick={handleCopyNPX}
-                  >
-                    {copiedNPX ? (
-                      <>
-                        <Check className="w-3 h-3 mr-1" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3 mr-1" />
-                        Copy
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <h4 className="text-sm mb-2">Use the Configuration Above</h4>
+                <p className="text-xs text-muted-foreground">
+                  Copy the JSON config from the "MCP Server Configuration" card at the top of this page.
+                  The HTTP transport is recommended as it doesn't require path configuration.
+                </p>
               </div>
 
               <Alert>
@@ -482,164 +994,27 @@ export function MCPConfig() {
         </TabsContent>
       </Tabs>
 
-      {/* Available Tools */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available MCP Tools</CardTitle>
-          <CardDescription>
-            What AI agents can do once connected to this server
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <h4 className="text-sm">Design System Management</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• List all design systems</li>
-                <li>• Get design system details</li>
-                <li>• Create new design systems</li>
-                <li>• Set active system</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm">Import & Templates</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• Import Figma JSON tokens</li>
-                <li>• List library templates</li>
-                <li>• Load shadcn/ui, Material Design, etc.</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm">Components & Code</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• List components</li>
-                <li>• Export in React/Vue/HTML/Svelte</li>
-                <li>• Components use your tokens</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm">Design Tokens</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• Get colors, spacing, typography</li>
-                <li>• Access all token types</li>
-                <li>• Filter by token category</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm">⭐ Page Templates</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• Get complete page compositions</li>
-                <li>• 12 pre-built page types</li>
-                <li>• Multi-component layouts ready to use</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm">⭐ Composition Guides</h4>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• Learn component combinations</li>
-                <li>• Layout pattern recommendations</li>
-                <li>• Best practices for each use case</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Example Conversations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Example Conversations</CardTitle>
-          <CardDescription>
-            What you can ask AI once the MCP server is connected
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="border-l-2 border-primary pl-3 space-y-1">
-            <p className="text-sm">"Import my Figma design tokens and create a design system called 'AcmeApp'"</p>
-            <p className="text-xs text-muted-foreground">Imports JSON and creates a working design system</p>
-          </div>
-
-          <div className="border-l-2 border-primary pl-3 space-y-1">
-            <p className="text-sm">"Load the shadcn/ui template for my dashboard project"</p>
-            <p className="text-xs text-muted-foreground">Loads pre-built library with all tokens</p>
-          </div>
-
-          <div className="border-l-2 border-primary pl-3 space-y-1">
-            <p className="text-sm">"Give me Button, Card, and Modal components in React"</p>
-            <p className="text-xs text-muted-foreground">Exports multiple components with your design tokens</p>
-          </div>
-
-          <div className="border-l-2 border-primary pl-3 space-y-1">
-            <p className="text-sm">"Show me all the color tokens from my active design system"</p>
-            <p className="text-xs text-muted-foreground">Returns complete color palette</p>
-          </div>
-
-          <div className="border-l-2 border-primary pl-3 space-y-1">
-            <p className="text-sm">"Create a dark theme with purple primary and cyan accent"</p>
-            <p className="text-xs text-muted-foreground">Generates custom design system with your specs</p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/5 p-2 rounded">
-            <p className="text-sm"><strong>⭐ "Give me a complete dashboard page in React"</strong></p>
-            <p className="text-xs text-muted-foreground">Returns a full page with sidebar, header, data cards, and table - all composed together with your tokens</p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/5 p-2 rounded">
-            <p className="text-sm"><strong>⭐ "How do I compose a data table with filters?"</strong></p>
-            <p className="text-xs text-muted-foreground">Provides layout guidance, component recommendations, and best practices for that specific use case</p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/5 p-2 rounded">
-            <p className="text-sm"><strong>⭐ "Show me an e-commerce product page template in Vue"</strong></p>
-            <p className="text-xs text-muted-foreground">Generates a complete product page with image gallery, details, add-to-cart, and reviews sections</p>
-          </div>
-
-          {/* Visual-First Examples */}
-          <div className="mt-4 pt-4 border-t">
-            <Badge className="mb-3">Visual-First Workflow Examples</Badge>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/10 p-2 rounded">
-            <p className="text-sm"><strong>🎨 [Upload Figma screenshot] "Code this dashboard exactly as shown, using components from my MCP design library"</strong></p>
-            <p className="text-xs text-muted-foreground">AI analyzes the visual layout + pulls matching components with your exact tokens → pixel-perfect result</p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/10 p-2 rounded">
-            <p className="text-sm"><strong>🎨 [Upload product page mockup] "Build this in React. Use my design system for colors and spacing"</strong></p>
-            <p className="text-xs text-muted-foreground">AI sees card layouts, CTAs, and images + uses your MCP tokens for perfect brand consistency</p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-3 space-y-1 bg-accent/10 p-2 rounded">
-            <p className="text-sm"><strong>🎨 [Upload form design] "Create this checkout form with validation. Match the spacing and button styles exactly"</strong></p>
-            <p className="text-xs text-muted-foreground">AI understands form structure visually + uses your pre-built Input, Button, and Checkbox components</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Documentation Link */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm mb-1">Full Documentation</h4>
-              <p className="text-xs text-muted-foreground">
-                Complete setup guide, API reference, and troubleshooting tips
-              </p>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/mcp-server/README.md" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View Docs
-              </a>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Documentation Link */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm mb-1">Full Documentation</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Complete setup guide, API reference, and troubleshooting tips
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="/mcp-server/README.md" target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Docs
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

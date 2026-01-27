@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -24,17 +24,29 @@ interface SaveDesignSystemDialogProps {
     fontFamily?: string;
     visualFeel?: string;
   };
+  defaultName?: string;
+  defaultDescription?: string;
 }
 
-export function SaveDesignSystemDialog({ 
-  open, 
-  onOpenChange, 
+export function SaveDesignSystemDialog({
+  open,
+  onOpenChange,
   onSave,
   tokenCounts,
-  data
+  data,
+  defaultName,
+  defaultDescription
 }: SaveDesignSystemDialogProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(defaultName || "");
+  const [description, setDescription] = useState(defaultDescription || "");
+
+  // Update state when default values change (e.g., new import)
+  useEffect(() => {
+    if (open) {
+      setName(defaultName || "");
+      setDescription(defaultDescription || "");
+    }
+  }, [open, defaultName, defaultDescription]);
   const [applyImmediately, setApplyImmediately] = useState(true);
 
   const handleSave = () => {
@@ -60,7 +72,7 @@ export function SaveDesignSystemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[90vw] w-[90vw] max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Save className="w-5 h-5" />

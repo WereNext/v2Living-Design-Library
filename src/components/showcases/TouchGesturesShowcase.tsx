@@ -25,10 +25,10 @@ export function TouchGesturesShowcase() {
         title="Tap Gestures"
         description="Single tap, double tap, and long press interactions"
       >
-        <div className="max-w-md mx-auto space-y-4">
+        <div className="max-w-md mx-auto space-y-md">
           <Card>
-            <CardContent className="p-8">
-              <div className="text-center space-y-6">
+            <CardContent className="p-xl">
+              <div className="text-center space-y-lg">
                 <div
                   className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-400 to-purple-400 rounded-2xl flex items-center justify-center text-4xl cursor-pointer hover:scale-105 active:scale-95 transition-transform"
                   onClick={() => {
@@ -39,8 +39,8 @@ export function TouchGesturesShowcase() {
                   👆
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Tap Count</p>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <p className="text-sm text-muted-foreground mb-xs">Tap Count</p>
+                  <Badge variant="secondary" className="text-lg px-md py-xs">
                     {tapCount}
                   </Badge>
                 </div>
@@ -55,13 +55,13 @@ export function TouchGesturesShowcase() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-md">
             <Card
               className="cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => toast("Single tap detected!")}
             >
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl mb-2">👆</div>
+              <CardContent className="p-lg text-center">
+                <div className="text-3xl mb-xs">👆</div>
                 <p className="text-sm font-semibold">Single Tap</p>
                 <p className="text-xs text-muted-foreground mt-1">Click once</p>
               </CardContent>
@@ -71,8 +71,8 @@ export function TouchGesturesShowcase() {
               className="cursor-pointer hover:shadow-lg transition-shadow"
               onDoubleClick={() => toast.success("Double tap detected!")}
             >
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl mb-2">👆👆</div>
+              <CardContent className="p-lg text-center">
+                <div className="text-3xl mb-xs">👆👆</div>
                 <p className="text-sm font-semibold">Double Tap</p>
                 <p className="text-xs text-muted-foreground mt-1">Double click</p>
               </CardContent>
@@ -85,8 +85,8 @@ export function TouchGesturesShowcase() {
                 toast("Long press detected!");
               }}
             >
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl mb-2">🖐️</div>
+              <CardContent className="p-lg text-center">
+                <div className="text-3xl mb-xs">🖐️</div>
                 <p className="text-sm font-semibold">Long Press</p>
                 <p className="text-xs text-muted-foreground mt-1">Right click</p>
               </CardContent>
@@ -96,8 +96,8 @@ export function TouchGesturesShowcase() {
               className="cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => toast("Touch target hit!")}
             >
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl mb-2">🎯</div>
+              <CardContent className="p-lg text-center">
+                <div className="text-3xl mb-xs">🎯</div>
                 <p className="text-sm font-semibold">Touch Target</p>
                 <p className="text-xs text-muted-foreground mt-1">44x44 min</p>
               </CardContent>
@@ -113,8 +113,8 @@ export function TouchGesturesShowcase() {
       >
         <div className="max-w-md mx-auto">
           <Card>
-            <CardContent className="p-6">
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-8 mb-4 relative overflow-hidden">
+            <CardContent className="p-lg">
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-xl mb-md relative overflow-hidden">
                 <div
                   className="transition-transform duration-200 origin-center"
                   style={{
@@ -122,26 +122,26 @@ export function TouchGesturesShowcase() {
                   }}
                 >
                   <div className="text-center">
-                    <div className="text-6xl mb-4">🖼️</div>
+                    <div className="text-6xl mb-md">🖼️</div>
                     <p className="font-semibold">Zoomable Content</p>
                     <p className="text-sm text-muted-foreground">Scale: {scale.toFixed(1)}x</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-xs mb-md">
                 <Button
                   variant="outline"
                   onClick={() => setScale(Math.min(scale + 0.2, 3))}
                 >
-                  <ZoomIn className="w-4 h-4 mr-2" />
+                  <ZoomIn className="w-4 h-4 mr-xs" />
                   Zoom In
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setScale(Math.max(scale - 0.2, 0.5))}
                 >
-                  <ZoomOut className="w-4 h-4 mr-2" />
+                  <ZoomOut className="w-4 h-4 mr-xs" />
                   Zoom Out
                 </Button>
               </div>
@@ -155,14 +155,14 @@ export function TouchGesturesShowcase() {
                   toast("Reset to original size");
                 }}
               >
-                <Maximize2 className="w-4 h-4 mr-2" />
+                <Maximize2 className="w-4 h-4 mr-xs" />
                 Reset Zoom
               </Button>
             </CardContent>
           </Card>
 
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="mt-md p-md bg-muted rounded-lg">
+            <div className="flex items-center gap-xs text-sm text-muted-foreground">
               <Hand className="w-4 h-4" />
               <p>Use the zoom buttons to simulate pinch gestures</p>
             </div>
@@ -175,10 +175,10 @@ export function TouchGesturesShowcase() {
         title="Drag & Drop"
         description="Touch-based drag and drop interactions"
       >
-        <div className="max-w-md mx-auto space-y-4">
+        <div className="max-w-md mx-auto space-y-md">
           <Card>
-            <CardContent className="p-6">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-8 min-h-[300px] flex flex-col items-center justify-center">
+            <CardContent className="p-lg">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-xl min-h-[300px] flex flex-col items-center justify-center">
                 <div
                   className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-2xl flex items-center justify-center text-3xl cursor-move hover:scale-105 active:scale-95 transition-transform shadow-lg"
                   draggable
@@ -187,14 +187,14 @@ export function TouchGesturesShowcase() {
                 >
                   📦
                 </div>
-                <p className="text-sm text-muted-foreground mt-4">
+                <p className="text-sm text-muted-foreground mt-md">
                   Drag me around
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-md">
             {[
               { emoji: "📱", label: "Phone" },
               { emoji: "💻", label: "Laptop" },
@@ -206,8 +206,8 @@ export function TouchGesturesShowcase() {
                 draggable
                 onDragStart={() => toast(`Dragging ${item.label}`)}
               >
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl mb-2">{item.emoji}</div>
+                <CardContent className="p-md text-center">
+                  <div className="text-3xl mb-xs">{item.emoji}</div>
                   <p className="text-xs">{item.label}</p>
                 </CardContent>
               </Card>
@@ -216,11 +216,11 @@ export function TouchGesturesShowcase() {
 
           <Card className="border-2 border-dashed">
             <CardContent
-              className="p-8 text-center"
+              className="p-xl text-center"
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => toast.success("Item dropped in zone!")}
             >
-              <Move className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+              <Move className="w-8 h-8 mx-auto mb-xs text-muted-foreground" />
               <p className="text-sm font-semibold">Drop Zone</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Drag items here

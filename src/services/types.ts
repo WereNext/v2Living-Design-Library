@@ -89,7 +89,8 @@ export interface DesignSystemCreate {
   name: string;
   description?: string;
   useIcons?: boolean;
-  themes?: Omit<Theme, 'id'>[];
+  themes?: Array<Omit<Theme, 'id'> & { id?: string }>;
+  activeThemeId?: string;
   intents?: Array<{
     id: string;
     value: string;

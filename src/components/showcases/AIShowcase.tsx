@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ShowcaseSection } from "../ShowcaseSection";
+import { ShowcaseCard } from "../ShowcaseCard";
 import { Button } from "../ui-adapters/Button";
 import { Input } from "../ui-adapters/Input";
 import { Textarea } from "../ui/textarea";
@@ -140,10 +141,16 @@ export function AIShowcase() {
         title="AI Chat Interface"
         description="Full-featured chat interface for AI conversations"
       >
+        <ShowcaseCard
+          defaultName="AI Chat Interface"
+          category="ai"
+          designIntent="web-app"
+          description="Full-featured AI chat interface with message history, model selection, and suggested prompts"
+        >
         <Card className="w-full max-w-4xl">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-sm">
                 <Avatar>
                   <AvatarFallback className="bg-primary">
                     <Bot className="w-5 h-5 text-primary-foreground" />
@@ -151,13 +158,13 @@ export function AIShowcase() {
                 </Avatar>
                 <div>
                   <CardTitle>AI Assistant</CardTitle>
-                  <CardDescription className="flex items-center gap-2 mt-1">
+                  <CardDescription className="flex items-center gap-xs mt-1">
                     <span className="w-2 h-2 bg-green-500 rounded-full" />
                     Online
                   </CardDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-xs">
                 <Select value={selectedModel} onValueChange={setSelectedModel}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
@@ -176,15 +183,15 @@ export function AIShowcase() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>
-                      <Settings className="w-4 h-4 mr-2" />
+                      <Settings className="w-4 h-4 mr-xs" />
                       Settings
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <FileText className="w-4 h-4 mr-2" />
+                      <FileText className="w-4 h-4 mr-xs" />
                       Export Chat
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <RotateCcw className="w-4 h-4 mr-2" />
+                      <RotateCcw className="w-4 h-4 mr-xs" />
                       Clear History
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -193,8 +200,8 @@ export function AIShowcase() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-96 p-4">
-              <div className="space-y-4">
+            <ScrollArea className="h-96 p-md">
+              <div className="space-y-md">
                 {messages.map((message) => (
                   <ChatMessage key={message.id} message={message} />
                 ))}
@@ -202,8 +209,8 @@ export function AIShowcase() {
               </div>
             </ScrollArea>
             <Separator />
-            <div className="p-4 space-y-3">
-              <div className="flex flex-wrap gap-2">
+            <div className="p-md space-y-sm">
+              <div className="flex flex-wrap gap-xs">
                 {suggestedPrompts.map((prompt) => (
                   <Button
                     key={prompt}
@@ -217,7 +224,7 @@ export function AIShowcase() {
                   </Button>
                 ))}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-xs">
                 <Button variant="ghost" size="icon">
                   <Paperclip className="w-4 h-4" />
                 </Button>
@@ -243,6 +250,7 @@ export function AIShowcase() {
             </div>
           </CardContent>
         </Card>
+        </ShowcaseCard>
       </ShowcaseSection>
 
       <ShowcaseSection
@@ -250,11 +258,17 @@ export function AIShowcase() {
         title="AI Sidebar Assistant"
         description="Compact AI assistant that can be embedded in a sidebar"
       >
-        <div className="grid gap-6 md:grid-cols-2">
+        <ShowcaseCard
+          defaultName="AI Sidebar Assistant"
+          category="ai"
+          designIntent="web-app"
+          description="Compact AI assistant designed for sidebar integration with quick actions and features panel"
+        >
+        <div className="grid gap-lg md:grid-cols-2">
           <Card className="w-full max-w-sm">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-sm">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-xs">
                   <Bot className="w-4 h-4" />
                   Quick Assistant
                 </CardTitle>
@@ -263,19 +277,19 @@ export function AIShowcase() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <ScrollArea className="h-64 pr-4">
-                <div className="space-y-3">
+            <CardContent className="space-y-sm">
+              <ScrollArea className="h-64 pr-md">
+                <div className="space-y-sm">
                   {sidebarMessages.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                      <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <div className="text-center py-xl text-muted-foreground text-sm">
+                      <Bot className="w-8 h-8 mx-auto mb-xs opacity-50" />
                       Ask me anything!
                     </div>
                   ) : (
                     sidebarMessages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex gap-2 ${
+                        className={`flex gap-xs ${
                           message.role === "user" ? "justify-end" : "justify-start"
                         }`}
                       >
@@ -287,7 +301,7 @@ export function AIShowcase() {
                           </Avatar>
                         )}
                         <div
-                          className={`rounded-lg px-3 py-2 max-w-[80%] text-sm ${
+                          className={`rounded-lg px-sm py-xs max-w-[80%] text-sm ${
                             message.role === "user"
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted"
@@ -300,7 +314,7 @@ export function AIShowcase() {
                   )}
                 </div>
               </ScrollArea>
-              <div className="flex gap-2">
+              <div className="flex gap-xs">
                 <Input
                   placeholder="Ask a question..."
                   value={sidebarInput}
@@ -321,32 +335,32 @@ export function AIShowcase() {
           </Card>
 
           <Card className="w-full max-w-sm">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-sm">
               <CardTitle className="text-base">AI Features</CardTitle>
               <CardDescription className="text-xs">
                 Quick actions and capabilities
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Button variant="outline" className="w-full justify-start" size="sm">
-                  <MessageSquare className="w-4 h-4 mr-2" />
+                  <MessageSquare className="w-4 h-4 mr-xs" />
                   Start Conversation
                 </Button>
                 <Button variant="outline" className="w-full justify-start" size="sm">
-                  <FileText className="w-4 h-4 mr-2" />
+                  <FileText className="w-4 h-4 mr-xs" />
                   Summarize Document
                 </Button>
                 <Button variant="outline" className="w-full justify-start" size="sm">
-                  <Code className="w-4 h-4 mr-2" />
+                  <Code className="w-4 h-4 mr-xs" />
                   Generate Code
                 </Button>
                 <Button variant="outline" className="w-full justify-start" size="sm">
-                  <ImageIcon className="w-4 h-4 mr-2" />
+                  <ImageIcon className="w-4 h-4 mr-xs" />
                   Create Image
                 </Button>
-                <Separator className="my-3" />
-                <div className="space-y-2 text-xs">
+                <Separator className="my-sm" />
+                <div className="space-y-xs text-xs">
                   <div className="flex items-center justify-between text-muted-foreground">
                     <span>Token Usage</span>
                     <Badge variant="secondary" className="text-xs">
@@ -361,6 +375,7 @@ export function AIShowcase() {
             </CardContent>
           </Card>
         </div>
+        </ShowcaseCard>
       </ShowcaseSection>
 
       <ShowcaseSection
@@ -368,12 +383,18 @@ export function AIShowcase() {
         title="Message Variations"
         description="Different message bubble styles and states"
       >
-        <div className="space-y-4 max-w-2xl">
+        <ShowcaseCard
+          defaultName="AI Message Variations"
+          category="ai"
+          designIntent="web-app"
+          description="Collection of AI message bubble styles including user messages, assistant responses with actions, code blocks, and system notifications"
+        >
+        <div className="space-y-md max-w-2xl">
           {/* User Message */}
-          <div className="flex justify-end gap-2">
-            <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 max-w-[70%]">
+          <div className="flex justify-end gap-xs">
+            <div className="bg-primary text-primary-foreground rounded-lg px-md py-xs max-w-[70%]">
               <p className="text-sm">This is a user message with some content</p>
-              <div className="flex items-center gap-2 mt-1 justify-end">
+              <div className="flex items-center gap-xs mt-1 justify-end">
                 <span className="text-xs opacity-75">2:30 PM</span>
                 <CheckCircle2 className="w-3 h-3 opacity-75" />
               </div>
@@ -386,21 +407,21 @@ export function AIShowcase() {
           </div>
 
           {/* Assistant Message with Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-xs">
             <Avatar className="w-8 h-8">
               <AvatarFallback className="bg-primary">
                 <Bot className="w-4 h-4 text-primary-foreground" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 max-w-[70%]">
-              <div className="bg-muted rounded-lg px-4 py-2">
+              <div className="bg-muted rounded-lg px-md py-xs">
                 <p className="text-sm">
                   Here's a detailed response from the AI assistant. It can include multiple
                   paragraphs and helpful information.
                 </p>
                 <div className="text-xs text-muted-foreground mt-1">2:31 PM</div>
               </div>
-              <div className="flex gap-1 mt-2">
+              <div className="flex gap-1 mt-xs">
                 <Button variant="ghost" size="sm" className="h-7">
                   <Copy className="w-3 h-3 mr-1" />
                   Copy
@@ -419,7 +440,7 @@ export function AIShowcase() {
           </div>
 
           {/* Code Block Message */}
-          <div className="flex gap-2">
+          <div className="flex gap-xs">
             <Avatar className="w-8 h-8">
               <AvatarFallback className="bg-primary">
                 <Bot className="w-4 h-4 text-primary-foreground" />
@@ -427,17 +448,17 @@ export function AIShowcase() {
             </Avatar>
             <div className="flex-1 max-w-[70%]">
               <div className="bg-muted rounded-lg overflow-hidden">
-                <div className="px-4 py-2">
-                  <p className="text-sm mb-2">Here's a code example:</p>
+                <div className="px-md py-xs">
+                  <p className="text-sm mb-xs">Here's a code example:</p>
                 </div>
-                <div className="bg-black/90 text-green-400 px-4 py-3 font-mono text-xs">
+                <div className="bg-black/90 text-green-400 px-md py-sm font-mono text-xs">
                   <code>
                     const greeting = "Hello, World!";
                     <br />
                     console.log(greeting);
                   </code>
                 </div>
-                <div className="px-4 py-2 flex justify-between items-center border-t">
+                <div className="px-md py-xs flex justify-between items-center border-t">
                   <span className="text-xs text-muted-foreground">JavaScript</span>
                   <Button variant="ghost" size="sm" className="h-6">
                     <Copy className="w-3 h-3 mr-1" />
@@ -450,14 +471,15 @@ export function AIShowcase() {
 
           {/* System Message */}
           <div className="flex justify-center">
-            <div className="bg-secondary px-4 py-2 rounded-full">
-              <p className="text-xs text-muted-foreground flex items-center gap-2">
+            <div className="bg-secondary px-md py-xs rounded-full">
+              <p className="text-xs text-muted-foreground flex items-center gap-xs">
                 <Zap className="w-3 h-3" />
                 Switched to GPT-4 model
               </p>
             </div>
           </div>
         </div>
+        </ShowcaseCard>
       </ShowcaseSection>
 
       <ShowcaseSection
@@ -465,14 +487,20 @@ export function AIShowcase() {
         title="AI Input Variations"
         description="Different input styles for AI interactions"
       >
-        <div className="space-y-4 max-w-2xl">
+        <ShowcaseCard
+          defaultName="AI Input Variations"
+          category="ai"
+          designIntent="web-app"
+          description="Different AI input field styles including standard input, multi-line textarea, and inputs with character limits"
+        >
+        <div className="space-y-md max-w-2xl">
           {/* Standard Input */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Standard Message Input</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <div className="flex gap-xs">
                 <Input placeholder="Type a message..." className="flex-1" />
                 <Button>
                   <Send className="w-4 h-4" />
@@ -487,7 +515,7 @@ export function AIShowcase() {
               <CardTitle className="text-sm">Multi-line Input</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Textarea 
                   placeholder="Type a longer message or prompt..." 
                   className="min-h-24 resize-none"
@@ -506,7 +534,7 @@ export function AIShowcase() {
                   </div>
                   <Button>
                     Send
-                    <Send className="w-4 h-4 ml-2" />
+                    <Send className="w-4 h-4 ml-xs" />
                   </Button>
                 </div>
               </div>
@@ -519,7 +547,7 @@ export function AIShowcase() {
               <CardTitle className="text-sm">Input with Limits</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Textarea 
                   placeholder="Maximum 500 characters..." 
                   className="min-h-20 resize-none"
@@ -533,6 +561,7 @@ export function AIShowcase() {
             </CardContent>
           </Card>
         </div>
+        </ShowcaseCard>
       </ShowcaseSection>
 
       <ShowcaseSection
@@ -540,10 +569,16 @@ export function AIShowcase() {
         title="AI Status Indicators"
         description="Loading states and status displays"
       >
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <ShowcaseCard
+          defaultName="AI Status Indicators"
+          category="ai"
+          designIntent="web-app"
+          description="Status indicator cards showing different AI states including online status, processing, and high load warnings"
+        >
+        <div className="grid gap-md md:grid-cols-2 lg:grid-cols-3">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
+            <CardContent className="pt-lg">
+              <div className="flex items-center gap-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <div>
                   <p className="text-sm">AI Online</p>
@@ -554,8 +589,8 @@ export function AIShowcase() {
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
+            <CardContent className="pt-lg">
+              <div className="flex items-center gap-sm">
                 <Clock className="w-4 h-4 text-muted-foreground animate-spin" />
                 <div>
                   <p className="text-sm">Processing</p>
@@ -566,8 +601,8 @@ export function AIShowcase() {
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
+            <CardContent className="pt-lg">
+              <div className="flex items-center gap-sm">
                 <Zap className="w-4 h-4 text-yellow-500" />
                 <div>
                   <p className="text-sm">High Load</p>
@@ -577,6 +612,7 @@ export function AIShowcase() {
             </CardContent>
           </Card>
         </div>
+        </ShowcaseCard>
       </ShowcaseSection>
     </ShowcaseWithNav>
   );
@@ -586,7 +622,7 @@ function ChatMessage({ message }: { message: Message }) {
   const isUser = message.role === "user";
   
   return (
-    <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex gap-sm ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
         <Avatar className="w-8 h-8">
           <AvatarFallback className="bg-primary">
@@ -596,14 +632,14 @@ function ChatMessage({ message }: { message: Message }) {
       )}
       <div className={`flex-1 max-w-[70%] ${isUser ? "flex justify-end" : ""}`}>
         <div
-          className={`rounded-lg px-4 py-2 ${
+          className={`rounded-lg px-md py-xs ${
             isUser
               ? "bg-primary text-primary-foreground"
               : "bg-muted"
           }`}
         >
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-          <div className={`flex items-center gap-2 mt-1 text-xs opacity-75 ${isUser ? "justify-end" : ""}`}>
+          <div className={`flex items-center gap-xs mt-1 text-xs opacity-75 ${isUser ? "justify-end" : ""}`}>
             <span>
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -626,13 +662,13 @@ function ChatMessage({ message }: { message: Message }) {
 
 function TypingIndicator() {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-sm">
       <Avatar className="w-8 h-8">
         <AvatarFallback className="bg-primary">
           <Bot className="w-4 h-4 text-primary-foreground" />
         </AvatarFallback>
       </Avatar>
-      <div className="bg-muted rounded-lg px-4 py-3">
+      <div className="bg-muted rounded-lg px-md py-sm">
         <div className="flex gap-1">
           <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
           <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />

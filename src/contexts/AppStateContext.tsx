@@ -19,14 +19,14 @@ interface AppState {
   
   // Intent State
   designIntent: string;
-  availableIntents: Array<{ id: string; name: string; description: string }>;
-  customIntents: Array<{ id: string; name: string; description: string }>;
+  availableIntents: Array<{ id: string; value: string; label: string; description?: string }>;
+  customIntents: Array<{ id: string; value?: string; label: string; description?: string; isCustom?: boolean }>;
   
   // Actions - Design Systems
   applySystem: (id: string) => boolean;
   setActiveTheme: (systemId: string, themeId: string) => void;
   getSystem: (id: string) => DesignSystem | undefined;
-  addDesignSystem: (system: Omit<DesignSystem, 'id' | 'createdAt'>) => DesignSystem;
+  addDesignSystem: (system: Omit<DesignSystem, 'id' | 'createdAt'>) => Promise<DesignSystem | null>;
   updateSystem: (id: string, updates: Partial<DesignSystem>) => void;
   deleteDesignSystem: (id: string) => void;
   
@@ -38,6 +38,7 @@ interface AppState {
   // Actions - Intents
   setDesignIntent: (intent: string) => void;
   addIntent: (intent: { id: string; name: string; description: string }) => void;
+  updateIntent: (id: string, updates: { categories?: Array<{ id: string; name: string; icon: string }> }) => Promise<void>;
   deleteIntent: (id: string) => void;
 }
 
@@ -78,7 +79,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   } = useTheme();
   
   // Intent manager
-  const { intents: customIntents, addIntent, deleteIntent } = useIntentManager();
+  const { intents: customIntents, addIntent, updateIntent, deleteIntent } = useIntentManager();
 
   // Compute active system
   const activeSystem = activeSystemId ? getSystem(activeSystemId) : null;
@@ -160,15 +161,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [colorTheme, fontFamily, visualFeel]);
 
   // Get available intents
-  const availableIntents = activeSystem?.intents && activeSystem.intents.length > 0 
-    ? activeSystem.intents 
+  const availableIntents = activeSystem?.intents && activeSystem.intents.length > 0
+    ? activeSystem.intents
     : [
-        { id: 'web-app', name: 'Web Application', description: 'Standard web application layouts' },
-        { id: 'mobile-app', name: 'Mobile App', description: 'Mobile-optimized interfaces' },
-        { id: 'dashboard', name: 'Dashboard', description: 'Data visualization dashboards' },
-        { id: 'landing-page', name: 'Landing Page', description: 'Marketing landing pages' },
-        { id: 'e-commerce', name: 'E-Commerce', description: 'Online shopping interfaces' },
-        { id: 'blog', name: 'Blog', description: 'Content-focused blog layouts' },
+        { id: 'web-app', value: 'web-app', label: 'Web Application', description: 'Standard web application layouts' },
+        { id: 'mobile-app', value: 'mobile-app', label: 'Mobile App', description: 'Mobile-optimized interfaces' },
+        { id: 'dashboard', value: 'dashboard', label: 'Dashboard', description: 'Data visualization dashboards' },
+        { id: 'landing-page', value: 'landing-page', label: 'Landing Page', description: 'Marketing landing pages' },
+        { id: 'e-commerce', value: 'e-commerce', label: 'E-Commerce', description: 'Online shopping interfaces' },
+        { id: 'blog', value: 'blog', label: 'Blog', description: 'Content-focused blog layouts' },
       ];
 
   const value: AppState = {
@@ -201,6 +202,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // Intent Actions
     setDesignIntent,
     addIntent,
+    updateIntent,
     deleteIntent,
   };
 

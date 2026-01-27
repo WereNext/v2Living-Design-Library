@@ -57,23 +57,23 @@ export function FeaturesShowcase() {
         title="Icon Grid Layout"
         description="Clean feature grid with icons"
       >
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-12">
-          <div className="text-center mb-12">
-            <Badge className="mb-4">Features</Badge>
-            <h2 className="mb-4">Everything you need to succeed</h2>
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-2xl">
+          <div className="text-center mb-2xl">
+            <Badge className="mb-md">Features</Badge>
+            <h2 className="mb-md">Everything you need to succeed</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to help you build better products faster
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-xl max-w-5xl mx-auto">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
                 <div key={feature.title} className="text-center">
-                  <div className={`w-14 h-14 mx-auto mb-4 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center`}>
+                  <div className={`w-14 h-14 mx-auto mb-md rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center`}>
                     <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <h4 className="mb-2">{feature.title}</h4>
+                  <h4 className="mb-xs">{feature.title}</h4>
                   <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
@@ -89,13 +89,13 @@ export function FeaturesShowcase() {
         title="Feature Cards"
         description="Features displayed as interactive cards"
       >
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-lg">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <Card key={feature.title} className="hover:shadow-lg transition-all hover:-translate-y-1">
                 <CardHeader>
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-md`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <CardTitle className="text-lg">{feature.title}</CardTitle>
@@ -140,14 +140,14 @@ export function FeaturesShowcase() {
               reverse: false
             }
           ].map((item, i) => (
-            <div key={i} className={`grid md:grid-cols-2 gap-8 items-center ${item.reverse ? 'md:flex-row-reverse' : ''}`}>
+            <div key={i} className={`grid md:grid-cols-2 gap-xl items-center ${item.reverse ? 'md:flex-row-reverse' : ''}`}>
               <div className={item.reverse ? 'md:order-2' : ''}>
-                <Badge className="mb-4">Feature {i + 1}</Badge>
-                <h3 className="mb-4">{item.title}</h3>
-                <p className="text-muted-foreground mb-6">{item.description}</p>
-                <ul className="space-y-2">
+                <Badge className="mb-md">Feature {i + 1}</Badge>
+                <h3 className="mb-md">{item.title}</h3>
+                <p className="text-muted-foreground mb-lg">{item.description}</p>
+                <ul className="space-y-xs">
                   {item.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
+                    <li key={feature} className="flex items-center gap-xs">
                       <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                         <div className="w-2 h-2 rounded-full bg-green-600" />
                       </div>

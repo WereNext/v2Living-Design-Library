@@ -1,0 +1,1436 @@
+{
+  "designSystems": [
+    {
+      "id": "default-system",
+      "name": "Default Design System",
+      "description": "The base design system with 4 curated themes",
+      "createdAt": "2026-01-27T20:00:21.280Z",
+      "uiLibrary": "shadcn",
+      "themes": [
+        {
+          "id": "apple-theme",
+          "name": "Apple Human Interface",
+          "description": "Frosted glass, subtle elegance, refined design",
+          "colors": {
+            "background": "0 0% 100%",
+            "foreground": "240 10% 3.9%",
+            "primary": "221.2 83.2% 53.3%",
+            "primary-foreground": "210 40% 98%",
+            "secondary": "210 40% 96.1%",
+            "secondary-foreground": "222.2 47.4% 11.2%",
+            "muted": "210 40% 96.1%",
+            "muted-foreground": "215.4 16.3% 46.9%",
+            "accent": "210 40% 96.1%",
+            "accent-foreground": "222.2 47.4% 11.2%",
+            "destructive": "0 84.2% 60.2%",
+            "destructive-foreground": "210 40% 98%",
+            "border": "214.3 31.8% 91.4%",
+            "input": "214.3 31.8% 91.4%",
+            "ring": "221.2 83.2% 53.3%",
+            "card": "0 0% 100%",
+            "card-foreground": "240 10% 3.9%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "240 10% 3.9%",
+            "chart-1": "221.2 83.2% 53.3%",
+            "chart-2": "142.1 76.2% 36.3%",
+            "chart-3": "346.8 77.2% 49.8%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Inter, system-ui, sans-serif",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.5rem",
+            "radius-md": "0.75rem",
+            "radius-lg": "1rem",
+            "radius-xl": "1.25rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+            "shadow-md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+            "shadow-lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)"
+          },
+          "sidebar": {
+            "background": "hsl(210 40% 98%)",
+            "foreground": "hsl(240 10% 3.9%)",
+            "primary": "hsl(221.2 83.2% 53.3%)",
+            "primary-foreground": "hsl(210 40% 98%)",
+            "accent": "hsl(210 40% 96.1%)",
+            "accent-foreground": "hsl(222.2 47.4% 11.2%)",
+            "border": "hsl(214.3 31.8% 91.4%)",
+            "ring": "hsl(221.2 83.2% 53.3%)"
+          },
+          "componentStyles": {
+            "button": {
+              "showBorder": false,
+              "showIcons": false
+            },
+            "chip": {
+              "showBorder": false,
+              "showIcons": false
+            }
+          },
+          "colorTheme": "glassmorphism",
+          "fontFamily": "inter",
+          "visualFeel": "minimal"
+        },
+        {
+          "id": "earth-theme",
+          "name": "Warm Earth",
+          "description": "Natural tones, organic warmth, grounded design",
+          "colors": {
+            "background": "30 20% 96%",
+            "foreground": "25 30% 20%",
+            "primary": "25 75% 45%",
+            "primary-foreground": "30 20% 96%",
+            "secondary": "35 40% 88%",
+            "secondary-foreground": "25 30% 20%",
+            "muted": "30 15% 90%",
+            "muted-foreground": "25 15% 45%",
+            "accent": "40 60% 50%",
+            "accent-foreground": "30 20% 96%",
+            "destructive": "10 80% 45%",
+            "destructive-foreground": "30 20% 96%",
+            "border": "30 20% 85%",
+            "input": "30 20% 85%",
+            "ring": "25 75% 45%",
+            "card": "35 25% 98%",
+            "card-foreground": "25 30% 20%",
+            "popover": "35 25% 98%",
+            "popover-foreground": "25 30% 20%",
+            "chart-1": "25 75% 45%",
+            "chart-2": "120 40% 35%",
+            "chart-3": "40 60% 50%"
+          },
+          "spacing": {
+            "xs": "0.375rem",
+            "sm": "0.625rem",
+            "md": "1rem",
+            "lg": "1.75rem",
+            "xl": "2.5rem",
+            "2xl": "3.5rem"
+          },
+          "typography": {
+            "font-sans": "Georgia, serif",
+            "font-mono": "Courier New, monospace",
+            "font-serif": "Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.25rem",
+            "radius-md": "0.375rem",
+            "radius-lg": "0.5rem",
+            "radius-xl": "0.75rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 3px 0 rgb(101 67 33 / 0.1)",
+            "shadow-md": "0 4px 8px -2px rgb(101 67 33 / 0.15)",
+            "shadow-lg": "0 12px 24px -4px rgb(101 67 33 / 0.2)"
+          },
+          "sidebar": {
+            "background": "hsl(30 15% 92%)",
+            "foreground": "hsl(25 30% 20%)",
+            "primary": "hsl(25 75% 45%)",
+            "primary-foreground": "hsl(30 20% 96%)",
+            "accent": "hsl(35 40% 88%)",
+            "accent-foreground": "hsl(25 30% 20%)",
+            "border": "hsl(30 20% 85%)",
+            "ring": "hsl(25 75% 45%)"
+          },
+          "colorTheme": "neo",
+          "fontFamily": "playfairDisplay",
+          "visualFeel": "classic"
+        },
+        {
+          "id": "brutalist-theme",
+          "name": "Brutalist",
+          "description": "Raw blacks, sharp edges, monospace typography",
+          "colors": {
+            "background": "0 0% 100%",
+            "foreground": "0 0% 0%",
+            "primary": "0 0% 0%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "0 0% 96%",
+            "secondary-foreground": "0 0% 0%",
+            "muted": "0 0% 96%",
+            "muted-foreground": "0 0% 45%",
+            "accent": "0 0% 96%",
+            "accent-foreground": "0 0% 0%",
+            "destructive": "0 100% 50%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "0 0% 90%",
+            "input": "0 0% 90%",
+            "ring": "0 0% 0%",
+            "card": "0 0% 100%",
+            "card-foreground": "0 0% 0%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "0 0% 0%",
+            "chart-1": "0 0% 20%",
+            "chart-2": "0 0% 40%",
+            "chart-3": "0 0% 60%"
+          },
+          "spacing": {
+            "xs": "0.5rem",
+            "sm": "1rem",
+            "md": "1.5rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "2xl": "4rem"
+          },
+          "typography": {
+            "font-sans": "JetBrains Mono, monospace",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Courier New, monospace"
+          },
+          "borderRadius": {
+            "radius-sm": "0",
+            "radius-md": "0",
+            "radius-lg": "0",
+            "radius-xl": "0"
+          },
+          "shadows": {
+            "shadow-sm": "2px 2px 0 rgb(0 0 0)",
+            "shadow-md": "4px 4px 0 rgb(0 0 0)",
+            "shadow-lg": "6px 6px 0 rgb(0 0 0)"
+          },
+          "sidebar": {
+            "background": "hsl(0 0% 95%)",
+            "foreground": "hsl(0 0% 0%)",
+            "primary": "hsl(0 0% 0%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(0 0% 90%)",
+            "accent-foreground": "hsl(0 0% 0%)",
+            "border": "hsl(0 0% 0%)",
+            "ring": "hsl(0 0% 0%)"
+          },
+          "componentStyles": {
+            "button": {
+              "showBorder": false,
+              "showIcons": false
+            },
+            "chip": {
+              "showBorder": false,
+              "showIcons": false
+            }
+          },
+          "colorTheme": "brutalist",
+          "fontFamily": "jetbrainsMono",
+          "visualFeel": "bold"
+        },
+        {
+          "id": "candy-theme",
+          "name": "Candy Pop",
+          "description": "Pastel colors, soft rounds, playful fonts",
+          "colors": {
+            "background": "330 100% 98%",
+            "foreground": "330 40% 20%",
+            "primary": "330 81% 60%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "200 50% 90%",
+            "secondary-foreground": "200 40% 20%",
+            "muted": "330 50% 95%",
+            "muted-foreground": "330 20% 50%",
+            "accent": "180 65% 85%",
+            "accent-foreground": "180 40% 20%",
+            "destructive": "0 80% 65%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "330 30% 90%",
+            "input": "330 30% 90%",
+            "ring": "330 81% 60%",
+            "card": "330 100% 98%",
+            "card-foreground": "330 40% 20%",
+            "popover": "330 100% 98%",
+            "popover-foreground": "330 40% 20%",
+            "chart-1": "330 81% 60%",
+            "chart-2": "180 65% 65%",
+            "chart-3": "45 90% 70%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Poppins, sans-serif",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.75rem",
+            "radius-md": "1rem",
+            "radius-lg": "1.5rem",
+            "radius-xl": "2rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 2px 4px rgb(255 105 180 / 0.15)",
+            "shadow-md": "0 4px 8px rgb(255 105 180 / 0.2)",
+            "shadow-lg": "0 8px 16px rgb(255 105 180 / 0.25)"
+          },
+          "sidebar": {
+            "background": "hsl(330 50% 96%)",
+            "foreground": "hsl(330 40% 20%)",
+            "primary": "hsl(330 81% 60%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(330 50% 93%)",
+            "accent-foreground": "hsl(330 40% 20%)",
+            "border": "hsl(330 30% 90%)",
+            "ring": "hsl(330 81% 60%)"
+          },
+          "componentStyles": {
+            "button": {
+              "showBorder": false,
+              "showIcons": false
+            },
+            "chip": {
+              "showBorder": false,
+              "showIcons": false
+            }
+          },
+          "colorTheme": "candy",
+          "fontFamily": "poppins",
+          "visualFeel": "playful"
+        },
+        {
+          "id": "cyber-theme",
+          "name": "Cyberpunk",
+          "description": "Neon accents, dark theme, futuristic geometric type",
+          "colors": {
+            "background": "240 50% 8%",
+            "foreground": "180 100% 90%",
+            "primary": "315 100% 50%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "240 70% 15%",
+            "secondary-foreground": "180 100% 90%",
+            "muted": "240 60% 12%",
+            "muted-foreground": "240 40% 70%",
+            "accent": "240 70% 18%",
+            "accent-foreground": "180 100% 70%",
+            "destructive": "0 100% 60%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "240 70% 25%",
+            "input": "240 70% 15%",
+            "ring": "315 100% 50%",
+            "card": "240 60% 10%",
+            "card-foreground": "180 100% 90%",
+            "popover": "240 60% 10%",
+            "popover-foreground": "180 100% 90%",
+            "chart-1": "315 100% 50%",
+            "chart-2": "180 100% 50%",
+            "chart-3": "60 100% 50%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Space Grotesk, sans-serif",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.125rem",
+            "radius-md": "0.25rem",
+            "radius-lg": "0.5rem",
+            "radius-xl": "0.75rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 0 10px rgb(255 0 255 / 0.5)",
+            "shadow-md": "0 0 20px rgb(255 0 255 / 0.6)",
+            "shadow-lg": "0 0 30px rgb(255 0 255 / 0.7)"
+          },
+          "sidebar": {
+            "background": "hsl(240 10% 5%)",
+            "foreground": "hsl(180 100% 90%)",
+            "primary": "hsl(315 100% 50%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(240 10% 12%)",
+            "accent-foreground": "hsl(180 100% 90%)",
+            "border": "hsl(315 100% 50%)",
+            "ring": "hsl(315 100% 50%)"
+          },
+          "componentStyles": {
+            "button": {
+              "showBorder": false,
+              "showIcons": false
+            },
+            "chip": {
+              "showBorder": false,
+              "showIcons": false
+            }
+          },
+          "colorTheme": "cyberpunk",
+          "fontFamily": "spaceGrotesk",
+          "visualFeel": "bold"
+        },
+        {
+          "id": "midnight-theme",
+          "name": "Midnight",
+          "description": "Deep dark elegance, sophisticated tones",
+          "colors": {
+            "background": "222 60% 9%",
+            "foreground": "210 40% 98%",
+            "primary": "210 100% 50%",
+            "primary-foreground": "222 60% 9%",
+            "secondary": "220 60% 16%",
+            "secondary-foreground": "210 40% 98%",
+            "muted": "220 55% 14%",
+            "muted-foreground": "215 40% 65%",
+            "accent": "220 60% 18%",
+            "accent-foreground": "210 40% 98%",
+            "destructive": "0 70% 40%",
+            "destructive-foreground": "210 40% 98%",
+            "border": "220 60% 22%",
+            "input": "220 60% 16%",
+            "ring": "210 100% 50%",
+            "card": "222 55% 11%",
+            "card-foreground": "210 40% 98%",
+            "popover": "222 55% 13%",
+            "popover-foreground": "210 40% 98%",
+            "chart-1": "210 100% 50%",
+            "chart-2": "160 60% 45%",
+            "chart-3": "30 80% 55%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Inter, system-ui, sans-serif",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.375rem",
+            "radius-md": "0.5rem",
+            "radius-lg": "0.75rem",
+            "radius-xl": "1rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.5)",
+            "shadow-md": "0 4px 6px -1px rgb(0 0 0 / 0.5)",
+            "shadow-lg": "0 10px 15px -3px rgb(0 0 0 / 0.5)"
+          },
+          "sidebar": {
+            "background": "hsl(222 47% 8%)",
+            "foreground": "hsl(210 40% 98%)",
+            "primary": "hsl(210 100% 50%)",
+            "primary-foreground": "hsl(222 47% 11%)",
+            "accent": "hsl(217.2 32.6% 14%)",
+            "accent-foreground": "hsl(210 40% 98%)",
+            "border": "hsl(217.2 32.6% 17.5%)",
+            "ring": "hsl(210 100% 50%)"
+          },
+          "componentStyles": {
+            "button": {
+              "showBorder": false,
+              "showIcons": false
+            },
+            "chip": {
+              "showBorder": false,
+              "showIcons": false
+            }
+          },
+          "colorTheme": "midnight",
+          "fontFamily": "inter",
+          "visualFeel": "minimal"
+        }
+      ],
+      "activeThemeId": "apple-theme",
+      "intents": [
+        {
+          "id": "web-app",
+          "value": "web-app",
+          "label": "Web App",
+          "description": "General purpose web application components",
+          "icon": "Code2"
+        },
+        {
+          "id": "ecommerce",
+          "value": "ecommerce",
+          "label": "E-commerce",
+          "description": "Shopping and product-focused components",
+          "icon": "ShoppingBag"
+        },
+        {
+          "id": "mobile",
+          "value": "mobile",
+          "label": "Mobile Experience",
+          "description": "Touch-optimized mobile components",
+          "icon": "Smartphone"
+        },
+        {
+          "id": "landing",
+          "value": "landing",
+          "label": "Landing Page",
+          "description": "Marketing and conversion-focused components",
+          "icon": "Megaphone"
+        }
+      ]
+    },
+    {
+      "id": "material-system",
+      "name": "Material Design System",
+      "description": "Google Material Design 3 with 3 theme variations",
+      "createdAt": "2026-01-27T20:00:21.280Z",
+      "uiLibrary": "mui",
+      "themes": [
+        {
+          "id": "material-light",
+          "name": "Material Light",
+          "description": "Google Material Design 3 light theme",
+          "colors": {
+            "background": "0 0% 98%",
+            "foreground": "240 10% 10%",
+            "primary": "259 94% 51%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "186 100% 42%",
+            "secondary-foreground": "0 0% 100%",
+            "muted": "240 5% 96%",
+            "muted-foreground": "240 4% 46%",
+            "accent": "339 90% 51%",
+            "accent-foreground": "0 0% 100%",
+            "destructive": "4 90% 58%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "240 6% 90%",
+            "input": "240 6% 90%",
+            "ring": "259 94% 51%",
+            "card": "0 0% 100%",
+            "card-foreground": "240 10% 10%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "240 10% 10%",
+            "chart-1": "259 94% 51%",
+            "chart-2": "186 100% 42%",
+            "chart-3": "339 90% 51%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Roboto, system-ui, sans-serif",
+            "font-mono": "Roboto Mono, monospace",
+            "font-serif": "Roboto Slab, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.25rem",
+            "radius-md": "0.5rem",
+            "radius-lg": "1rem",
+            "radius-xl": "1.75rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 3px 0 rgb(0 0 0 / 0.12), 0 1px 2px 0 rgb(0 0 0 / 0.14)",
+            "shadow-md": "0 3px 6px rgb(0 0 0 / 0.15), 0 3px 6px rgb(0 0 0 / 0.18)",
+            "shadow-lg": "0 10px 20px rgb(0 0 0 / 0.19), 0 6px 6px rgb(0 0 0 / 0.20)"
+          },
+          "sidebar": {
+            "background": "hsl(0 0% 98%)",
+            "foreground": "hsl(240 6% 10%)",
+            "primary": "hsl(259 94% 51%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(0 0% 96%)",
+            "accent-foreground": "hsl(240 6% 10%)",
+            "border": "hsl(240 6% 90%)",
+            "ring": "hsl(259 94% 51%)"
+          },
+          "colorTheme": "neo",
+          "fontFamily": "system",
+          "visualFeel": "modern"
+        },
+        {
+          "id": "material-ocean",
+          "name": "Material Ocean",
+          "description": "Deep blue ocean-inspired Material theme",
+          "colors": {
+            "background": "210 100% 97%",
+            "foreground": "210 50% 10%",
+            "primary": "200 98% 39%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "180 77% 47%",
+            "secondary-foreground": "0 0% 100%",
+            "muted": "210 40% 94%",
+            "muted-foreground": "210 20% 46%",
+            "accent": "165 82% 51%",
+            "accent-foreground": "0 0% 100%",
+            "destructive": "14 91% 51%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "210 30% 88%",
+            "input": "210 30% 88%",
+            "ring": "200 98% 39%",
+            "card": "0 0% 100%",
+            "card-foreground": "210 50% 10%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "210 50% 10%",
+            "chart-1": "200 98% 39%",
+            "chart-2": "180 77% 47%",
+            "chart-3": "165 82% 51%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Roboto, system-ui, sans-serif",
+            "font-mono": "Roboto Mono, monospace",
+            "font-serif": "Roboto Slab, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.25rem",
+            "radius-md": "0.5rem",
+            "radius-lg": "1rem",
+            "radius-xl": "1.75rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 3px 0 rgb(0 100 200 / 0.12), 0 1px 2px 0 rgb(0 100 200 / 0.15)",
+            "shadow-md": "0 3px 6px rgb(0 100 200 / 0.16), 0 3px 6px rgb(0 100 200 / 0.2)",
+            "shadow-lg": "0 10px 20px rgb(0 100 200 / 0.19), 0 6px 6px rgb(0 100 200 / 0.23)"
+          },
+          "sidebar": {
+            "background": "hsl(210 100% 95%)",
+            "foreground": "hsl(210 50% 10%)",
+            "primary": "hsl(200 98% 39%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(210 40% 94%)",
+            "accent-foreground": "hsl(210 50% 10%)",
+            "border": "hsl(210 30% 88%)",
+            "ring": "hsl(200 98% 39%)"
+          },
+          "colorTheme": "neo",
+          "fontFamily": "system",
+          "visualFeel": "modern"
+        },
+        {
+          "id": "material-sunset",
+          "name": "Material Sunset",
+          "description": "Warm sunset gradient-inspired Material theme",
+          "colors": {
+            "background": "30 100% 98%",
+            "foreground": "20 30% 15%",
+            "primary": "14 100% 57%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "340 82% 52%",
+            "secondary-foreground": "0 0% 100%",
+            "muted": "30 40% 94%",
+            "muted-foreground": "30 20% 46%",
+            "accent": "45 97% 54%",
+            "accent-foreground": "20 30% 15%",
+            "destructive": "0 91% 51%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "30 30% 88%",
+            "input": "30 30% 88%",
+            "ring": "14 100% 57%",
+            "card": "0 0% 100%",
+            "card-foreground": "20 30% 15%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "20 30% 15%",
+            "chart-1": "14 100% 57%",
+            "chart-2": "340 82% 52%",
+            "chart-3": "45 97% 54%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "3rem"
+          },
+          "typography": {
+            "font-sans": "Roboto, system-ui, sans-serif",
+            "font-mono": "Roboto Mono, monospace",
+            "font-serif": "Roboto Slab, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.25rem",
+            "radius-md": "0.5rem",
+            "radius-lg": "1rem",
+            "radius-xl": "1.75rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 3px 0 rgb(255 87 34 / 0.12), 0 1px 2px 0 rgb(255 87 34 / 0.15)",
+            "shadow-md": "0 3px 6px rgb(255 87 34 / 0.16), 0 3px 6px rgb(255 87 34 / 0.2)",
+            "shadow-lg": "0 10px 20px rgb(255 87 34 / 0.19), 0 6px 6px rgb(255 87 34 / 0.23)"
+          },
+          "sidebar": {
+            "background": "hsl(30 100% 96%)",
+            "foreground": "hsl(20 30% 15%)",
+            "primary": "hsl(14 100% 57%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(30 40% 94%)",
+            "accent-foreground": "hsl(20 30% 15%)",
+            "border": "hsl(30 30% 88%)",
+            "ring": "hsl(14 100% 57%)"
+          },
+          "colorTheme": "neo",
+          "fontFamily": "system",
+          "visualFeel": "modern"
+        }
+      ],
+      "activeThemeId": "material-light",
+      "intents": [
+        {
+          "id": "web-app",
+          "value": "web-app",
+          "label": "Web App",
+          "description": "General purpose web application components",
+          "icon": "Code2"
+        },
+        {
+          "id": "mobile",
+          "value": "mobile",
+          "label": "Mobile Experience",
+          "description": "Touch-optimized mobile components",
+          "icon": "Smartphone"
+        }
+      ]
+    },
+    {
+      "id": "minimalist-system",
+      "name": "Minimalist Design System",
+      "description": "Clean and refined minimal design with 3 themes",
+      "createdAt": "2026-01-27T20:00:21.280Z",
+      "uiLibrary": "chakra",
+      "useIcons": false,
+      "themes": [
+        {
+          "id": "swiss-minimal",
+          "name": "Swiss Minimal",
+          "description": "Ultra-crisp Swiss precision - stark black & white, perfect geometry, razor-sharp edges",
+          "colors": {
+            "background": "0 0% 100%",
+            "foreground": "0 0% 0%",
+            "primary": "0 0% 9%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "0 0% 94%",
+            "secondary-foreground": "0 0% 9%",
+            "muted": "0 0% 98%",
+            "muted-foreground": "0 0% 45%",
+            "accent": "0 0% 88%",
+            "accent-foreground": "0 0% 9%",
+            "destructive": "0 0% 20%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "0 0% 85%",
+            "input": "0 0% 90%",
+            "ring": "0 0% 9%",
+            "card": "0 0% 100%",
+            "card-foreground": "0 0% 0%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "0 0% 0%",
+            "chart-1": "0 0% 15%",
+            "chart-2": "0 0% 35%",
+            "chart-3": "0 0% 55%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "2rem",
+            "xl": "4rem",
+            "2xl": "8rem"
+          },
+          "typography": {
+            "font-sans": "Helvetica Neue, Helvetica, Arial, sans-serif",
+            "font-mono": "Courier New, monospace",
+            "font-serif": "Times New Roman, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0",
+            "radius-md": "0.125rem",
+            "radius-lg": "0.25rem",
+            "radius-xl": "0.375rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.08)",
+            "shadow-md": "0 2px 8px 0 rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.04)",
+            "shadow-lg": "0 4px 16px 0 rgb(0 0 0 / 0.16), 0 0 0 1px rgb(0 0 0 / 0.06)"
+          },
+          "sidebar": {
+            "background": "hsl(0 0% 100%)",
+            "foreground": "hsl(0 0% 0%)",
+            "primary": "hsl(0 0% 9%)",
+            "primary-foreground": "hsl(0 0% 100%)",
+            "accent": "hsl(0 0% 96%)",
+            "accent-foreground": "hsl(0 0% 9%)",
+            "border": "hsl(0 0% 85%)",
+            "ring": "hsl(0 0% 9%)"
+          },
+          "colorTheme": "minimal",
+          "fontFamily": "system",
+          "visualFeel": "minimal"
+        },
+        {
+          "id": "japanese-zen",
+          "name": "Japanese Zen",
+          "description": "Organic zen warmth - deep earth tones, natural materials, harmonious curves",
+          "colors": {
+            "background": "35 30% 96%",
+            "foreground": "25 18% 18%",
+            "primary": "20 45% 38%",
+            "primary-foreground": "35 30% 96%",
+            "secondary": "140 25% 45%",
+            "secondary-foreground": "35 30% 96%",
+            "muted": "35 25% 90%",
+            "muted-foreground": "25 15% 45%",
+            "accent": "30 50% 60%",
+            "accent-foreground": "25 18% 18%",
+            "destructive": "8 60% 35%",
+            "destructive-foreground": "35 30% 96%",
+            "border": "35 20% 82%",
+            "input": "35 20% 85%",
+            "ring": "20 45% 38%",
+            "card": "35 35% 98%",
+            "card-foreground": "25 18% 18%",
+            "popover": "35 35% 98%",
+            "popover-foreground": "25 18% 18%",
+            "chart-1": "20 45% 38%",
+            "chart-2": "140 25% 45%",
+            "chart-3": "30 50% 60%"
+          },
+          "spacing": {
+            "xs": "0.5rem",
+            "sm": "1rem",
+            "md": "2rem",
+            "lg": "3.5rem",
+            "xl": "5rem",
+            "2xl": "7rem"
+          },
+          "typography": {
+            "font-sans": "Noto Sans, system-ui, sans-serif",
+            "font-mono": "Noto Sans Mono, monospace",
+            "font-serif": "Noto Serif, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.125rem",
+            "radius-md": "0.25rem",
+            "radius-lg": "0.375rem",
+            "radius-xl": "0.5rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 2px 8px 0 rgb(60 45 30 / 0.08), 0 1px 3px 0 rgb(60 45 30 / 0.06)",
+            "shadow-md": "0 4px 16px -2px rgb(60 45 30 / 0.12), 0 2px 6px -1px rgb(60 45 30 / 0.08), 0 0 0 1px rgb(60 45 30 / 0.04)",
+            "shadow-lg": "0 8px 32px -4px rgb(60 45 30 / 0.16), 0 4px 12px -2px rgb(60 45 30 / 0.12), 0 0 0 1px rgb(60 45 30 / 0.05)"
+          },
+          "sidebar": {
+            "background": "hsl(35 28% 94%)",
+            "foreground": "hsl(25 18% 18%)",
+            "primary": "hsl(20 45% 38%)",
+            "primary-foreground": "hsl(35 30% 96%)",
+            "accent": "hsl(35 25% 90%)",
+            "accent-foreground": "hsl(25 18% 18%)",
+            "border": "hsl(35 20% 82%)",
+            "ring": "hsl(20 45% 38%)"
+          },
+          "colorTheme": "minimal",
+          "fontFamily": "system",
+          "visualFeel": "minimal"
+        },
+        {
+          "id": "nordic-light",
+          "name": "Nordic Light",
+          "description": "Scandinavian airiness - cool blue-grays, expansive space, soft flowing forms, frosted glass",
+          "colors": {
+            "background": "195 40% 97%",
+            "foreground": "215 18% 25%",
+            "primary": "205 40% 50%",
+            "primary-foreground": "195 40% 97%",
+            "secondary": "190 30% 70%",
+            "secondary-foreground": "215 18% 25%",
+            "muted": "195 35% 93%",
+            "muted-foreground": "210 12% 50%",
+            "accent": "175 35% 65%",
+            "accent-foreground": "215 18% 25%",
+            "destructive": "355 65% 55%",
+            "destructive-foreground": "195 40% 97%",
+            "border": "195 25% 86%",
+            "input": "195 28% 89%",
+            "ring": "205 40% 50%",
+            "card": "195 45% 98%",
+            "card-foreground": "215 18% 25%",
+            "popover": "195 45% 98%",
+            "popover-foreground": "215 18% 25%",
+            "chart-1": "205 40% 50%",
+            "chart-2": "175 35% 65%",
+            "chart-3": "190 30% 70%"
+          },
+          "spacing": {
+            "xs": "0.5rem",
+            "sm": "1rem",
+            "md": "2rem",
+            "lg": "4rem",
+            "xl": "6rem",
+            "2xl": "10rem"
+          },
+          "typography": {
+            "font-sans": "Inter, system-ui, sans-serif",
+            "font-mono": "JetBrains Mono, monospace",
+            "font-serif": "Merriweather, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.5rem",
+            "radius-md": "0.875rem",
+            "radius-lg": "1.5rem",
+            "radius-xl": "2.25rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 2px 12px 0 rgb(205 220 230 / 0.25), 0 1px 4px 0 rgb(205 220 230 / 0.15)",
+            "shadow-md": "0 4px 24px -2px rgb(205 220 230 / 0.35), 0 2px 12px -1px rgb(205 220 230 / 0.2), 0 0 0 1px rgb(205 220 230 / 0.15)",
+            "shadow-lg": "0 8px 48px -4px rgb(205 220 230 / 0.45), 0 4px 24px -2px rgb(205 220 230 / 0.3), 0 0 0 1px rgb(205 220 230 / 0.2)"
+          },
+          "opacity": {
+            "glass-subtle": "0.7",
+            "glass-medium": "0.85",
+            "glass-heavy": "0.95",
+            "overlay-light": "0.4",
+            "overlay-medium": "0.6",
+            "overlay-heavy": "0.8"
+          },
+          "effects": {
+            "blur-sm": "blur(8px)",
+            "blur-md": "blur(16px)",
+            "blur-lg": "blur(24px)",
+            "blur-xl": "blur(40px)",
+            "glass-sm": "blur(8px) saturate(180%)",
+            "glass-md": "blur(16px) saturate(180%)",
+            "glass-lg": "blur(24px) saturate(200%)",
+            "glass-xl": "blur(40px) saturate(220%)"
+          },
+          "sidebar": {
+            "background": "hsl(195 38% 96% / 0.85)",
+            "foreground": "hsl(215 18% 25%)",
+            "primary": "hsl(205 40% 50%)",
+            "primary-foreground": "hsl(195 40% 97%)",
+            "accent": "hsl(195 32% 92% / 0.7)",
+            "accent-foreground": "hsl(215 18% 25%)",
+            "border": "hsl(195 25% 86% / 0.6)",
+            "ring": "hsl(205 40% 50%)"
+          },
+          "colorTheme": "minimal",
+          "fontFamily": "inter",
+          "visualFeel": "minimal"
+        }
+      ],
+      "activeThemeId": "nordic-light",
+      "intents": [
+        {
+          "id": "web-app",
+          "value": "web-app",
+          "label": "Web App",
+          "description": "General purpose web application components",
+          "icon": "Code2"
+        },
+        {
+          "id": "landing",
+          "value": "landing",
+          "label": "Landing Page",
+          "description": "Marketing and conversion-focused components",
+          "icon": "Megaphone"
+        }
+      ]
+    },
+    {
+      "id": "candy-nest-system",
+      "name": "Candy Nest Design System",
+      "description": "Editorial design system inspired by premier magazine brands",
+      "createdAt": "2026-01-27T20:00:21.280Z",
+      "uiLibrary": "antd",
+      "themes": [
+        {
+          "id": "gq-theme",
+          "name": "GQ",
+          "description": "Bold sophistication with sharp contrasts and editorial impact",
+          "colors": {
+            "background": "0 0% 100%",
+            "foreground": "0 0% 10%",
+            "primary": "0 0% 10%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "210 14% 89%",
+            "secondary-foreground": "0 0% 10%",
+            "muted": "210 14% 95%",
+            "muted-foreground": "0 0% 40%",
+            "accent": "25 95% 53%",
+            "accent-foreground": "0 0% 100%",
+            "destructive": "0 84% 60%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "0 0% 90%",
+            "input": "0 0% 90%",
+            "ring": "0 0% 10%",
+            "card": "0 0% 100%",
+            "card-foreground": "0 0% 10%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "0 0% 10%",
+            "chart-1": "0 0% 10%",
+            "chart-2": "25 95% 53%",
+            "chart-3": "210 14% 53%"
+          },
+          "spacing": {
+            "xs": "0.5rem",
+            "sm": "0.75rem",
+            "md": "1.5rem",
+            "lg": "2.5rem",
+            "xl": "4rem",
+            "2xl": "6rem"
+          },
+          "typography": {
+            "font-sans": "Helvetica Neue, Helvetica, Arial, sans-serif",
+            "font-mono": "Monaco, Courier New, monospace",
+            "font-serif": "Georgia, Times New Roman, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0rem",
+            "radius-md": "0rem",
+            "radius-lg": "0rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+            "shadow-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            "shadow-lg": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+          },
+          "sidebar": {
+            "background": "0 0% 10%",
+            "foreground": "0 0% 100%",
+            "accent": "25 95% 53%",
+            "accent-foreground": "0 0% 100%"
+          },
+          "opacity": {
+            "opacity-disabled": "0.38",
+            "opacity-hover": "0.08",
+            "opacity-selected": "0.12"
+          },
+          "effects": {
+            "backdrop-blur": "blur(8px)"
+          },
+          "colorTheme": "neo",
+          "fontFamily": "helvetica",
+          "visualFeel": "bold"
+        },
+        {
+          "id": "vogue-theme",
+          "name": "Vogue",
+          "description": "Timeless elegance with refined typography and luxurious spacing",
+          "colors": {
+            "background": "0 0% 100%",
+            "foreground": "0 0% 9%",
+            "primary": "340 75% 68%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "150 30% 88%",
+            "secondary-foreground": "0 0% 9%",
+            "muted": "30 20% 97%",
+            "muted-foreground": "0 0% 45%",
+            "accent": "150 30% 88%",
+            "accent-foreground": "0 0% 9%",
+            "destructive": "0 84% 60%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "0 0% 93%",
+            "input": "0 0% 93%",
+            "ring": "340 75% 68%",
+            "card": "0 0% 100%",
+            "card-foreground": "0 0% 9%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "0 0% 9%",
+            "chart-1": "340 75% 68%",
+            "chart-2": "150 30% 88%",
+            "chart-3": "0 0% 9%",
+            "chart-4": "30 25% 75%",
+            "chart-5": "150 40% 75%"
+          },
+          "spacing": {
+            "xs": "0.5rem",
+            "sm": "1rem",
+            "md": "2rem",
+            "lg": "3rem",
+            "xl": "5rem",
+            "2xl": "8rem"
+          },
+          "typography": {
+            "font-sans": "Avenir Next, Helvetica Neue, sans-serif",
+            "font-mono": "Courier New, monospace",
+            "font-serif": "Didot, Bodoni Moda, Georgia, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0rem",
+            "radius-md": "0rem",
+            "radius-lg": "0rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 3px 0 rgba(0, 0, 0, 0.04)",
+            "shadow-md": "0 8px 16px 0 rgba(0, 0, 0, 0.06)",
+            "shadow-lg": "0 20px 40px 0 rgba(0, 0, 0, 0.08)"
+          },
+          "sidebar": {
+            "background": "340 75% 68%",
+            "foreground": "0 0% 100%",
+            "accent": "150 30% 88%",
+            "accent-foreground": "0 0% 9%"
+          },
+          "opacity": {
+            "opacity-disabled": "0.3",
+            "opacity-hover": "0.04",
+            "opacity-selected": "0.08"
+          },
+          "effects": {
+            "backdrop-blur": "blur(16px)"
+          },
+          "colorTheme": "minimal",
+          "fontFamily": "avenir",
+          "visualFeel": "classic"
+        },
+        {
+          "id": "new-yorker-theme",
+          "name": "The New Yorker",
+          "description": "Classic editorial design with refined typography and comfortable reading",
+          "colors": {
+            "background": "45 29% 97%",
+            "foreground": "0 0% 13%",
+            "primary": "0 0% 13%",
+            "primary-foreground": "0 0% 100%",
+            "secondary": "45 20% 93%",
+            "secondary-foreground": "0 0% 13%",
+            "muted": "45 20% 95%",
+            "muted-foreground": "0 0% 40%",
+            "accent": "210 100% 45%",
+            "accent-foreground": "0 0% 100%",
+            "destructive": "0 84% 60%",
+            "destructive-foreground": "0 0% 100%",
+            "border": "0 0% 88%",
+            "input": "0 0% 88%",
+            "ring": "210 100% 45%",
+            "card": "0 0% 100%",
+            "card-foreground": "0 0% 13%",
+            "popover": "0 0% 100%",
+            "popover-foreground": "0 0% 13%",
+            "chart-1": "210 100% 45%",
+            "chart-2": "0 0% 13%",
+            "chart-3": "45 80% 60%"
+          },
+          "spacing": {
+            "xs": "0.375rem",
+            "sm": "0.75rem",
+            "md": "1.25rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "2xl": "5rem"
+          },
+          "typography": {
+            "font-sans": "Georgia, Iowan Old Style, Times New Roman, serif",
+            "font-mono": "JetBrains Mono, Courier, monospace",
+            "font-serif": "Georgia, Iowan Old Style, Times New Roman, serif"
+          },
+          "borderRadius": {
+            "radius-sm": "0.25rem",
+            "radius-md": "0.375rem",
+            "radius-lg": "0.5rem"
+          },
+          "shadows": {
+            "shadow-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.04)",
+            "shadow-md": "0 3px 6px 0 rgba(0, 0, 0, 0.06)",
+            "shadow-lg": "0 10px 20px 0 rgba(0, 0, 0, 0.08)"
+          },
+          "sidebar": {
+            "background": "0 0% 13%",
+            "foreground": "0 0% 100%",
+            "accent": "210 100% 45%",
+            "accent-foreground": "0 0% 100%"
+          },
+          "opacity": {
+            "opacity-disabled": "0.4",
+            "opacity-hover": "0.08",
+            "opacity-selected": "0.12"
+          },
+          "effects": {
+            "backdrop-blur": "blur(8px)"
+          },
+          "colorTheme": "minimal",
+          "fontFamily": "georgia",
+          "visualFeel": "classic"
+        }
+      ],
+      "activeThemeId": "gq-theme",
+      "intents": [
+        {
+          "id": "web-editorial",
+          "value": "web-editorial",
+          "label": "Web Editorial",
+          "description": "Magazine-style editorial content and publishing",
+          "icon": "Newspaper"
+        }
+      ]
+    }
+  ],
+  "patterns": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-27T19:36:23.566Z",
+    "categories": [
+      {
+        "id": "email-capture",
+        "name": "Email Capture",
+        "description": "Forms and components for capturing email addresses and newsletter signups",
+        "intents": [
+          "landing",
+          "ecommerce",
+          "web-app",
+          "saas"
+        ],
+        "icon": "Mail",
+        "addedBy": "system",
+        "variants": [
+          {
+            "id": "simple-card",
+            "name": "Simple Card",
+            "description": "Clean card with icon, title, and single email input",
+            "components": [
+              "Card",
+              "CardHeader",
+              "CardContent",
+              "CardTitle",
+              "Input",
+              "Button",
+              "Label"
+            ],
+            "useWhen": [
+              "newsletter signup",
+              "simple email capture",
+              "sidebar widget",
+              "minimal form"
+            ],
+            "tokens": {
+              "spacing": [
+                "space-y-lg",
+                "space-y-md",
+                "space-y-xs",
+                "mb-md"
+              ],
+              "colors": [
+                "primary",
+                "primary/10",
+                "muted-foreground",
+                "background"
+              ],
+              "radius": [
+                "radius-md",
+                "rounded-full"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<Card>\n  <CardHeader className=\"text-center\">\n    <div className=\"w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-md\">\n      <Mail className=\"w-6 h-6 text-primary\" />\n    </div>\n    <CardTitle>Subscribe to our newsletter</CardTitle>\n    <p className=\"text-sm text-muted-foreground\">\n      Get the latest updates delivered to your inbox\n    </p>\n  </CardHeader>\n  <CardContent className=\"space-y-md\">\n    <div className=\"space-y-xs\">\n      <Label htmlFor=\"email\">Email address</Label>\n      <Input id=\"email\" type=\"email\" placeholder=\"you@example.com\" />\n    </div>\n    <Button className=\"w-full\">Subscribe</Button>\n    <p className=\"text-xs text-center text-muted-foreground\">\n      We respect your privacy. Unsubscribe anytime.\n    </p>\n  </CardContent>\n</Card>"
+          },
+          {
+            "id": "inline-compact",
+            "name": "Inline Compact",
+            "description": "Horizontal input with button, minimal footprint",
+            "components": [
+              "Card",
+              "CardContent",
+              "Input",
+              "Button"
+            ],
+            "useWhen": [
+              "inline signup",
+              "compact form",
+              "footer newsletter",
+              "minimal space"
+            ],
+            "tokens": {
+              "spacing": [
+                "pt-lg",
+                "gap-sm"
+              ],
+              "colors": [
+                "background"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<Card>\n  <CardContent className=\"pt-lg\">\n    <div className=\"flex gap-sm\">\n      <div className=\"flex-1\">\n        <Input type=\"email\" placeholder=\"Enter your email\" />\n      </div>\n      <Button>\n        <Send className=\"w-4 h-4\" />\n      </Button>\n    </div>\n  </CardContent>\n</Card>"
+          },
+          {
+            "id": "popup-discount",
+            "name": "Popup with Discount",
+            "description": "Eye-catching modal-style with incentive offer",
+            "components": [
+              "Card",
+              "CardContent",
+              "Input",
+              "Button",
+              "Checkbox"
+            ],
+            "useWhen": [
+              "popup modal",
+              "discount offer",
+              "first-time visitor",
+              "exit intent",
+              "promotional signup"
+            ],
+            "tokens": {
+              "spacing": [
+                "pt-lg",
+                "mb-lg",
+                "mb-md",
+                "mb-xs",
+                "space-y-md",
+                "space-y-xs",
+                "gap-xs",
+                "top-md",
+                "right-md",
+                "mr-xs"
+              ],
+              "colors": [
+                "muted-foreground",
+                "foreground",
+                "purple-400",
+                "pink-400"
+              ],
+              "radius": [
+                "rounded-full",
+                "rounded-lg"
+              ],
+              "shadows": [
+                "shadow-xl"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<Card className=\"border-2 shadow-xl\">\n  <CardContent className=\"pt-lg\">\n    <button className=\"absolute top-md right-md text-muted-foreground hover:text-foreground\">\n      ✕\n    </button>\n    <div className=\"text-center mb-lg\">\n      <div className=\"w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-md text-3xl\">\n        🎁\n      </div>\n      <h3 className=\"mb-xs\">Get 20% off your first order!</h3>\n      <p className=\"text-muted-foreground\">\n        Join our newsletter and receive exclusive offers\n      </p>\n    </div>\n    <div className=\"space-y-md\">\n      <div className=\"space-y-xs\">\n        <Input type=\"email\" placeholder=\"Enter your email\" />\n      </div>\n      <div className=\"flex items-start gap-xs\">\n        <Checkbox id=\"terms\" />\n        <label htmlFor=\"terms\" className=\"text-xs text-muted-foreground cursor-pointer\">\n          I agree to receive marketing emails and accept the privacy policy\n        </label>\n      </div>\n      <Button className=\"w-full\" size=\"lg\">\n        <Gift className=\"w-4 h-4 mr-xs\" />\n        Claim My Discount\n      </Button>\n      <p className=\"text-xs text-center text-muted-foreground\">\n        10,000+ people already subscribed\n      </p>\n    </div>\n  </CardContent>\n</Card>"
+          },
+          {
+            "id": "gradient-banner",
+            "name": "Gradient Banner",
+            "description": "Full-width gradient banner with two-column layout",
+            "components": [
+              "Input",
+              "Button"
+            ],
+            "useWhen": [
+              "hero section",
+              "landing page",
+              "full-width banner",
+              "prominent signup"
+            ],
+            "tokens": {
+              "spacing": [
+                "p-xl",
+                "gap-xl",
+                "mb-md",
+                "mb-xs",
+                "gap-xs"
+              ],
+              "colors": [
+                "blue-600",
+                "purple-600",
+                "white",
+                "white/90"
+              ],
+              "radius": [
+                "rounded-lg"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<div className=\"bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-xl text-white\">\n  <div className=\"max-w-3xl mx-auto\">\n    <div className=\"grid md:grid-cols-2 gap-xl items-center\">\n      <div>\n        <Sparkles className=\"w-10 h-10 mb-md\" />\n        <h3 className=\"text-white mb-xs\">Stay updated</h3>\n        <p className=\"text-white/90\">\n          Join our community and never miss an update\n        </p>\n      </div>\n      <div className=\"flex gap-xs\">\n        <Input type=\"email\" placeholder=\"Your email\" className=\"bg-white/90 flex-1\" />\n        <Button variant=\"secondary\">Subscribe</Button>\n      </div>\n    </div>\n  </div>\n</div>"
+          },
+          {
+            "id": "waitlist-card",
+            "name": "Waitlist Card",
+            "description": "Two-column card for early access waitlists",
+            "components": [
+              "Card",
+              "CardContent",
+              "Input",
+              "Button"
+            ],
+            "useWhen": [
+              "waitlist",
+              "early access",
+              "coming soon",
+              "beta signup"
+            ],
+            "tokens": {
+              "spacing": [
+                "pt-lg",
+                "gap-lg",
+                "mb-xs",
+                "gap-xs"
+              ],
+              "colors": [
+                "muted-foreground"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<Card>\n  <CardContent className=\"pt-lg\">\n    <div className=\"grid md:grid-cols-[1fr_auto] gap-lg items-center\">\n      <div>\n        <h4 className=\"mb-xs\">Get early access</h4>\n        <p className=\"text-sm text-muted-foreground\">\n          Be the first to know when we launch new features\n        </p>\n      </div>\n      <div className=\"flex gap-xs md:min-w-[400px]\">\n        <Input type=\"email\" placeholder=\"Enter your email\" className=\"flex-1\" />\n        <Button>Join Waitlist</Button>\n      </div>\n    </div>\n  </CardContent>\n</Card>"
+          },
+          {
+            "id": "newsletter-dashed",
+            "name": "Weekly Newsletter",
+            "description": "Centered card with trust badges and dashed border",
+            "components": [
+              "Input",
+              "Button"
+            ],
+            "useWhen": [
+              "weekly newsletter",
+              "content subscription",
+              "blog signup",
+              "trust indicators"
+            ],
+            "tokens": {
+              "spacing": [
+                "p-xl",
+                "mb-md",
+                "mb-xs",
+                "mb-lg",
+                "gap-sm",
+                "gap-lg",
+                "gap-xs"
+              ],
+              "colors": [
+                "muted-foreground",
+                "green-600"
+              ],
+              "radius": [
+                "rounded-lg"
+              ]
+            },
+            "addedBy": "system",
+            "customizable": true,
+            "code": "<div className=\"border-2 border-dashed rounded-lg p-xl\">\n  <div className=\"max-w-2xl mx-auto text-center\">\n    <div className=\"text-5xl mb-md\">📬</div>\n    <h3 className=\"mb-xs\">Weekly Newsletter</h3>\n    <p className=\"text-muted-foreground mb-lg\">\n      Tips, tutorials, and exclusive content delivered every week\n    </p>\n    <div className=\"flex flex-col sm:flex-row gap-sm max-w-md mx-auto mb-lg\">\n      <Input type=\"email\" placeholder=\"you@example.com\" className=\"flex-1\" />\n      <Button>Sign Up Free</Button>\n    </div>\n    <div className=\"flex items-center justify-center gap-lg text-sm text-muted-foreground\">\n      <div className=\"flex items-center gap-xs\">\n        <CheckCircle2 className=\"w-4 h-4 text-green-600\" />\n        No spam\n      </div>\n      <div className=\"flex items-center gap-xs\">\n        <CheckCircle2 className=\"w-4 h-4 text-green-600\" />\n        Unsubscribe anytime\n      </div>\n      <div className=\"flex items-center gap-xs\">\n        <CheckCircle2 className=\"w-4 h-4 text-green-600\" />\n        Free forever\n      </div>\n    </div>\n  </div>\n</div>"
+          }
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "exportedAt": "2026-01-27T20:00:21.305Z",
+    "exportedFrom": "Living Design Library",
+    "version": "1.0.0",
+    "format": "mcp-sync",
+    "totalSystems": 4,
+    "totalPatternCategories": 1
+  }
+}

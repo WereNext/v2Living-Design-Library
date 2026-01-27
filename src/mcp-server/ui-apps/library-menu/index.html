@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Library</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-hover: #f1f5f9;
+      --bg-selected: #eff6ff;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --accent: #3b82f6;
+      --accent-light: #dbeafe;
+      --success: #22c55e;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1e293b;
+        --bg-secondary: #0f172a;
+        --bg-hover: #334155;
+        --bg-selected: #1e3a5f;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --accent: #60a5fa;
+        --accent-light: #1e3a5f;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+        --shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .library-menu {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .header-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .section {
+      padding: 12px 0;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: 0 20px 8px;
+    }
+
+    .system-list {
+      list-style: none;
+    }
+
+    .system-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .system-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .system-item.active {
+      background: var(--bg-selected);
+      border-left-color: var(--accent);
+    }
+
+    .system-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .system-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .system-name {
+      font-weight: 500;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .system-name .active-badge {
+      font-size: 10px;
+      background: var(--success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .system-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .library-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .library-badge.shadcn { background: #18181b; color: #fafafa; }
+    .library-badge.mui { background: #1976d2; color: white; }
+    .library-badge.chakra { background: #319795; color: white; }
+    .library-badge.antd { background: #1890ff; color: white; }
+    .library-badge.bootstrap { background: #7952b3; color: white; }
+    .library-badge.custom { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+    .system-colors {
+      display: flex;
+      gap: 2px;
+    }
+
+    .color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .themes-list {
+      margin-top: 8px;
+      padding-left: 12px;
+      border-left: 2px solid var(--border-color);
+      margin-left: 8px;
+    }
+
+    .theme-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s;
+    }
+
+    .theme-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .theme-item.active {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .theme-item .check {
+      opacity: 0;
+      color: var(--accent);
+    }
+
+    .theme-item.active .check {
+      opacity: 1;
+    }
+
+    .theme-colors {
+      display: flex;
+      gap: 2px;
+    }
+
+    .theme-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-action {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .footer-action:hover {
+      text-decoration: underline;
+    }
+
+    .intent-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .intent-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      color: var(--text-muted);
+    }
+
+    .loading {
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="library-menu">
+    <div class="header">
+      <div class="header-icon">🎨</div>
+      <div class="header-text">
+        <h1>Design Library</h1>
+        <p>Available design systems & themes</p>
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading design systems...</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="system-count">Loading...</span>
+      <span class="footer-action" onclick="refreshData()">↻ Refresh</span>
+    </div>
+  </div>
+
+  <script>
+    let designSystems = [];
+    let expandedSystem = null;
+
+    async function init() {
+      // Listen for data from MCP Apps
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'mcp-data') {
+          designSystems = event.data.payload?.designSystems || [];
+          render();
+        }
+      });
+
+      // Try to fetch from injected data
+      if (window.__MCP_DATA__?.designSystems) {
+        designSystems = window.__MCP_DATA__.designSystems;
+        render();
+        return;
+      }
+
+      // Try to fetch from API
+      try {
+        const response = await fetch('/api/design-system');
+        if (response.ok) {
+          const data = await response.json();
+          designSystems = data.designSystems || [];
+          render();
+          return;
+        }
+      } catch (e) {
+        // Will use demo data
+      }
+
+      // Try MCP data endpoint
+      try {
+        const response = await fetch('http://localhost:3004/api/mcp/data');
+        if (response.ok) {
+          const data = await response.json();
+          designSystems = data.designSystems || [];
+          render();
+          return;
+        }
+      } catch (e) {
+        // Use demo data
+      }
+
+      // Demo data
+      designSystems = [
+        {
+          id: 'demo-system',
+          name: 'Demo Design System',
+          description: 'A sample design system for demonstration',
+          activeThemeId: 'light',
+          intents: ['web-app', 'saas'],
+          themes: [
+            {
+              id: 'light',
+              name: 'Light Theme',
+              colors: { primary: '#3b82f6', secondary: '#64748b', background: '#ffffff', accent: '#8b5cf6' }
+            },
+            {
+              id: 'dark',
+              name: 'Dark Theme',
+              colors: { primary: '#60a5fa', secondary: '#94a3b8', background: '#0f172a', accent: '#a78bfa' }
+            }
+          ]
+        }
+      ];
+      render();
+
+      // Notify parent we're ready
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'mcp-app-ready', app: 'library-menu' }, '*');
+      }
+    }
+
+    function render() {
+      const content = document.getElementById('content');
+      const countEl = document.getElementById('system-count');
+
+      if (designSystems.length === 0) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h2>No Design Systems</h2>
+            <p>Import a design system to get started</p>
+          </div>
+        `;
+        countEl.textContent = 'No systems';
+        return;
+      }
+
+      const totalThemes = designSystems.reduce((sum, s) => sum + (s.themes?.length || 0), 0);
+      countEl.textContent = `${designSystems.length} system${designSystems.length !== 1 ? 's' : ''} • ${totalThemes} theme${totalThemes !== 1 ? 's' : ''}`;
+
+      content.innerHTML = `
+        <div class="section">
+          <div class="section-title">Design Systems</div>
+          <ul class="system-list">
+            ${designSystems.map((system, index) => renderSystem(system, index === 0)).join('')}
+          </ul>
+        </div>
+      `;
+
+      // Add click handlers
+      document.querySelectorAll('.system-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const systemId = item.dataset.systemId;
+          toggleSystem(systemId);
+        });
+      });
+
+      document.querySelectorAll('.theme-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const systemId = item.dataset.systemId;
+          const themeId = item.dataset.themeId;
+          selectTheme(systemId, themeId);
+        });
+      });
+    }
+
+    function renderSystem(system, isFirst) {
+      const isExpanded = expandedSystem === system.id || (expandedSystem === null && isFirst);
+      const isActive = isFirst; // First system is considered active
+      const activeTheme = system.themes?.find(t => t.id === system.activeThemeId) || system.themes?.[0];
+      const colors = activeTheme?.colors || {};
+      const colorValues = Object.values(colors).slice(0, 4);
+
+      return `
+        <li class="system-item ${isActive ? 'active' : ''}" data-system-id="${system.id}">
+          <div class="system-header">
+            <div class="system-info">
+              <div class="system-name">
+                ${system.name}
+                ${isActive ? '<span class="active-badge">Active</span>' : ''}
+              </div>
+              <div class="system-meta">
+                <span>${system.themes?.length || 0} theme${system.themes?.length !== 1 ? 's' : ''}</span>
+                ${system.uiLibrary ? `<span class="library-badge ${system.uiLibrary}">${formatLibrary(system.uiLibrary)}</span>` : ''}
+              </div>
+              ${system.intents?.length ? `
+                <div class="intent-tags">
+                  ${system.intents.slice(0, 3).map(intent => `<span class="intent-tag">${formatIntent(intent)}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+            <div class="system-colors">
+              ${colorValues.map(color => `<div class="color-dot" style="background: ${formatColor(color)}"></div>`).join('')}
+            </div>
+          </div>
+          ${isExpanded && system.themes?.length ? `
+            <div class="themes-list">
+              ${system.themes.map(theme => renderTheme(system, theme)).join('')}
+            </div>
+          ` : ''}
+        </li>
+      `;
+    }
+
+    function renderTheme(system, theme) {
+      const isActive = theme.id === system.activeThemeId;
+      const colors = theme.colors || {};
+      const colorValues = Object.values(colors).slice(0, 3);
+
+      return `
+        <div class="theme-item ${isActive ? 'active' : ''}" data-system-id="${system.id}" data-theme-id="${theme.id}">
+          <span>${theme.name}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="theme-colors">
+              ${colorValues.map(color => `<div class="theme-color" style="background: ${formatColor(color)}"></div>`).join('')}
+            </div>
+            <span class="check">✓</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function formatLibrary(lib) {
+      const labels = {
+        'shadcn': 'shadcn/ui',
+        'mui': 'Material UI',
+        'chakra': 'Chakra UI',
+        'antd': 'Ant Design',
+        'bootstrap': 'Bootstrap',
+        'custom': 'Custom'
+      };
+      return labels[lib] || lib;
+    }
+
+    function formatIntent(intent) {
+      // Handle both string intents and object intents like {category: 'web-app'}
+      const intentStr = typeof intent === 'object' ? (intent.category || intent.name || intent.id || '') : intent;
+
+      const labels = {
+        'web-app': 'Web App',
+        'ecommerce': 'E-commerce',
+        'mobile': 'Mobile',
+        'landing': 'Landing',
+        'web-editorial': 'Editorial',
+        'dashboard': 'Dashboard',
+        'saas': 'SaaS',
+        'auth': 'Auth'
+      };
+      return labels[intentStr] || intentStr || '';
+    }
+
+    function formatColor(color) {
+      if (!color) return '#ccc';
+      // Handle HSL format (e.g., "221 83% 53%")
+      if (typeof color === 'string' && !color.startsWith('#') && !color.startsWith('rgb')) {
+        if (color.includes('%')) {
+          return `hsl(${color})`;
+        }
+      }
+      return color;
+    }
+
+    function toggleSystem(systemId) {
+      expandedSystem = expandedSystem === systemId ? null : systemId;
+      render();
+    }
+
+    function selectTheme(systemId, themeId) {
+      // Notify parent about theme selection
+      window.parent.postMessage({
+        type: 'mcp-action',
+        action: 'select-theme',
+        data: { systemId, themeId }
+      }, '*');
+
+      // Update local state
+      const system = designSystems.find(s => s.id === systemId);
+      if (system) {
+        system.activeThemeId = themeId;
+        render();
+      }
+    }
+
+    function refreshData() {
+      document.getElementById('content').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Refreshing...</p>
+        </div>
+      `;
+      init();
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>

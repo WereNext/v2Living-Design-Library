@@ -40,6 +40,12 @@ export function detectFormat(input: unknown): InputFormat {
     return 'ldl';
   }
 
+  // Design System format - has themes array with nested tokens
+  // This is the custom format used by Living Design Library
+  if (obj.themes && Array.isArray(obj.themes) && obj.themes.length > 0) {
+    return 'ldl'; // Treat as LDL since we'll convert it
+  }
+
   // W3C DTCG - uses $value and $type
   if (hasW3CTokens(obj)) {
     return 'w3c-dtcg';
@@ -153,6 +159,11 @@ export function parse(input: string | object): ParseResult {
 // =============================================================================
 
 function parseLDL(data: Record<string, unknown>): LDLTokenDocument {
+  // Handle design system format with themes array
+  if (data.themes && Array.isArray(data.themes) && data.themes.length > 0) {
+    return parseDesignSystemFormat(data);
+  }
+
   const doc: LDLTokenDocument = {
     $name: String(data.$name || 'Untitled')
   };
@@ -169,6 +180,69 @@ function parseLDL(data: Record<string, unknown>): LDLTokenDocument {
   if (data.duration) doc.duration = data.duration as LDLDurationTokens;
   if (data.ease) doc.ease = data.ease as LDLEaseTokens;
   if (data.mode) doc.mode = data.mode as LDLModeTokens;
+
+  return doc;
+}
+
+// =============================================================================
+// Design System Format Parser (themes array)
+// =============================================================================
+
+/**
+ * Parse Living Design Library's design system format
+ * This format has tokens nested inside a themes array:
+ * { name: "...", themes: [{ colors: {...}, spacing: {...}, ... }] }
+ */
+function parseDesignSystemFormat(data: Record<string, unknown>): LDLTokenDocument {
+  const themes = data.themes as Array<Record<string, unknown>>;
+  const theme = themes[0]; // Use first theme
+
+  const doc: LDLTokenDocument = {
+    $name: String(data.name || theme.name || 'Imported Design System')
+  };
+
+  if (data.description) doc.$description = String(data.description);
+  if (data.version) doc.$version = String(data.version);
+
+  // Extract colors
+  if (theme.colors && typeof theme.colors === 'object') {
+    const colors: LDLColorTokens = {};
+    for (const [key, value] of Object.entries(theme.colors as Record<string, string>)) {
+      colors[key] = createColorToken(value);
+    }
+    if (Object.keys(colors).length > 0) doc.color = colors;
+  }
+
+  // Extract spacing
+  if (theme.spacing && typeof theme.spacing === 'object') {
+    doc.space = theme.spacing as LDLSpaceTokens;
+  }
+
+  // Extract border radius
+  if (theme.borderRadius && typeof theme.borderRadius === 'object') {
+    doc.radius = theme.borderRadius as LDLRadiusTokens;
+  }
+
+  // Extract shadows
+  if (theme.shadows && typeof theme.shadows === 'object') {
+    doc.shadow = theme.shadows as LDLShadowTokens;
+  }
+
+  // Extract typography
+  if (theme.typography && typeof theme.typography === 'object') {
+    const typography = theme.typography as Record<string, string>;
+    const fontFamily: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(typography)) {
+      // font-sans, font-serif, font-mono -> sans, serif, mono
+      const cleanKey = key.replace(/^font-/, '');
+      fontFamily[cleanKey] = value;
+    }
+
+    if (Object.keys(fontFamily).length > 0) {
+      doc.font = { family: fontFamily };
+    }
+  }
 
   return doc;
 }

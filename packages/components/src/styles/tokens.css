@@ -1,0 +1,81 @@
+/**
+ * Apple Human Interface - Living Design Library Web Components Tokens
+ * Design System: Default Design System
+ * Generated: 2026-01-27T19:20:27.554Z
+ *
+ * Use these tokens with @living-design-library/components
+ * Import this file before the component styles to customize your design system.
+ */
+
+:root {
+  /* Colors */
+  --ldl-color-background: hsl(0 0% 100%);
+  --ldl-color-foreground: hsl(240 10% 3.9%);
+  --ldl-color-primary: hsl(221.2 83.2% 53.3%);
+  --ldl-color-primary-foreground: hsl(210 40% 98%);
+  --ldl-color-secondary: hsl(210 40% 96.1%);
+  --ldl-color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --ldl-color-muted: hsl(210 40% 96.1%);
+  --ldl-color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --ldl-color-accent: hsl(210 40% 96.1%);
+  --ldl-color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --ldl-color-destructive: hsl(0 84.2% 60.2%);
+  --ldl-color-destructive-foreground: hsl(210 40% 98%);
+  --ldl-color-border: hsl(214.3 31.8% 91.4%);
+  --ldl-color-input: hsl(214.3 31.8% 91.4%);
+  --ldl-color-ring: hsl(221.2 83.2% 53.3%);
+  --ldl-color-card: hsl(0 0% 100%);
+  --ldl-color-card-foreground: hsl(240 10% 3.9%);
+  --ldl-color-popover: hsl(0 0% 100%);
+  --ldl-color-popover-foreground: hsl(240 10% 3.9%);
+  --ldl-color-chart-1: hsl(221.2 83.2% 53.3%);
+  --ldl-color-chart-2: hsl(142.1 76.2% 36.3%);
+  --ldl-color-chart-3: hsl(346.8 77.2% 49.8%);
+
+  /* Spacing */
+  --ldl-space-xs: 0.25rem;
+  --ldl-space-sm: 0.5rem;
+  --ldl-space-md: 1rem;
+  --ldl-space-lg: 1.5rem;
+  --ldl-space-xl: 2rem;
+  --ldl-space-2xl: 3rem;
+
+  /* Border Radius */
+  --ldl-radius-sm: 0.5rem;
+  --ldl-radius-md: 0.75rem;
+  --ldl-radius-lg: 1rem;
+  --ldl-radius-xl: 1.25rem;
+  --ldl-radius-full: 9999px;
+
+  /* Typography */
+  --ldl-font-sans: Inter, system-ui, sans-serif;
+  --ldl-font-mono: JetBrains Mono, monospace;
+  --ldl-font-serif: Georgia, serif;
+  --ldl-font-size-xs: 0.75rem;
+  --ldl-font-size-sm: 0.875rem;
+  --ldl-font-size-base: 1rem;
+  --ldl-font-size-lg: 1.125rem;
+  --ldl-font-size-xl: 1.25rem;
+  --ldl-font-size-2xl: 1.5rem;
+  --ldl-font-weight-normal: 400;
+  --ldl-font-weight-medium: 500;
+  --ldl-font-weight-semibold: 600;
+  --ldl-font-weight-bold: 700;
+
+  /* Shadows */
+  --ldl-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --ldl-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --ldl-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --ldl-transition-fast: 150ms ease;
+  --ldl-transition-normal: 200ms ease;
+  --ldl-transition-slow: 300ms ease;
+}
+
+/* Dark mode support - customize as needed */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Override colors for dark mode here */
+  }
+}

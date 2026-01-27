@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -8,6 +8,7 @@ import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Plus, X, Check, Sparkles, Target, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+import { getAllShowcases } from "../lib/component-registry";
 import type { ComponentCategory } from "../hooks/useIntentManager";
 
 interface IntentCreatorProps {
@@ -21,34 +22,6 @@ interface IntentCreatorProps {
   tokens?: any;
 }
 
-const availableCategories: ComponentCategory[] = [
-  { name: "Code Playground", icon: "Code2", id: "playground" },
-  { name: "Buttons & Actions", icon: "Mouse", id: "buttons" },
-  { name: "Forms & Inputs", icon: "Type", id: "forms" },
-  { name: "Layout Components", icon: "Layout", id: "layout" },
-  { name: "Overlays & Dialogs", icon: "Box", id: "overlays" },
-  { name: "Navigation", icon: "Menu", id: "navigation" },
-  { name: "Data Display", icon: "Palette", id: "data" },
-  { name: "AI Components", icon: "Sparkles", id: "ai" },
-  { name: "Product Cards", icon: "ShoppingBag", id: "product-cards" },
-  { name: "Shopping Cart", icon: "ShoppingBag", id: "shopping-cart" },
-  { name: "Checkout Flow", icon: "CreditCard", id: "checkout" },
-  { name: "Reviews & Ratings", icon: "Star", id: "reviews" },
-  { name: "Filters & Search", icon: "Filter", id: "filters" },
-  { name: "Bottom Navigation", icon: "Menu", id: "bottom-nav" },
-  { name: "Swipe Actions", icon: "Hand", id: "swipe-actions" },
-  { name: "Pull to Refresh", icon: "RefreshCw", id: "pull-refresh" },
-  { name: "Mobile Menu", icon: "AlignLeft", id: "mobile-menu" },
-  { name: "Touch Gestures", icon: "Zap", id: "touch-gestures" },
-  { name: "Mobile Forms", icon: "Smartphone", id: "mobile-forms" },
-  { name: "Hero Sections", icon: "Megaphone", id: "hero" },
-  { name: "CTA Blocks", icon: "Mouse", id: "cta-blocks" },
-  { name: "Testimonials", icon: "MessageSquare", id: "testimonials" },
-  { name: "Pricing Tables", icon: "DollarSign", id: "pricing" },
-  { name: "Feature Grids", icon: "Grid3x3", id: "features" },
-  { name: "Email Capture", icon: "Mail", id: "email-capture" }
-];
-
 export function IntentCreator({ onIntentCreated, tokens }: IntentCreatorProps) {
   const [intentLabel, setIntentLabel] = useState("");
   const [intentDescription, setIntentDescription] = useState("");
@@ -57,6 +30,17 @@ export function IntentCreator({ onIntentCreated, tokens }: IntentCreatorProps) {
   ]);
   const [customCategory, setCustomCategory] = useState({ name: "", id: "" });
   const [showCustom, setShowCustom] = useState(false);
+
+  // Get available categories dynamically from the component registry
+  const availableCategories = useMemo<ComponentCategory[]>(() => {
+    return getAllShowcases()
+      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+      .map(showcase => ({
+        id: showcase.id,
+        name: showcase.name,
+        icon: showcase.icon
+      }));
+  }, []);
 
   const toggleCategory = (category: ComponentCategory) => {
     if (category.id === "playground") return; // Always keep playground

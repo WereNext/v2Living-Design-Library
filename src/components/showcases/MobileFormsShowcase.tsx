@@ -42,8 +42,8 @@ export function MobileFormsShowcase() {
                 Create your account
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+            <CardContent className="space-y-md">
+              <div className="space-y-xs">
                 <Label htmlFor="name" className="text-base">
                   Full Name
                 </Label>
@@ -54,7 +54,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="email" className="text-base">
                   Email
                 </Label>
@@ -66,7 +66,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="phone" className="text-base">
                   Phone Number
                 </Label>
@@ -78,7 +78,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="password" className="text-base">
                   Password
                 </Label>
@@ -90,7 +90,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="flex items-start gap-2 py-2">
+              <div className="flex items-start gap-xs py-xs">
                 <Checkbox id="terms" />
                 <label htmlFor="terms" className="text-sm leading-relaxed">
                   I agree to the Terms of Service and Privacy Policy
@@ -120,10 +120,10 @@ export function MobileFormsShowcase() {
         title="Native Mobile Inputs"
         description="HTML5 input types optimized for mobile keyboards"
       >
-        <div className="max-w-md mx-auto space-y-4">
+        <div className="max-w-md mx-auto space-y-md">
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-2">
+            <CardContent className="pt-lg space-y-md">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-email" className="text-base">
                   Email (Email Keyboard)
                 </Label>
@@ -135,7 +135,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-tel" className="text-base">
                   Phone (Number Pad)
                 </Label>
@@ -147,7 +147,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-number" className="text-base">
                   Number (Numeric)
                 </Label>
@@ -159,7 +159,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-date" className="text-base">
                   Date (Date Picker)
                 </Label>
@@ -170,7 +170,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-time" className="text-base">
                   Time (Time Picker)
                 </Label>
@@ -181,7 +181,7 @@ export function MobileFormsShowcase() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-xs">
                 <Label htmlFor="mobile-url" className="text-base">
                   Website (URL Keyboard)
                 </Label>
@@ -195,7 +195,7 @@ export function MobileFormsShowcase() {
             </CardContent>
           </Card>
 
-          <div className="p-4 bg-muted rounded-lg text-sm text-muted-foreground">
+          <div className="p-md bg-muted rounded-lg text-sm text-muted-foreground">
             💡 These input types trigger specific mobile keyboards for better UX
           </div>
         </div>
@@ -208,8 +208,8 @@ export function MobileFormsShowcase() {
       >
         <div className="max-w-md mx-auto">
           <Card>
-            <div className="p-4 border-b">
-              <div className="flex items-center gap-2">
+            <div className="p-md border-b">
+              <div className="flex items-center gap-xs">
                 {[1, 2, 3].map((s) => (
                   <div key={s} className="flex items-center flex-1">
                     <div
@@ -221,21 +221,21 @@ export function MobileFormsShowcase() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground mt-xs">
                 Step {step} of 3
               </p>
             </div>
 
-            <CardContent className="pt-6 space-y-4">
+            <CardContent className="pt-lg space-y-md">
               {step === 1 && (
                 <>
-                  <div className="text-center mb-6">
-                    <h3 className="mb-2">Personal Info</h3>
+                  <div className="text-center mb-lg">
+                    <h3 className="mb-xs">Personal Info</h3>
                     <p className="text-sm text-muted-foreground">
                       Let's start with the basics
                     </p>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-xs">
                     <Label htmlFor="step-name" className="text-base">
                       Full Name
                     </Label>
@@ -245,7 +245,7 @@ export function MobileFormsShowcase() {
                       className="h-12 text-base"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-xs">
                     <Label htmlFor="step-email" className="text-base">
                       Email
                     </Label>
@@ -261,18 +261,18 @@ export function MobileFormsShowcase() {
 
               {step === 2 && (
                 <>
-                  <div className="text-center mb-6">
-                    <h3 className="mb-2">Preferences</h3>
+                  <div className="text-center mb-lg">
+                    <h3 className="mb-xs">Preferences</h3>
                     <p className="text-sm text-muted-foreground">
                       What are you interested in?
                     </p>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-xs">
                     {["Technology", "Design", "Business", "Marketing"].map(
                       (option) => (
                         <button
                           key={option}
-                          className={`w-full p-4 rounded-lg border-2 flex items-center justify-between transition-colors ${
+                          className={`w-full p-md rounded-lg border-2 flex items-center justify-between transition-colors ${
                             selectedOptions.includes(option)
                               ? "border-primary bg-primary/5"
                               : "border-border hover:border-primary/50"
@@ -294,14 +294,14 @@ export function MobileFormsShowcase() {
 
               {step === 3 && (
                 <>
-                  <div className="text-center mb-6">
-                    <div className="text-6xl mb-4">✅</div>
-                    <h3 className="mb-2">All Set!</h3>
+                  <div className="text-center mb-lg">
+                    <div className="text-6xl mb-md">✅</div>
+                    <h3 className="mb-xs">All Set!</h3>
                     <p className="text-sm text-muted-foreground">
                       Review your information
                     </p>
                   </div>
-                  <div className="space-y-3 p-4 bg-muted rounded-lg">
+                  <div className="space-y-sm p-md bg-muted rounded-lg">
                     <div>
                       <p className="text-xs text-muted-foreground">Name</p>
                       <p className="font-medium">John Doe</p>
@@ -322,7 +322,7 @@ export function MobileFormsShowcase() {
                 </>
               )}
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-sm pt-md">
                 {step > 1 && (
                   <Button
                     variant="outline"
@@ -345,7 +345,7 @@ export function MobileFormsShowcase() {
                   }}
                 >
                   {step === 3 ? "Complete" : "Continue"}
-                  {step < 3 && <ChevronRight className="w-4 h-4 ml-2" />}
+                  {step < 3 && <ChevronRight className="w-4 h-4 ml-xs" />}
                 </Button>
               </div>
             </CardContent>

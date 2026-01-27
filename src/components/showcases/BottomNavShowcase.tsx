@@ -24,8 +24,8 @@ export function BottomNavShowcase() {
         description="Simple bottom navigation for mobile apps"
       >
         <div className="max-w-md mx-auto">
-          <div className="bg-gradient-to-b from-blue-50 to-purple-50 rounded-t-lg p-8 text-center">
-            <h3 className="mb-2">Mobile App Screen</h3>
+          <div className="bg-gradient-to-b from-blue-50 to-purple-50 rounded-t-lg p-xl text-center">
+            <h3 className="mb-xs">Mobile App Screen</h3>
             <p className="text-muted-foreground">
               Content area with bottom navigation below
             </p>
@@ -64,14 +64,14 @@ export function BottomNavShowcase() {
         description="Navigation with icon labels for better clarity"
       >
         <div className="max-w-md mx-auto">
-          <div className="bg-gradient-to-b from-emerald-50 to-teal-50 rounded-t-lg p-8 text-center">
-            <h3 className="mb-2">Shopping App</h3>
+          <div className="bg-gradient-to-b from-emerald-50 to-teal-50 rounded-t-lg p-xl text-center">
+            <h3 className="mb-xs">Shopping App</h3>
             <p className="text-muted-foreground">
               Browse products with easy navigation
             </p>
           </div>
           <div className="border-t bg-white rounded-b-lg shadow-lg">
-            <div className="flex justify-around items-center py-2">
+            <div className="flex justify-around items-center py-xs">
               {[
                 { icon: ShoppingBag, id: "shop", label: "Shop" },
                 { icon: Search, id: "search", label: "Search" },
@@ -84,7 +84,7 @@ export function BottomNavShowcase() {
                     setActiveTab2(id);
                     toast(`Opened ${label}`);
                   }}
-                  className={`flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex flex-col items-center justify-center gap-1 px-md py-xs rounded-lg transition-colors ${
                     activeTab2 === id
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -105,8 +105,8 @@ export function BottomNavShowcase() {
         description="Navigation with notification badges and center action"
       >
         <div className="max-w-md mx-auto">
-          <div className="bg-gradient-to-b from-purple-50 to-pink-50 rounded-t-lg p-8 text-center">
-            <h3 className="mb-2">Social App</h3>
+          <div className="bg-gradient-to-b from-purple-50 to-pink-50 rounded-t-lg p-xl text-center">
+            <h3 className="mb-xs">Social App</h3>
             <p className="text-muted-foreground">
               Stay connected with notifications
             </p>

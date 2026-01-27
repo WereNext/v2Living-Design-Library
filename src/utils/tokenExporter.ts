@@ -1,5 +1,6 @@
 import { Theme } from "../hooks/useDesignSystems";
 import { branding } from "../config";
+import { hslStringToHex } from "../lib/theme-mappers/color-utils";
 
 export type ExportFormat =
   | "css"
@@ -8,97 +9,15 @@ export type ExportFormat =
   | "json"
   | "ios-swift"
   | "android-xml"
-  | "figma-tokens";
+  | "figma-tokens"
+  | "ldl-web-components";
 
 /**
- * Parse HSL string and return components
- * Handles: "221.2 83.2% 53.3%" (shadcn) or "hsl(221, 83%, 53%)"
- */
-function parseHSL(hslString: string): { h: number; s: number; l: number } | null {
-  // Handle hsl() format
-  const hslMatch = hslString.match(/hsl\(\s*([\d.]+)\s*,?\s*([\d.]+)%?\s*,?\s*([\d.]+)%?\s*\)/i);
-  if (hslMatch) {
-    return {
-      h: parseFloat(hslMatch[1]),
-      s: parseFloat(hslMatch[2]),
-      l: parseFloat(hslMatch[3]),
-    };
-  }
-
-  // Handle raw "H S% L%" format
-  const parts = hslString.trim().split(/\s+/);
-  if (parts.length >= 3) {
-    const h = parseFloat(parts[0]);
-    const s = parseFloat(parts[1].replace('%', ''));
-    const l = parseFloat(parts[2].replace('%', ''));
-    if (!isNaN(h) && !isNaN(s) && !isNaN(l)) {
-      return { h, s, l };
-    }
-  }
-
-  return null;
-}
-
-/**
- * Convert HSL to RGB (0-255)
- */
-function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
-  s /= 100;
-  l /= 100;
-
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-
-  let r = 0, g = 0, b = 0;
-
-  if (h >= 0 && h < 60) {
-    r = c; g = x; b = 0;
-  } else if (h >= 60 && h < 120) {
-    r = x; g = c; b = 0;
-  } else if (h >= 120 && h < 180) {
-    r = 0; g = c; b = x;
-  } else if (h >= 180 && h < 240) {
-    r = 0; g = x; b = c;
-  } else if (h >= 240 && h < 300) {
-    r = x; g = 0; b = c;
-  } else if (h >= 300 && h < 360) {
-    r = c; g = 0; b = x;
-  }
-
-  return {
-    r: Math.round((r + m) * 255),
-    g: Math.round((g + m) * 255),
-    b: Math.round((b + m) * 255),
-  };
-}
-
-/**
- * Convert a color value to hex
+ * Convert a color value to hex (uppercase)
+ * Uses centralized color-utils for conversion
  */
 function toHex(colorValue: string): string {
-  // Already hex
-  if (colorValue.startsWith('#')) {
-    return colorValue.toUpperCase();
-  }
-
-  // Parse HSL
-  const hsl = parseHSL(colorValue);
-  if (hsl) {
-    const { r, g, b } = hslToRgb(hsl.h, hsl.s, hsl.l);
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
-  }
-
-  // Parse RGB
-  const rgbMatch = colorValue.match(/rgba?\(\s*([\d.]+)\s*,?\s*([\d.]+)\s*,?\s*([\d.]+)/i);
-  if (rgbMatch) {
-    const r = Math.round(parseFloat(rgbMatch[1]));
-    const g = Math.round(parseFloat(rgbMatch[2]));
-    const b = Math.round(parseFloat(rgbMatch[3]));
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
-  }
-
-  return '#000000';
+  return hslStringToHex(colorValue).toUpperCase();
 }
 
 /**
@@ -142,6 +61,8 @@ export function exportTokens(format: ExportFormat, options: ExportOptions): stri
       return exportToAndroidXML(dataToExport, theme.name);
     case "figma-tokens":
       return exportToFigmaTokens(dataToExport, theme.name);
+    case "ldl-web-components":
+      return exportToLDLWebComponents(dataToExport, theme.name);
     default:
       return exportToJSON(dataToExport);
   }
@@ -466,6 +387,119 @@ function exportToFigmaTokens(data: TokenData, themeName: string): string {
   });
 
   return JSON.stringify(figmaTokens, null, 2);
+}
+
+/**
+ * Export tokens in LDL Web Components format
+ * Generates CSS custom properties with --ldl-* prefix for use with
+ * @living-design-library/components Web Components package
+ */
+function exportToLDLWebComponents(data: TokenData, themeName: string): string {
+  const dataRecord = data as Record<string, unknown>;
+  const timestamp = new Date().toISOString();
+
+  let css = `/**
+ * ${themeName} - Living Design Library Web Components Tokens
+ * Generated: ${timestamp}
+ *
+ * Use these tokens with @living-design-library/components
+ * Import this file before the component styles to customize your design system.
+ */
+
+:root {
+`;
+
+  // Colors - convert HSL values to hsl() format
+  if (dataRecord.colors && typeof dataRecord.colors === 'object') {
+    css += '  /* Colors */\n';
+    Object.entries(dataRecord.colors as Record<string, string>).forEach(([key, value]) => {
+      const tokenName = `--ldl-color-${key}`;
+      // Check if value is in "H S% L%" format (without hsl wrapper)
+      const hslValue = value.includes('hsl') ? value : `hsl(${value})`;
+      css += `  ${tokenName}: ${hslValue};\n`;
+    });
+    css += '\n';
+  }
+
+  // Spacing
+  if (dataRecord.spacing && typeof dataRecord.spacing === 'object') {
+    css += '  /* Spacing */\n';
+    Object.entries(dataRecord.spacing as Record<string, string>).forEach(([key, value]) => {
+      css += `  --ldl-space-${key}: ${value};\n`;
+    });
+    css += '\n';
+  }
+
+  // Border Radius
+  if (dataRecord.borderRadius && typeof dataRecord.borderRadius === 'object') {
+    css += '  /* Border Radius */\n';
+    Object.entries(dataRecord.borderRadius as Record<string, string>).forEach(([key, value]) => {
+      // Normalize key: "radius-sm" -> "sm", keep as-is otherwise
+      const normalizedKey = key.replace(/^radius-/, '');
+      css += `  --ldl-radius-${normalizedKey}: ${value};\n`;
+    });
+    // Add full radius for pills/circles
+    css += '  --ldl-radius-full: 9999px;\n';
+    css += '\n';
+  }
+
+  // Typography
+  if (dataRecord.typography && typeof dataRecord.typography === 'object') {
+    css += '  /* Typography */\n';
+    Object.entries(dataRecord.typography as Record<string, string>).forEach(([key, value]) => {
+      const normalizedKey = key.replace(/^font-/, '');
+      css += `  --ldl-font-${normalizedKey}: ${value};\n`;
+    });
+    // Add default font sizes
+    css += '  --ldl-font-size-xs: 0.75rem;\n';
+    css += '  --ldl-font-size-sm: 0.875rem;\n';
+    css += '  --ldl-font-size-base: 1rem;\n';
+    css += '  --ldl-font-size-lg: 1.125rem;\n';
+    css += '  --ldl-font-size-xl: 1.25rem;\n';
+    css += '  --ldl-font-size-2xl: 1.5rem;\n';
+    css += '  --ldl-font-weight-normal: 400;\n';
+    css += '  --ldl-font-weight-medium: 500;\n';
+    css += '  --ldl-font-weight-semibold: 600;\n';
+    css += '  --ldl-font-weight-bold: 700;\n';
+    css += '\n';
+  }
+
+  // Shadows
+  if (dataRecord.shadows && typeof dataRecord.shadows === 'object') {
+    css += '  /* Shadows */\n';
+    Object.entries(dataRecord.shadows as Record<string, string>).forEach(([key, value]) => {
+      // Normalize key: "shadow-sm" -> "sm"
+      const normalizedKey = key.replace(/^shadow-/, '');
+      css += `  --ldl-shadow-${normalizedKey}: ${value};\n`;
+    });
+    css += '\n';
+  }
+
+  // Transition defaults
+  css += '  /* Transitions */\n';
+  css += '  --ldl-transition-fast: 150ms ease;\n';
+  css += '  --ldl-transition-normal: 200ms ease;\n';
+  css += '  --ldl-transition-slow: 300ms ease;\n';
+
+  css += '}\n';
+
+  // Add dark mode variant if applicable (check for dark-themed colors)
+  const isDarkTheme = themeName.toLowerCase().includes('dark') ||
+    themeName.toLowerCase().includes('midnight') ||
+    themeName.toLowerCase().includes('cyber');
+
+  if (!isDarkTheme && dataRecord.colors) {
+    css += `
+/* Dark mode support - customize as needed */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Override colors for dark mode here */
+  }
+}
+`;
+  }
+
+  return css;
 }
 
 export function downloadTokens(filename: string, content: string) {

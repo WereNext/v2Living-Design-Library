@@ -85,7 +85,7 @@ export function ExportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Export to Framework</DialogTitle>
           <DialogDescription>

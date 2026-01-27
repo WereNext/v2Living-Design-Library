@@ -6,7 +6,17 @@ import { useDesignSystems } from "../hooks/useDesignSystems";
 import { toast } from "sonner";
 
 export function SavedDesignSystemsPage() {
-  const { systems, activeSystemId, applySystem, deleteSystem, exportSystem } = useDesignSystems();
+  const {
+    systems,
+    activeSystemId,
+    applySystem,
+    deleteSystem,
+    exportSystem,
+    addVersion,
+    restoreVersion,
+    exportVersionAsJSON,
+    deleteVersion
+  } = useDesignSystems();
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -44,6 +54,21 @@ export function SavedDesignSystemsPage() {
         }}
         onExport={(system) => {
           exportSystem(system.id);
+        }}
+        onCreateVersion={(systemId, versionType, notes, author) => {
+          addVersion(systemId, versionType, notes, author);
+          toast.success("Version created");
+        }}
+        onRestoreVersion={(systemId, version) => {
+          restoreVersion(systemId, version);
+          toast.success("Version restored");
+        }}
+        onExportVersion={(version) => {
+          exportVersionAsJSON(version);
+        }}
+        onDeleteVersion={(systemId, versionId) => {
+          deleteVersion(systemId, versionId);
+          toast.success("Version deleted");
         }}
       />
 

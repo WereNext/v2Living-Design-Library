@@ -5,6 +5,7 @@ import { Badge } from "../ui-adapters/Badge";
 import { ArrowRight, Play, Star, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
+import { ShowcaseCard } from "../ShowcaseCard";
 
 export function HeroShowcase() {
   const sections = [
@@ -20,36 +21,43 @@ export function HeroShowcase() {
         title="Centered Hero"
         description="Classic centered hero section with call-to-action"
       >
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-lg p-12 md:p-20 text-center">
-          <Badge className="mb-4">New Release</Badge>
-          <h1 className="mb-4 max-w-3xl mx-auto">
-            Build amazing products faster than ever
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            The complete design system with everything you need to create 
-            beautiful, responsive applications in minutes.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button size="lg" onClick={() => toast.success("Getting started!")}>
-              Get Started
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button size="lg" variant="outline">
-              <Play className="mr-2 w-5 h-5" />
-              Watch Demo
-            </Button>
-          </div>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              No credit card required
+        <ShowcaseCard
+          defaultName="Centered Hero"
+          category="hero"
+          designIntent="landing"
+          description="Classic centered hero with gradient background and CTA buttons"
+        >
+          <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-lg p-2xl md:p-20 text-center">
+            <Badge className="mb-md">New Release</Badge>
+            <h1 className="mb-md max-w-3xl mx-auto">
+              Build amazing products faster than ever
+            </h1>
+            <p className="text-xl text-muted-foreground mb-xl max-w-2xl mx-auto">
+              The complete design system with everything you need to create
+              beautiful, responsive applications in minutes.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-md justify-center mb-xl">
+              <Button size="lg" onClick={() => toast.success("Getting started!")}>
+                Get Started
+                <ArrowRight className="ml-xs w-5 h-5" />
+              </Button>
+              <Button size="lg" variant="outline">
+                <Play className="mr-xs w-5 h-5" />
+                Watch Demo
+              </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              14-day free trial
+            <div className="flex items-center justify-center gap-lg text-sm text-muted-foreground">
+              <div className="flex items-center gap-xs">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                No credit card required
+              </div>
+              <div className="flex items-center gap-xs">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                14-day free trial
+              </div>
             </div>
           </div>
-        </div>
+        </ShowcaseCard>
       </ShowcaseSection>
 
       <ShowcaseSection
@@ -58,20 +66,20 @@ export function HeroShowcase() {
         description="Hero with content on one side and visual on the other"
       >
         <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="p-8 md:p-12">
-              <Badge className="mb-4" variant="secondary">
+          <div className="grid md:grid-cols-2 gap-xl items-center">
+            <div className="p-xl md:p-2xl">
+              <Badge className="mb-md" variant="secondary">
                 💎 Premium Quality
               </Badge>
-              <h1 className="mb-4">
+              <h1 className="mb-md">
                 Transform your workflow today
               </h1>
-              <p className="text-lg text-muted-foreground mb-6">
+              <p className="text-lg text-muted-foreground mb-lg">
                 Join thousands of teams already using our platform to ship 
                 better products faster. Start your journey today.
               </p>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-xs mb-lg">
+                <div className="flex -space-x-xs">
                   {['👨', '👩', '🧑', '👴'].map((emoji, i) => (
                     <div
                       key={i}
@@ -92,7 +100,7 @@ export function HeroShowcase() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-sm">
                 <Button size="lg" onClick={() => toast.success("Started trial!")}>
                   Start Free Trial
                 </Button>
@@ -115,15 +123,15 @@ export function HeroShowcase() {
       >
         <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg overflow-hidden text-white">
           <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10 p-12 md:p-20 text-center">
-            <h1 className="mb-4 text-white max-w-3xl mx-auto">
+          <div className="relative z-10 p-2xl md:p-20 text-center">
+            <h1 className="mb-md text-white max-w-3xl mx-auto">
               The future of design is here
             </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 mb-xl max-w-2xl mx-auto">
               Create stunning experiences with our cutting-edge tools and 
               components. Join the revolution today.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-md justify-center items-center mb-xl">
               <Input 
                 type="email" 
                 placeholder="Enter your email" 

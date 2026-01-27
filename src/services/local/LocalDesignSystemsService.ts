@@ -61,20 +61,21 @@ export class LocalDesignSystemsService implements IDesignSystemsService {
         useIcons: data.useIcons ?? true,
         themes: (data.themes || []).map((t, i) => ({
           ...t,
-          id: `theme-${Date.now()}-${i}`,
+          // Preserve existing ID if provided, otherwise generate new one
+          id: t.id || `theme-${Date.now()}-${i}`,
           colors: t.colors || {},
           spacing: t.spacing || {},
           typography: t.typography || {},
           borderRadius: t.borderRadius || {},
           shadows: t.shadows || {},
         })),
-        activeThemeId: undefined,
+        activeThemeId: data.activeThemeId,
         intents: data.intents,
         versions: [],
       };
 
-      // Set first theme as active
-      if (newSystem.themes.length > 0) {
+      // Set first theme as active if not specified
+      if (!newSystem.activeThemeId && newSystem.themes.length > 0) {
         newSystem.activeThemeId = newSystem.themes[0].id;
       }
 

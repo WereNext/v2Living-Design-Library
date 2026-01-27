@@ -1,0 +1,54 @@
+{
+  "name": "@living-design-library/components",
+  "version": "0.1.0",
+  "description": "Framework-agnostic Web Components for Living Design Library",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js"
+    },
+    "./styles": {
+      "import": "./dist/styles/tokens.css"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc && npm run build:styles",
+    "build:styles": "node scripts/build-tokens.js",
+    "sync:tokens": "node scripts/build-tokens.js --sync",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "web-components",
+    "design-system",
+    "lit",
+    "components",
+    "ui"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/living-design-library"
+  },
+  "customElements": "dist/custom-elements.json"
+}

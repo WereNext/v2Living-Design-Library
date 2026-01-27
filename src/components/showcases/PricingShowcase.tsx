@@ -60,24 +60,24 @@ export function PricingShowcase() {
         title="Three Tier Pricing"
         description="Classic pricing table with three tiers"
       >
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-lg md:grid-cols-3">
           {plans.map((plan) => (
             <Card key={plan.name} className={plan.popular ? "border-primary shadow-lg scale-105" : ""}>
               <CardHeader>
                 {plan.popular && (
-                  <Badge className="w-fit mb-2">Most Popular</Badge>
+                  <Badge className="w-fit mb-xs">Most Popular</Badge>
                 )}
                 <CardTitle>{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="mb-4">
+                <div className="mb-md">
                   <span className="text-4xl">${plan.price}</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-xs">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2">
+                    <li key={i} className="flex items-start gap-xs">
                       <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                       <span className="text-sm">{feature}</span>
                     </li>
@@ -113,10 +113,10 @@ export function PricingShowcase() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-4 px-2">Feature</th>
-                    <th className="text-center py-4 px-2">Starter</th>
-                    <th className="text-center py-4 px-2">Professional</th>
-                    <th className="text-center py-4 px-2">Enterprise</th>
+                    <th className="text-left py-md px-xs">Feature</th>
+                    <th className="text-center py-md px-xs">Starter</th>
+                    <th className="text-center py-md px-xs">Professional</th>
+                    <th className="text-center py-md px-xs">Enterprise</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,18 +129,18 @@ export function PricingShowcase() {
                     { feature: "Custom Integrations", starter: false, pro: false, enterprise: true },
                   ].map((row, i) => (
                     <tr key={i} className="border-b">
-                      <td className="py-3 px-2">{row.feature}</td>
-                      <td className="text-center py-3 px-2">
+                      <td className="py-sm px-xs">{row.feature}</td>
+                      <td className="text-center py-sm px-xs">
                         {typeof row.starter === 'boolean' ? (
                           row.starter ? <Check className="w-5 h-5 text-green-600 mx-auto" /> : '—'
                         ) : row.starter}
                       </td>
-                      <td className="text-center py-3 px-2">
+                      <td className="text-center py-sm px-xs">
                         {typeof row.pro === 'boolean' ? (
                           row.pro ? <Check className="w-5 h-5 text-green-600 mx-auto" /> : '—'
                         ) : row.pro}
                       </td>
-                      <td className="text-center py-3 px-2">
+                      <td className="text-center py-sm px-xs">
                         {typeof row.enterprise === 'boolean' ? (
                           row.enterprise ? <Check className="w-5 h-5 text-green-600 mx-auto" /> : '—'
                         ) : row.enterprise}

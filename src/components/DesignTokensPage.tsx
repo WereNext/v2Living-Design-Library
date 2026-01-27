@@ -149,22 +149,26 @@ export function DesignTokensPage({ activeTheme }: DesignTokensPageProps) {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                         {Object.entries(activeTheme.colors).map(([key, value]) => {
-                          const hslValue = value.startsWith('hsl(') ? value : `hsl(${value})`;
-                          
+                          // Handle multiple color formats: hsl(), hex, or raw HSL values
+                          let cssColor = value;
+                          if (value.startsWith('#') || value.startsWith('rgb')) {
+                            cssColor = value; // Use hex/rgb directly
+                          } else if (!value.startsWith('hsl(') && !value.startsWith('oklch')) {
+                            cssColor = `hsl(${value})`; // Wrap raw HSL values
+                          }
+
                           return (
-                            <div key={key} className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                            <div key={key} className="space-y-2">
+                              <div className="text-sm font-medium">{key}</div>
                               <div
-                                className="w-12 h-12 rounded-md border shadow-sm flex-shrink-0"
-                                style={{ background: hslValue }}
+                                className="aspect-[4/3] min-h-[80px] rounded-lg border shadow-md"
+                                style={{ backgroundColor: cssColor }}
                               />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm truncate">--{key}</p>
-                                <p className="text-xs text-muted-foreground font-mono truncate">
-                                  {value}
-                                </p>
-                              </div>
+                              <code className="text-xs text-muted-foreground block font-mono">
+                                {value}
+                              </code>
                             </div>
                           );
                         })}

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
-import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package, Loader2, Sparkles } from "lucide-react";
+import { Upload, Download, RefreshCw, Check, Copy, AlertCircle, CheckCircle2, FileJson, FileCode, Eye, EyeOff, BookOpen, Package, Loader2, Sparkles, HardDrive, FolderOpen, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
@@ -12,7 +12,9 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { IntentCreator } from "./IntentCreator";
 import { ComponentImportDialog } from "./ComponentImportDialog";
 import { LDLImportDialog } from "./LDLImportDialog";
-import { useDesignSystems } from "../hooks/useDesignSystems";
+import { SaveDesignSystemDialog } from "./SaveDesignSystemDialog";
+import { useAppState } from "../contexts/AppStateContext";
+import { useElectron } from "../hooks/useElectron";
 import {
   parseTokens,
   parseCSSVariables,
@@ -22,6 +24,7 @@ import {
   type TokenSet
 } from "../lib/token-utilities";
 import { LDLTokenDocument, isColorWithForeground } from "../lib/ldl";
+import { normalizeToHsl } from "../lib/theme-mappers/color-utils";
 
 interface ImportConfigProps {
   onIntentCreated?: (intent: any) => void;
@@ -39,11 +42,27 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
   const [showLDLImport, setShowLDLImport] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [pendingImport, setPendingImport] = useState<{
+    tokenSet: TokenSet;
+    documentName?: string;
+    intent?: { id: string; label: string; description?: string };
+  } | null>(null);
 
-  const { systems, activeSystemId } = useDesignSystems();
+  const { designSystems: systems, activeSystemId, addDesignSystem, applySystem } = useAppState();
+  const { isElectron, openDesignSystemFile, openDesignSystemFolder, appInfo } = useElectron();
 
   // Handle LDL import
-  const handleLDLImport = (document: LDLTokenDocument, css: string) => {
+  const handleLDLImport = (document: LDLTokenDocument, css: string, selectedIntent?: { id: string; label: string; description?: string }) => {
+    console.log('🔵 handleLDLImport called with:', {
+      documentName: document.$name,
+      hasColors: !!document.color,
+      colorCount: document.color ? Object.keys(document.color).length : 0,
+      hasSpace: !!document.space,
+      spaceCount: document.space ? Object.keys(document.space).length : 0,
+      selectedIntent
+    });
+
     // Convert LDL document to TokenSet format for compatibility
     const tokenSet: TokenSet = {
       colors: {},
@@ -53,13 +72,19 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
       shadows: {}
     };
 
-    // Convert colors
+    // Convert colors - normalize all to HSL format for consistent rendering
     if (document.color) {
+      console.log('🔴 Converting colors, document.color entries:', Object.keys(document.color).length);
       for (const [name, token] of Object.entries(document.color)) {
         if (token === undefined) continue;
-        tokenSet.colors[name] = isColorWithForeground(token) ? token.value : token;
+        const colorValue = isColorWithForeground(token) ? token.value : String(token);
+        const hslValue = normalizeToHsl(colorValue);
+        console.log(`🔴 Color ${name}: "${colorValue}" -> "${hslValue}"`);
+        tokenSet.colors[name] = hslValue;
         if (isColorWithForeground(token)) {
-          tokenSet.colors[`${name}-foreground`] = token.foreground;
+          const fgHsl = normalizeToHsl(token.foreground);
+          console.log(`🔴 Color ${name}-foreground: "${token.foreground}" -> "${fgHsl}"`);
+          tokenSet.colors[`${name}-foreground`] = fgHsl;
         }
       }
     }
@@ -99,8 +124,102 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
       }
     }
 
-    // Apply tokens
+    console.log('🟢 TokenSet created:', {
+      colorsCount: Object.keys(tokenSet.colors).length,
+      spacingCount: Object.keys(tokenSet.spacing).length,
+      typographyCount: Object.keys(tokenSet.typography).length,
+      borderRadiusCount: Object.keys(tokenSet.borderRadius).length,
+      shadowsCount: Object.keys(tokenSet.shadows).length,
+      sampleColors: Object.keys(tokenSet.colors).slice(0, 5)
+    });
+
+    // Apply tokens to preview
     applyTokensToDocument(tokenSet);
+
+    // Store pending import and show save dialog
+    setPendingImport({
+      tokenSet,
+      documentName: document.$name,
+      intent: selectedIntent
+    });
+    setShowSaveDialog(true);
+  };
+
+  // Handle saving imported tokens as a new design system
+  const handleSaveImportedSystem = async ({ name, description, applyImmediately }: { name: string; description?: string; applyImmediately?: boolean }) => {
+    if (!pendingImport) return;
+
+    const { tokenSet, intent } = pendingImport;
+
+    // Create theme from token set
+    const theme = {
+      id: `theme-${Date.now()}`,
+      name: name || 'Imported Theme',
+      colors: tokenSet.colors || {},
+      spacing: tokenSet.spacing || {},
+      typography: tokenSet.typography || {},
+      borderRadius: tokenSet.borderRadius || {},
+      shadows: tokenSet.shadows || {}
+    };
+
+    // Create the design system using context's addDesignSystem
+    // This ensures the state is shared across the app
+    const newSystem = addDesignSystem({
+      name,
+      description,
+      uiLibrary: 'shadcn', // Default to shadcn for imported systems
+      themes: [theme],
+      activeThemeId: theme.id,
+      intents: intent ? [{
+        id: intent.id,
+        value: intent.id,
+        label: intent.label,
+        description: intent.description
+      }] : undefined
+    });
+
+    // addDesignSystem might return the system or a promise
+    const system = newSystem instanceof Promise ? await newSystem : newSystem;
+
+    console.log('🟣 Design system created:', {
+      systemId: system?.id,
+      systemName: system?.name,
+      themesCount: system?.themes?.length,
+      firstThemeId: system?.themes?.[0]?.id,
+      firstThemeColorsCount: system?.themes?.[0]?.colors ? Object.keys(system.themes[0].colors).length : 0
+    });
+
+    if (!system) {
+      toast.error("Failed to save design system");
+      return;
+    }
+
+    // Apply if requested
+    if (applyImmediately) {
+      // Use setTimeout to allow React to update state before applySystem looks up the system
+      // This ensures the new system is in allSystems when applySystem runs
+      setTimeout(() => {
+        applySystem(system.id);
+      }, 0);
+      toast.success(`"${name}" saved and applied!`);
+    } else {
+      toast.success(`"${name}" saved to library!`);
+    }
+
+    // Set intent if provided
+    if (intent && onIntentCreated) {
+      onIntentCreated({
+        id: intent.id,
+        label: intent.label,
+        description: intent.description || `${intent.label} components`,
+        isCustom: false,
+        categories: []
+      });
+    }
+
+    // Clear pending import
+    setPendingImport(null);
+    setShowSaveDialog(false);
   };
 
   // Get current tokens from the active system or generate from CSS variables
@@ -191,6 +310,108 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
       toast.error(errorMessage);
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  // Handle native Electron file import
+  const handleNativeFileImport = async () => {
+    setIsFileLoading(true);
+    try {
+      const result = await openDesignSystemFile();
+
+      if (!result.success) {
+        if (result.error !== 'File selection canceled') {
+          toast.error(result.error || 'Failed to open file');
+        }
+        setIsFileLoading(false);
+        return;
+      }
+
+      // Process the imported data
+      const data = result.data;
+      if (data && typeof data === 'object') {
+        // Check if it's a design system format (has themes or tokens)
+        const dsData = data as Record<string, unknown>;
+
+        if (dsData.themes && Array.isArray(dsData.themes)) {
+          // Design system format with themes
+          const theme = (dsData.themes as Array<Record<string, unknown>>)[0];
+          if (theme) {
+            const tokenSet = parseTokens(theme);
+            applyTokensToDocument(tokenSet);
+            toast.success(`Design system "${dsData.name || result.fileName}" imported successfully!`);
+          }
+        } else if (dsData.tokens || dsData.colors) {
+          // Standard token format
+          const tokenSet = parseTokens(dsData);
+          applyTokensToDocument(tokenSet);
+          toast.success(`Tokens from "${result.fileName}" imported successfully!`);
+        } else {
+          // Try to parse as-is
+          const tokenSet = parseTokens(dsData);
+          applyTokensToDocument(tokenSet);
+          toast.success(`File "${result.fileName}" imported successfully!`);
+        }
+
+        // Update the JSON config textarea for visibility
+        setJsonConfig(JSON.stringify(data, null, 2));
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error importing file');
+    } finally {
+      setIsFileLoading(false);
+    }
+  };
+
+  // Handle native Electron folder import (batch)
+  const handleNativeFolderImport = async () => {
+    setIsFileLoading(true);
+    try {
+      const result = await openDesignSystemFolder();
+
+      if (!result.success) {
+        if (result.error !== 'Folder selection canceled') {
+          toast.error(result.error || 'Failed to open folder');
+        }
+        setIsFileLoading(false);
+        return;
+      }
+
+      const files = result.files || [];
+      if (files.length === 0) {
+        toast.info('No design system files found in folder');
+        setIsFileLoading(false);
+        return;
+      }
+
+      // Import the first file and show count of others
+      const firstFile = files[0];
+      if (firstFile && firstFile.data && typeof firstFile.data === 'object') {
+        const dsData = firstFile.data as Record<string, unknown>;
+
+        if (dsData.themes && Array.isArray(dsData.themes)) {
+          const theme = (dsData.themes as Array<Record<string, unknown>>)[0];
+          if (theme) {
+            const tokenSet = parseTokens(theme);
+            applyTokensToDocument(tokenSet);
+          }
+        } else {
+          const tokenSet = parseTokens(dsData);
+          applyTokensToDocument(tokenSet);
+        }
+
+        setJsonConfig(JSON.stringify(firstFile.data, null, 2));
+      }
+
+      toast.success(`Imported ${files.length} design system${files.length > 1 ? 's' : ''} from folder`);
+
+      if (files.length > 1) {
+        toast.info(`Additional systems found: ${files.slice(1).map(f => f.fileName).join(', ')}`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error importing folder');
+    } finally {
+      setIsFileLoading(false);
     }
   };
 
@@ -393,6 +614,67 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
           </Button>
         </CardContent>
       </Card>
+
+      {/* Native Desktop Import - Only shows in Electron */}
+      {isElectron && (
+        <Card className="border-green-500/50 bg-green-500/5">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <HardDrive className="w-5 h-5 text-green-600" />
+              Desktop Import
+              <Badge variant="secondary" className="text-xs">Desktop App</Badge>
+            </CardTitle>
+            <CardDescription>
+              Use native file dialogs to import design systems directly from your computer
+              {appInfo && <span className="text-xs ml-2">({appInfo.platform})</span>}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <Button
+                onClick={handleNativeFileImport}
+                disabled={isFileLoading}
+                variant="outline"
+                className="h-auto py-4 flex-col items-center gap-2 border-green-500/30 hover:border-green-500/50 hover:bg-green-500/10"
+              >
+                {isFileLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+                ) : (
+                  <FileJson className="w-6 h-6 text-green-600" />
+                )}
+                <span className="font-semibold">Import File</span>
+                <span className="text-xs text-muted-foreground">
+                  Select a single JSON file
+                </span>
+              </Button>
+
+              <Button
+                onClick={handleNativeFolderImport}
+                disabled={isFileLoading}
+                variant="outline"
+                className="h-auto py-4 flex-col items-center gap-2 border-green-500/30 hover:border-green-500/50 hover:bg-green-500/10"
+              >
+                {isFileLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+                ) : (
+                  <FolderOpen className="w-6 h-6 text-green-600" />
+                )}
+                <span className="font-semibold">Import Folder</span>
+                <span className="text-xs text-muted-foreground">
+                  Load all design systems from folder
+                </span>
+              </Button>
+            </div>
+
+            <Alert>
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Supported formats:</strong> LDL, Figma Variables JSON, Tokens Studio, W3C DTCG, and custom token formats.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Import Components from Figma */}
       <Card>
@@ -872,6 +1154,24 @@ export function ImportConfig({ onIntentCreated, availableIntents = [] }: ImportC
         open={showLDLImport}
         onOpenChange={setShowLDLImport}
         onImport={handleLDLImport}
+      />
+
+      {/* Save dialog for imported tokens */}
+      <SaveDesignSystemDialog
+        open={showSaveDialog}
+        onOpenChange={(open) => {
+          setShowSaveDialog(open);
+          if (!open) setPendingImport(null);
+        }}
+        onSave={handleSaveImportedSystem}
+        defaultName={pendingImport?.documentName}
+        tokenCounts={pendingImport ? {
+          colors: Object.keys(pendingImport.tokenSet.colors || {}).length,
+          spacing: Object.keys(pendingImport.tokenSet.spacing || {}).length,
+          typography: Object.keys(pendingImport.tokenSet.typography || {}).length,
+          borderRadius: Object.keys(pendingImport.tokenSet.borderRadius || {}).length,
+          shadows: Object.keys(pendingImport.tokenSet.shadows || {}).length
+        } : undefined}
       />
     </div>
   );

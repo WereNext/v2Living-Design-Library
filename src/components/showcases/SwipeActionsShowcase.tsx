@@ -32,12 +32,12 @@ export function SwipeActionsShowcase() {
         title="Swipeable Email List"
         description="Swipe actions for email management"
       >
-        <div className="max-w-md mx-auto space-y-2">
+        <div className="max-w-md mx-auto space-y-xs">
           {emails.map((email) => (
             <div key={email.id} className="relative">
               {/* Action buttons revealed on swipe */}
               {swipedItems[email.id] === 'left' && (
-                <div className="absolute right-0 top-0 h-full flex items-center gap-1 px-2 bg-destructive/10">
+                <div className="absolute right-0 top-0 h-full flex items-center gap-1 px-xs bg-destructive/10">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -56,7 +56,7 @@ export function SwipeActionsShowcase() {
                 </div>
               )}
               {swipedItems[email.id] === 'right' && (
-                <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-2 bg-blue-50">
+                <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-xs bg-blue-50">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -79,7 +79,7 @@ export function SwipeActionsShowcase() {
                 className={`cursor-pointer transition-transform ${swipedItems[email.id] ? 'translate-x-16' : ''}`}
                 onClick={() => toast(`Opening: ${email.subject}`)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-md">
                   <div className="flex items-start justify-between mb-1">
                     <span className={`font-semibold ${email.unread ? '' : 'font-normal'}`}>
                       {email.from}
@@ -90,7 +90,7 @@ export function SwipeActionsShowcase() {
                     {email.subject}
                   </p>
                   {swipedItems[email.id] && (
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-xs flex gap-xs">
                       <Button
                         size="sm"
                         variant="outline"
@@ -117,7 +117,7 @@ export function SwipeActionsShowcase() {
               </Card>
               
               {!swipedItems[email.id] && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-xs mt-xs">
                   <Button
                     size="sm"
                     variant="outline"
@@ -144,7 +144,7 @@ export function SwipeActionsShowcase() {
         title="Swipeable Todo Items"
         description="Quick actions for task management"
       >
-        <div className="max-w-md mx-auto space-y-3">
+        <div className="max-w-md mx-auto space-y-sm">
           {[
             { id: 1, task: "Finish project proposal", completed: false },
             { id: 2, task: "Review pull requests", completed: false },
@@ -152,9 +152,9 @@ export function SwipeActionsShowcase() {
           ].map((todo) => (
             <div key={todo.id} className="relative group">
               <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
+                <CardContent className="p-md">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
+                    <div className="flex items-center gap-sm flex-1">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${todo.completed ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
                         {todo.completed && (
                           <div className="text-white text-xs">✓</div>
@@ -210,14 +210,14 @@ export function SwipeActionsShowcase() {
                   zIndex: 3 - i,
                 }}
               >
-                <CardContent className="p-8 h-full flex flex-col">
+                <CardContent className="p-xl h-full flex flex-col">
                   <div className="flex-1 flex items-center justify-center text-9xl">
                     {item.emoji}
                   </div>
                   <div className="text-center">
-                    <h3 className="mb-2">{item.name}</h3>
-                    <p className="text-2xl text-primary mb-6">{item.price}</p>
-                    <div className="flex gap-3 justify-center">
+                    <h3 className="mb-xs">{item.name}</h3>
+                    <p className="text-2xl text-primary mb-lg">{item.price}</p>
+                    <div className="flex gap-sm justify-center">
                       <Button
                         size="icon"
                         variant="outline"
@@ -239,7 +239,7 @@ export function SwipeActionsShowcase() {
               </Card>
             ))}
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-lg">
             Swipe left to pass, right to like
           </p>
         </div>

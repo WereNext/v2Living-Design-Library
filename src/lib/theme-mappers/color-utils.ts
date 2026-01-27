@@ -32,6 +32,115 @@ export function parseHSLString(hslString: string): { h: number; s: number; l: nu
 }
 
 /**
+ * Convert hex color to HSL string (format: "H S% L%")
+ */
+export function hexToHsl(hex: string): string {
+  // Remove # if present
+  hex = hex.replace(/^#/, '');
+
+  // Handle shorthand hex (e.g., #fff -> #ffffff)
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('');
+  }
+
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+        break;
+      case g:
+        h = ((b - r) / d + 2) / 6;
+        break;
+      case b:
+        h = ((r - g) / d + 4) / 6;
+        break;
+    }
+  }
+
+  // Convert to degrees and percentages, round to 1 decimal place
+  const hDeg = Math.round(h * 360 * 10) / 10;
+  const sPercent = Math.round(s * 100 * 10) / 10;
+  const lPercent = Math.round(l * 100 * 10) / 10;
+
+  return `${hDeg} ${sPercent}% ${lPercent}%`;
+}
+
+/**
+ * Normalize any color format to HSL string (format: "H S% L%")
+ * Handles: hex (#fff, #ffffff), rgb(), hsl(), or already-HSL strings
+ */
+export function normalizeToHsl(color: string): string {
+  if (!color) return '0 0% 0%';
+
+  color = color.trim();
+
+  // Already in HSL format (e.g., "221.2 83.2% 53.3%")
+  if (/^\d+(\.\d+)?\s+\d+(\.\d+)?%\s+\d+(\.\d+)?%$/.test(color)) {
+    return color;
+  }
+
+  // Hex format
+  if (color.startsWith('#')) {
+    return hexToHsl(color);
+  }
+
+  // hsl() or hsla() format
+  if (color.startsWith('hsl')) {
+    const match = color.match(/hsla?\(\s*([\d.]+)\s*,?\s*([\d.]+)%?\s*,?\s*([\d.]+)%?/i);
+    if (match) {
+      return `${match[1]} ${match[2]}% ${match[3]}%`;
+    }
+  }
+
+  // rgb() or rgba() format
+  if (color.startsWith('rgb')) {
+    const match = color.match(/rgba?\(\s*([\d.]+)\s*,?\s*([\d.]+)\s*,?\s*([\d.]+)/i);
+    if (match) {
+      const r = parseInt(match[1]) / 255;
+      const g = parseInt(match[2]) / 255;
+      const b = parseInt(match[3]) / 255;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h = 0;
+      let s = 0;
+      const l = (max + min) / 2;
+
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+
+      const hDeg = Math.round(h * 360 * 10) / 10;
+      const sPercent = Math.round(s * 100 * 10) / 10;
+      const lPercent = Math.round(l * 100 * 10) / 10;
+      return `${hDeg} ${sPercent}% ${lPercent}%`;
+    }
+  }
+
+  // Return as-is if format not recognized (might already be valid)
+  return color;
+}
+
+/**
  * Convert HSL components to hex color
  */
 export function hslToHex(h: number, s: number, l: number): string {
@@ -64,6 +173,48 @@ export function hslToHex(h: number, s: number, l: number): string {
   };
 
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * Convert HSL to RGB components (0-255)
+ */
+export function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  s /= 100;
+  l /= 100;
+
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+
+  let r = 0, g = 0, b = 0;
+
+  if (h >= 0 && h < 60) {
+    r = c; g = x; b = 0;
+  } else if (h >= 60 && h < 120) {
+    r = x; g = c; b = 0;
+  } else if (h >= 120 && h < 180) {
+    r = 0; g = c; b = x;
+  } else if (h >= 180 && h < 240) {
+    r = 0; g = x; b = c;
+  } else if (h >= 240 && h < 300) {
+    r = x; g = 0; b = c;
+  } else if (h >= 300 && h < 360) {
+    r = c; g = 0; b = x;
+  }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+}
+
+/**
+ * Convert HSL to RGB tuple (0-255)
+ */
+export function hslToRgbTuple(h: number, s: number, l: number): [number, number, number] {
+  const { r, g, b } = hslToRgb(h, s, l);
+  return [r, g, b];
 }
 
 /**

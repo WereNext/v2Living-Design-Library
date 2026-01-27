@@ -9,6 +9,7 @@ import { CodePlayground } from "../CodePlayground";
 import { ShowcaseWithNav } from "../ShowcaseWithNav";
 import { ConditionalIcon } from "../ConditionalIcon";
 import { useAppState } from "../../contexts/AppStateContext";
+import { ShowcaseCard } from "../ShowcaseCard";
 
 interface ButtonsShowcaseProps {
   designIntent?: string;
@@ -31,7 +32,7 @@ import { toast } from "sonner";
 
 export function ButtonVariants() {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap gap-md">
       <Button onClick={() => toast.success("Default button clicked!")}>
         Default
       </Button>
@@ -50,25 +51,25 @@ import { toast } from "sonner";
 
 export function IconButtons() {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap gap-md">
       <Button onClick={() => toast("Liked!")}>
-        <Heart className="mr-2 h-4 w-4" />
+        <Heart className="mr-xs h-4 w-4" />
         Like
       </Button>
       <Button variant="outline" onClick={() => toast("Shared!")}>
-        <Share2 className="mr-2 h-4 w-4" />
+        <Share2 className="mr-xs h-4 w-4" />
         Share
       </Button>
       <Button variant="secondary" onClick={() => toast("Bookmarked!")}>
-        <Bookmark className="mr-2 h-4 w-4" />
+        <Bookmark className="mr-xs h-4 w-4" />
         Bookmark
       </Button>
       <Button variant="outline" onClick={() => toast("Added to cart!")}>
-        <ShoppingCart className="mr-2 h-4 w-4" />
+        <ShoppingCart className="mr-xs h-4 w-4" />
         Add to Cart
       </Button>
       <Button variant="outline" onClick={() => toast("Payment successful!")}>
-        <CreditCard className="mr-2 h-4 w-4" />
+        <CreditCard className="mr-xs h-4 w-4" />
         Pay
       </Button>
     </div>
@@ -79,7 +80,7 @@ export function IconButtons() {
 
 export function Badges() {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap gap-md">
       <Badge>Default</Badge>
       <Badge variant="secondary">Secondary</Badge>
       <Badge variant="destructive">Destructive</Badge>
@@ -93,7 +94,7 @@ import { Heart } from "lucide-react";
 
 export function ButtonSizes() {
   return (
-    <div className="flex flex-wrap items-center gap-4">
+    <div className="flex flex-wrap items-center gap-md">
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
@@ -157,23 +158,70 @@ export function TextFormatting() {
           <CodePlayground
             code={buttonVariantsCode}
             title="Button Variants"
-            description="Explore all button variants with interactive examples"
+            description="Explore all button variants with interactive examples. Hover over each to save to your library!"
           >
-            <div className="flex flex-wrap gap-4">
-              <Button onClick={() => toast.success("Default button clicked!")}>
-                {designIntent === "ecommerce" ? "Buy Now" : "Default"}
-              </Button>
-              <Button variant="secondary">
-                {designIntent === "ecommerce" ? "Add to Wishlist" : "Secondary"}
-              </Button>
-              <Button variant="destructive">
-                {designIntent === "ecommerce" ? "Remove" : "Destructive"}
-              </Button>
-              <Button variant="outline">
-                {designIntent === "landing" ? "Learn More" : "Outline"}
-              </Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="link">Link</Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+              <ShowcaseCard
+                defaultName="Primary Button"
+                category="button"
+                designIntent={designIntent}
+                description="Default primary button style"
+              >
+                <Button onClick={() => toast.success("Default button clicked!")}>
+                  {designIntent === "ecommerce" ? "Buy Now" : "Default"}
+                </Button>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Secondary Button"
+                category="button"
+                designIntent={designIntent}
+                description="Secondary button variant"
+              >
+                <Button variant="secondary">
+                  {designIntent === "ecommerce" ? "Add to Wishlist" : "Secondary"}
+                </Button>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Destructive Button"
+                category="button"
+                designIntent={designIntent}
+                description="Destructive action button"
+              >
+                <Button variant="destructive">
+                  {designIntent === "ecommerce" ? "Remove" : "Destructive"}
+                </Button>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Outline Button"
+                category="button"
+                designIntent={designIntent}
+                description="Outline button variant"
+              >
+                <Button variant="outline">
+                  {designIntent === "landing" ? "Learn More" : "Outline"}
+                </Button>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Ghost Button"
+                category="button"
+                designIntent={designIntent}
+                description="Ghost button variant"
+              >
+                <Button variant="ghost">Ghost</Button>
+              </ShowcaseCard>
+
+              <ShowcaseCard
+                defaultName="Link Button"
+                category="button"
+                designIntent={designIntent}
+                description="Link-style button"
+              >
+                <Button variant="link">Link</Button>
+              </ShowcaseCard>
             </div>
           </CodePlayground>
         </ShowcaseSection>
@@ -188,7 +236,7 @@ export function TextFormatting() {
             title="Button Sizes"
             description="Buttons in various sizes for different use cases"
           >
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-md">
               <Button size="sm">Small</Button>
               <Button size="default">Default</Button>
               <Button size="lg">Large</Button>
@@ -210,25 +258,25 @@ export function TextFormatting() {
               title="Icon Buttons"
               description="Buttons combined with icons for better UX"
             >
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-md">
                 <Button onClick={() => toast("Liked!")}>
-                  <Heart className="mr-2 h-4 w-4" />
+                  <Heart className="mr-xs h-4 w-4" />
                   Like
                 </Button>
                 <Button variant="outline" onClick={() => toast("Shared!")}>
-                  <Share2 className="mr-2 h-4 w-4" />
+                  <Share2 className="mr-xs h-4 w-4" />
                   Share
                 </Button>
                 <Button variant="secondary" onClick={() => toast("Bookmarked!")}>
-                  <Bookmark className="mr-2 h-4 w-4" />
+                  <Bookmark className="mr-xs h-4 w-4" />
                   Bookmark
                 </Button>
                 <Button variant="outline" onClick={() => toast("Added to cart!")}>
-                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  <ShoppingCart className="mr-xs h-4 w-4" />
                   Add to Cart
                 </Button>
                 <Button variant="outline" onClick={() => toast("Payment successful!")}>
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <CreditCard className="mr-xs h-4 w-4" />
                   Pay
                 </Button>
               </div>
@@ -246,7 +294,7 @@ export function TextFormatting() {
             title="Badge Components"
             description="Compact status indicators and labels"
           >
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-md">
               <Badge>Default</Badge>
               <Badge variant="secondary">Secondary</Badge>
               <Badge variant="destructive">Destructive</Badge>

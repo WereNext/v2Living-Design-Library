@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "exportedAt": "2026-01-22T13:50:00.000Z",
+    "exportedFrom": "Living Design Library",
+    "version": "1.0.0",
+    "format": "mcp-sync",
+    "totalSystems": 1
+  },
+  "designSystems": [
+    {
+      "id": "demo-system-1",
+      "name": "Demo Design System",
+      "description": "A starter design system for testing MCP integration",
+      "createdAt": "2026-01-22T13:50:00.000Z",
+      "activeThemeId": "demo-theme-1",
+      "themes": [
+        {
+          "id": "demo-theme-1",
+          "name": "Light Theme",
+          "description": "Default light theme",
+          "colors": {
+            "primary": "221.2 83.2% 53.3%",
+            "secondary": "210 40% 96.1%",
+            "accent": "12 76% 61%",
+            "background": "0 0% 100%",
+            "foreground": "222.2 47.4% 11.2%"
+          },
+          "spacing": {
+            "xs": "0.25rem",
+            "sm": "0.5rem",
+            "md": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem"
+          },
+          "typography": {
+            "fontFamily": "Inter, system-ui, sans-serif",
+            "fontSize": "1rem",
+            "fontWeight": "400"
+          },
+          "borderRadius": {
+            "sm": "0.25rem",
+            "md": "0.5rem",
+            "lg": "0.75rem"
+          },
+          "shadows": {
+            "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+            "md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+            "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)"
+          }
+        }
+      ],
+      "intents": [
+        "Web App",
+        "Dashboard"
+      ]
+    }
+  ]
+}

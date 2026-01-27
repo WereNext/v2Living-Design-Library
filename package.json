@@ -2,12 +2,14 @@
       "name": "Living Design Library",
       "version": "0.1.0",
       "private": true,
+      "main": "electron/main.js",
       "dependencies": {
             "@ant-design/icons": "^6.1.0",
             "@babel/standalone": "*",
             "@chakra-ui/react": "^3.30.0",
             "@emotion/react": "^11.14.0",
             "@emotion/styled": "^11.14.1",
+            "@hono/node-server": "^1.19.9",
             "@modelcontextprotocol/sdk": "*",
             "@mui/icons-material": "^7.3.6",
             "@mui/material": "^7.3.6",
@@ -49,6 +51,7 @@
             "embla-carousel-react": "^8.6.0",
             "framer-motion": "^12.24.0",
             "fs": "*",
+            "hono": "^4.11.5",
             "input-otp": "^1.4.2",
             "lucide-react": "^0.487.0",
             "next-themes": "^0.4.6",
@@ -68,13 +71,64 @@
             "vitest": "*"
       },
       "devDependencies": {
+            "@types/jsdom": "^27.0.0",
             "@types/node": "^20.10.0",
             "@vitejs/plugin-react-swc": "^3.10.2",
+            "concurrently": "^9.2.1",
+            "electron": "^40.0.0",
+            "electron-builder": "^26.4.0",
+            "jsdom": "^27.4.0",
             "typescript": "^5.9.3",
-            "vite": "6.3.5"
+            "vite": "6.3.5",
+            "wait-on": "^9.0.3"
       },
       "scripts": {
-            "dev": "vite",
-            "build": "vite build"
+            "dev": "concurrently \"vite\" \"npm:mcp:http\" --names \"APP,MCP\" --prefix-colors \"cyan,magenta\"",
+            "dev:app-only": "vite",
+            "dev:full": "concurrently \"npm:dev:app-only\" \"npm:mcp:http\" --names \"APP,MCP-HTTP\" --prefix-colors \"cyan,magenta\"",
+            "dev:with-stdio": "concurrently \"npm:dev\" \"npm:mcp:start\" --names \"APP,MCP-STDIO\" --prefix-colors \"cyan,blue\"",
+            "dev:with-mcp": "./start-with-mcp.sh",
+            "mcp:start": "node src/mcp-server/index.js",
+            "mcp:http": "node src/mcp-server/http-server.js",
+            "mcp:dev": "node --watch src/mcp-server/index.js",
+            "mcp:http-dev": "node --watch src/mcp-server/http-server.js",
+            "build": "vite build",
+            "test": "vitest",
+            "electron:dev": "concurrently \"npm:dev\" \"wait-on http://localhost:3000 && electron .\"",
+            "electron:build": "npm run build && electron-builder",
+            "electron:start": "electron ."
+      },
+      "build": {
+            "appId": "com.livingdesignlibrary.app",
+            "productName": "Living Design Library",
+            "directories": {
+                  "output": "dist-electron"
+            },
+            "files": [
+                  "build/**/*",
+                  "electron/**/*"
+            ],
+            "extraResources": [
+                  {
+                        "from": "src/mcp-server",
+                        "to": "mcp-server",
+                        "filter": [
+                              "**/*.js",
+                              "**/*.json",
+                              "ui-apps/**/*",
+                              "!node_modules/**/*"
+                        ]
+                  }
+            ],
+            "mac": {
+                  "category": "public.app-category.developer-tools",
+                  "target": ["dmg", "zip"]
+            },
+            "win": {
+                  "target": ["nsis", "portable"]
+            },
+            "linux": {
+                  "target": ["AppImage", "deb"]
+            }
       }
 }

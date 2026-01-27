@@ -7,67 +7,9 @@ import { DesignSystemVersion, VersionType } from '../types/version';
 import { STORAGE_KEYS, SYSTEM_IDS, THEME_IDS, UILibrary, UI_LIBRARIES } from '../lib/constants';
 import { useServices } from '../services/ServiceFactory';
 
-// Theme = A variable set (colors, spacing, typography, etc.)
-export interface Theme {
-  id: string;
-  name: string;
-  description?: string;
-  colors: Record<string, string>;
-  spacing: Record<string, string>;
-  typography: Record<string, string>;
-  borderRadius: Record<string, string>;
-  shadows: Record<string, string>;
-  sidebar?: Record<string, string>; // Optional sidebar-specific colors
-  opacity?: Record<string, string>; // Optional opacity tokens
-  effects?: Record<string, string>; // Optional visual effects (backdrop-blur, etc.)
-  // Component-specific style configurations
-  componentStyles?: {
-    button?: {
-      showBorder?: boolean; // Show borders on outline/secondary variants (default: true)
-      showIcons?: boolean;  // Show icons in buttons (default: true)
-    };
-    chip?: {
-      showBorder?: boolean; // Show borders on chips/badges (default: true)
-      showIcons?: boolean;  // Show icons in chips/badges (default: true)
-    };
-  };
-  // Theme customizer presets
-  colorTheme?: 'neo' | 'brutalist' | 'glassmorphism' | 'candy' | 'material' | 'minimal';
-  fontFamily?: 'inter' | 'spaceGrotesk' | 'jetbrainsMono' | 'poppins' | 'playfairDisplay' | 'manrope' | 'system';
-  visualFeel?: 'modern' | 'classic' | 'playful' | 'minimal' | 'bold';
-}
-
-// Design System = Container with multiple themes and intents
-export interface DesignSystem {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  uiLibrary: UILibrary; // Which UI component library this system uses
-  useIcons?: boolean; // Whether to display icons in UI components (default: true)
-  // Multiple themes within the system
-  themes: Theme[];
-  activeThemeId?: string;
-  // Design intents associated with this system
-  intents?: Array<{
-    id: string;
-    value: string;
-    label: string;
-    description?: string;
-    icon?: string;
-    categories?: Array<{
-      id: string;
-      name: string;
-      icon: string;
-    }>;
-  }>;
-  // Version history
-  versions?: DesignSystemVersion[];
-  currentVersionId?: string;
-  // Cloud sync fields
-  isPublic?: boolean;
-  shareSlug?: string;
-}
+// Re-export types from centralized location for backwards compatibility
+export type { Theme, DesignSystem } from '../types/design-system';
+import type { Theme, DesignSystem } from '../types/design-system';
 
 // Use centralized storage keys
 const ACTIVE_SYSTEM_KEY = STORAGE_KEYS.ACTIVE_SYSTEM_ID;
@@ -190,9 +132,38 @@ const createCandyNestSystem = (): DesignSystem => ({
   ]
 });
 
+// Known CSS variable prefixes we manage
+const MANAGED_PREFIXES = [
+  '--background', '--foreground', '--card', '--popover', '--primary', '--secondary',
+  '--muted', '--accent', '--destructive', '--border', '--input', '--ring',
+  '--chart-', '--sidebar-', '--space-', '--font-', '--text-', '--radius',
+  '--shadow', '--success', '--warning', '--info', '--sale', '--positive', '--negative'
+];
+
+// Helper to clear all managed CSS variables
+function clearManagedCSSVariables() {
+  const root = document.documentElement;
+  const style = root.style;
+
+  // Get all inline styles and remove managed CSS variables
+  for (let i = style.length - 1; i >= 0; i--) {
+    const prop = style[i];
+    if (prop.startsWith('--')) {
+      // Check if it's a variable we manage
+      const isManaged = MANAGED_PREFIXES.some(prefix => prop.startsWith(prefix));
+      if (isManaged) {
+        root.style.removeProperty(prop);
+      }
+    }
+  }
+}
+
 // Helper to apply theme tokens to DOM
 function applyThemeToDOM(theme: Theme) {
   const root = document.documentElement;
+
+  // Clear existing managed CSS variables first to prevent mixing
+  clearManagedCSSVariables();
 
   // Apply colors - wrap HSL values in hsl()
   Object.entries(theme.colors || {}).forEach(([key, value]) => {
@@ -203,9 +174,9 @@ function applyThemeToDOM(theme: Theme) {
     }
   });
 
-  // Apply spacing
+  // Apply spacing (using --space- prefix to avoid Tailwind conflicts)
   Object.entries(theme.spacing || {}).forEach(([key, value]) => {
-    root.style.setProperty(`--${key}`, value);
+    root.style.setProperty(`--space-${key}`, value);
   });
 
   // Apply typography
@@ -392,6 +363,7 @@ export function useDesignSystems() {
       uiLibrary: newSystem.uiLibrary,
       useIcons: newSystem.useIcons,
       themes: newSystem.themes,
+      activeThemeId: newSystem.activeThemeId,
       intents: newSystem.intents,
     });
 
@@ -480,11 +452,25 @@ export function useDesignSystems() {
     const system = allSystems.find(s => s.id === id);
     if (!system) return;
 
+    // Export in the same format as our test data files for easy re-import
     const exportData = {
       name: system.name,
-      description: system.description,
-      themes: system.themes,
-      intents: system.intents
+      description: system.description || '',
+      version: '1.0.0',
+      themes: system.themes.map(theme => ({
+        id: theme.id,
+        name: theme.name,
+        colors: theme.colors,
+        typography: theme.typography,
+        spacing: theme.spacing,
+        borderRadius: theme.borderRadius,
+        shadows: theme.shadows
+      })),
+      intents: system.intents?.map(intent => ({
+        id: intent.id,
+        label: intent.label,
+        description: intent.description
+      })) || []
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });

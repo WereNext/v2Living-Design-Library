@@ -4,33 +4,39 @@
 // - enhanced-playground/LivePreview.tsx - Preview orchestrator
 // - enhanced-playground/previews/*.tsx - Individual preview components
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '../../ui/button';
 import { Copy, Check, Eye, Code2, Download } from 'lucide-react';
 import { useAppState } from '../../../contexts/AppStateContext';
 import {
   generateCSSVariables,
   generateTailwindConfig,
-  generateReactComponent,
-  generateVueComponent,
-  generateSvelteComponent,
-  generateHTMLComponent,
   generateJSONTokens,
   generateSCSSVariables,
-  generateAngularComponent,
 } from '../../../lib/code-generators';
+import { getTemplate, generateFallbackTemplate, type Framework as TemplateFramework } from '../../../lib/code-templates';
 import { Badge } from '../../ui/badge';
 import { Card } from '../../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { LivePreview } from './LivePreview';
-import { FRAMEWORK_OPTIONS, COMPONENT_OPTIONS, type Framework, type ViewMode, type ComponentType } from './types';
+import { FRAMEWORK_OPTIONS, getComponentOptions, type Framework, type ViewMode } from './types';
 
 export function EnhancedPlayground() {
-  const { activeTheme, activeSystem } = useAppState();
+  const { activeTheme, activeSystem, designIntent } = useAppState();
   const [selectedFramework, setSelectedFramework] = useState<Framework>('react');
   const [viewMode, setViewMode] = useState<ViewMode>('preview');
-  const [selectedComponent, setSelectedComponent] = useState<ComponentType>('buttons');
+  const [selectedComponent, setSelectedComponent] = useState<string>('buttons');
   const [copied, setCopied] = useState(false);
+
+  // Get component options filtered by the current design intent
+  const componentOptions = useMemo(() => getComponentOptions(designIntent), [designIntent]);
+
+  // Reset selected component if it's no longer available in the new intent
+  useEffect(() => {
+    if (componentOptions.length > 0 && !componentOptions.find(c => c.value === selectedComponent)) {
+      setSelectedComponent(componentOptions[0].value);
+    }
+  }, [componentOptions, selectedComponent]);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -57,22 +63,40 @@ export function EnhancedPlayground() {
       };
     }
 
-    const generators: Record<Framework, () => { code: string; language: string; filename: string }> = {
-      css: () => ({ code: generateCSSVariables(activeTheme), language: 'css', filename: 'variables.css' }),
+    // Token-only generators (not component-specific)
+    const tokenGenerators: Partial<Record<Framework, () => { code: string; language: string; filename: string }>> = {
+      css: () => ({ code: generateCSSVariables(activeTheme), language: 'css', filename: 'tokens.css' }),
       tailwind: () => ({ code: generateTailwindConfig(activeTheme), language: 'javascript', filename: 'tailwind.config.js' }),
-      react: () => ({ code: generateReactComponent(activeTheme), language: 'tsx', filename: 'Button.tsx' }),
-      vue: () => ({ code: generateVueComponent(activeTheme), language: 'vue', filename: 'Button.vue' }),
-      svelte: () => ({ code: generateSvelteComponent(activeTheme), language: 'svelte', filename: 'Button.svelte' }),
-      html: () => ({ code: generateHTMLComponent(activeTheme), language: 'html', filename: 'index.html' }),
       json: () => ({ code: generateJSONTokens(activeTheme), language: 'json', filename: 'tokens.json' }),
-      scss: () => ({ code: generateSCSSVariables(activeTheme), language: 'scss', filename: 'variables.scss' }),
-      angular: () => ({ code: generateAngularComponent(activeTheme), language: 'typescript', filename: 'button.component.ts' }),
+      scss: () => ({ code: generateSCSSVariables(activeTheme), language: 'scss', filename: '_tokens.scss' }),
     };
 
-    return generators[selectedFramework]();
+    // Check if this is a token-only framework
+    const tokenGenerator = tokenGenerators[selectedFramework];
+    if (tokenGenerator) {
+      return tokenGenerator();
+    }
+
+    // For component frameworks, use the template registry
+    const template = getTemplate(selectedComponent, selectedFramework as TemplateFramework, activeTheme);
+    if (template) {
+      return template;
+    }
+
+    // Fall back to a generic template
+    return generateFallbackTemplate(selectedComponent, selectedFramework as TemplateFramework, activeTheme);
   };
 
   const { code, filename } = getCode();
+
+  // Get a readable intent label
+  const intentLabel = useMemo(() => {
+    // Convert slug to title case (e.g., "e-commerce" -> "E-Commerce")
+    return designIntent
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }, [designIntent]);
 
   return (
     <div className="space-y-6">
@@ -82,15 +106,19 @@ export function EnhancedPlayground() {
           <div>
             <h2 className="text-2xl font-bold">Live Code Playground</h2>
             <p className="text-muted-foreground">
-              Generate production-ready code from your design system
+              Generate production-ready code for <span className="font-medium text-foreground">{intentLabel}</span> components
             </p>
           </div>
           {activeTheme && (
-            <div className="text-right">
-              <Badge variant="outline" className="mb-1">
+            <div className="text-right space-y-1">
+              <Badge variant="outline">
                 {activeSystem?.name}
               </Badge>
-              <p className="text-sm text-muted-foreground">{activeTheme.name}</p>
+              <div className="flex items-center gap-2 justify-end">
+                <Badge variant="secondary" className="text-xs">
+                  {intentLabel}
+                </Badge>
+              </div>
             </div>
           )}
         </div>
@@ -122,13 +150,13 @@ export function EnhancedPlayground() {
         <h3 className="text-sm font-medium">Select Component Type</h3>
         <Select
           value={selectedComponent}
-          onValueChange={(value) => setSelectedComponent(value as ComponentType)}
+          onValueChange={(value) => setSelectedComponent(value)}
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            {COMPONENT_OPTIONS.map((option) => (
+          <SelectContent className="max-h-[300px]">
+            {componentOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>

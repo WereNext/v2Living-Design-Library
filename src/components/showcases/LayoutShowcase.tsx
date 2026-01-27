@@ -28,7 +28,7 @@ export function LayoutShowcase() {
           title="Cards" 
           description="Container component for grouping related content"
         >
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader>
                 <CardTitle>Card Title</CardTitle>
@@ -68,7 +68,7 @@ export function LayoutShowcase() {
           title="Separator" 
           description="Visual divider between content sections"
         >
-          <div className="space-y-4">
+          <div className="space-y-md">
             <div>
               <p>Content above the separator</p>
             </div>
@@ -76,7 +76,7 @@ export function LayoutShowcase() {
             <div>
               <p>Content below the separator</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-md">
               <p>Vertical</p>
               <Separator orientation="vertical" className="h-8" />
               <p>Separator</p>
@@ -89,15 +89,15 @@ export function LayoutShowcase() {
           title="Aspect Ratio" 
           description="Maintain consistent aspect ratios for media content"
         >
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-lg md:grid-cols-2">
             <div>
-              <p className="mb-2">16:9 Ratio</p>
+              <p className="mb-xs">16:9 Ratio</p>
               <AspectRatio ratio={16 / 9} className="bg-muted rounded-md flex items-center justify-center">
                 <span className="text-muted-foreground">16:9</span>
               </AspectRatio>
             </div>
             <div>
-              <p className="mb-2">4:3 Ratio</p>
+              <p className="mb-xs">4:3 Ratio</p>
               <AspectRatio ratio={4 / 3} className="bg-muted rounded-md flex items-center justify-center">
                 <span className="text-muted-foreground">4:3</span>
               </AspectRatio>
@@ -110,10 +110,10 @@ export function LayoutShowcase() {
           title="Scroll Area" 
           description="Customizable scrollable container"
         >
-          <ScrollArea className="h-48 w-full rounded-md border p-4">
-            <div className="space-y-2">
+          <ScrollArea className="h-48 w-full rounded-md border p-md">
+            <div className="space-y-xs">
               {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="p-2 border rounded">
+                <div key={i} className="p-xs border rounded">
                   Scroll item {i + 1}
                 </div>
               ))}
@@ -129,9 +129,9 @@ export function LayoutShowcase() {
           <Collapsible
             open={isOpen}
             onOpenChange={setIsOpen}
-            className="w-full space-y-2"
+            className="w-full space-y-xs"
           >
-            <div className="flex items-center justify-between space-x-4 rounded-md border p-4">
+            <div className="flex items-center justify-between space-x-md rounded-md border p-md">
               <h4>@peduarte starred 3 repositories</h4>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -140,14 +140,14 @@ export function LayoutShowcase() {
                 </Button>
               </CollapsibleTrigger>
             </div>
-            <div className="rounded-md border px-4 py-2">
+            <div className="rounded-md border px-md py-xs">
               @radix-ui/primitives
             </div>
-            <CollapsibleContent className="space-y-2">
-              <div className="rounded-md border px-4 py-2">
+            <CollapsibleContent className="space-y-xs">
+              <div className="rounded-md border px-md py-xs">
                 @radix-ui/colors
               </div>
-              <div className="rounded-md border px-4 py-2">
+              <div className="rounded-md border px-md py-xs">
                 @stitches/react
               </div>
             </CollapsibleContent>

@@ -15,21 +15,37 @@ export function DesignSystemBuilderPage() {
       </div>
 
       <DesignSystemBuilder
-        onSystemCreated={(system, applyImmediately) => {
-          // Add system to saved library
-          const newSystem = addSystem({
+        onSystemCreated={async (system, applyImmediately) => {
+          // Create a theme from the token data
+          const theme = {
+            id: `theme-${Date.now()}`,
+            name: system.name || 'Default Theme',
+            colors: system.colors || {},
+            spacing: system.spacing || {},
+            typography: system.typography || {},
+            borderRadius: system.borderRadius || {},
+            shadows: system.shadows || {}
+          };
+
+          // Add system to saved library with themes array
+          const newSystem = await addSystem({
             name: system.name,
             description: system.description,
-            colors: system.colors,
-            spacing: system.spacing,
-            typography: system.typography,
-            borderRadius: system.borderRadius,
-            shadows: system.shadows
+            themes: [theme],
+            activeThemeId: theme.id
           });
+
+          if (!newSystem) {
+            toast.error("Failed to save design system");
+            return;
+          }
 
           // Apply immediately if checkbox was checked
           if (applyImmediately) {
-            applySystem(newSystem.id);
+            // Use setTimeout to allow React to update state before applySystem looks up the system
+            setTimeout(() => {
+              applySystem(newSystem.id);
+            }, 0);
             toast.success(`"${system.name}" created and applied!`);
           } else {
             toast.success(`"${system.name}" saved to library!`);

@@ -45,11 +45,11 @@ export function TestimonialsShowcase() {
         title="Testimonial Cards"
         description="Individual testimonial cards with ratings"
       >
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-lg">
           {testimonials.map((testimonial) => (
             <Card key={testimonial.name} className="hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-0.5 mb-4">
+              <CardContent className="pt-lg">
+                <div className="flex items-center gap-0.5 mb-md">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
@@ -57,10 +57,10 @@ export function TestimonialsShowcase() {
                     />
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-md">
                   &ldquo;{testimonial.content}&rdquo;
                 </p>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-sm">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-xl">
                     {testimonial.avatar}
                   </div>
@@ -80,22 +80,22 @@ export function TestimonialsShowcase() {
         title="Testimonial Grid"
         description="Multi-column testimonial layout"
       >
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-8">
-          <div className="text-center mb-12">
-            <h2 className="mb-4">Loved by thousands</h2>
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-xl">
+          <div className="text-center mb-2xl">
+            <h2 className="mb-md">Loved by thousands</h2>
             <p className="text-xl text-muted-foreground">
               See what our customers have to say
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-lg">
             {[...testimonials, ...testimonials].slice(0, 6).map((testimonial, i) => (
               <Card key={i} className="bg-white">
-                <CardContent className="pt-6">
-                  <Quote className="w-8 h-8 text-primary/20 mb-3" />
-                  <p className="text-sm text-muted-foreground mb-4">
+                <CardContent className="pt-lg">
+                  <Quote className="w-8 h-8 text-primary/20 mb-sm" />
+                  <p className="text-sm text-muted-foreground mb-md">
                     {testimonial.content}
                   </p>
-                  <div className="flex items-center gap-3 pt-4 border-t">
+                  <div className="flex items-center gap-sm pt-md border-t">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center text-xl">
                       {testimonial.avatar}
                     </div>
@@ -119,20 +119,20 @@ export function TestimonialsShowcase() {
         description="Large, prominent testimonial section"
       >
         <Card className="overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-12 text-white text-center">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-2xl text-white text-center">
             <div className="max-w-3xl mx-auto">
-              <div className="flex justify-center gap-1 mb-6">
+              <div className="flex justify-center gap-1 mb-lg">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="w-6 h-6 fill-white text-white" />
                 ))}
               </div>
-              <Quote className="w-12 h-12 mx-auto mb-6 text-white/40" />
-              <blockquote className="text-2xl mb-8 text-white">
+              <Quote className="w-12 h-12 mx-auto mb-lg text-white/40" />
+              <blockquote className="text-2xl mb-xl text-white">
                 &ldquo;This is hands down the best investment we've made for our business. 
                 The ROI was visible within the first month, and our team productivity 
                 has increased by 40%.&rdquo;
               </blockquote>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-md">
                 <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-3xl">
                   👨
                 </div>
@@ -145,7 +145,7 @@ export function TestimonialsShowcase() {
           </div>
         </Card>
 
-        <div className="mt-6 grid md:grid-cols-2 gap-6">
+        <div className="mt-lg grid md:grid-cols-2 gap-lg">
           {[
             {
               quote: "Game-changing platform that saved us countless hours",
@@ -161,12 +161,12 @@ export function TestimonialsShowcase() {
             }
           ].map((item, i) => (
             <Card key={i}>
-              <CardContent className="pt-6">
-                <div className="flex gap-4">
+              <CardContent className="pt-lg">
+                <div className="flex gap-md">
                   <Quote className="w-10 h-10 text-primary/20 flex-shrink-0" />
                   <div>
-                    <p className="mb-4 italic">&ldquo;{item.quote}&rdquo;</p>
-                    <div className="flex items-center gap-3">
+                    <p className="mb-md italic">&ldquo;{item.quote}&rdquo;</p>
+                    <div className="flex items-center gap-sm">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-xl">
                         {i === 0 ? '👩' : '👨'}
                       </div>

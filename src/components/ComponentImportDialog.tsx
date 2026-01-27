@@ -31,7 +31,6 @@ import { FigmaAPI, FigmaAPIKeyManager } from '../lib/figma-api';
 import { FigmaNodeParser } from '../lib/figma-parser';
 import { ImageImporter } from '../lib/image-importer';
 import { ComponentCodeGenerator } from '../lib/component-code-generator';
-import { getComponentRegistry } from '../lib/component-registry';
 import type { ImportedComponent, ComponentCategory } from '../types/imported-component';
 import { DynamicComponent } from './DynamicComponent';
 
@@ -119,7 +118,7 @@ export function ComponentImportDialog({
       toast.info('Generating code...');
       const codeGen = new ComponentCodeGenerator();
       const component: ImportedComponent = {
-        id: getComponentRegistry().generateId(),
+        id: Math.random().toString(36).substring(7),
         name: nodeData.document.name,
         description: description || undefined,
         source: {
@@ -158,12 +157,9 @@ export function ComponentImportDialog({
   const handleSave = () => {
     if (!importedComponent) return;
 
-    // Save to registry
-    const registry = getComponentRegistry();
-    registry.register(importedComponent);
-
+    // TODO: Save to proper data source
     toast.success(`Component "${importedComponent.name}" saved!`);
-    
+
     if (onImportComplete) {
       onImportComplete(importedComponent);
     }
@@ -184,7 +180,7 @@ export function ComponentImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />

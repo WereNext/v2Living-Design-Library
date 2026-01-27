@@ -4,11 +4,66 @@
  * This is the CORE of how the app becomes a "living library"
  */
 
-import { Theme } from '../hooks/useDesignSystems';
+import { Theme, ColorScheme } from '../types/design-system';
 
 export interface ThemeVariables {
   css: string;
   variables: Record<string, string>;
+  colorScheme?: ColorScheme;
+}
+
+/**
+ * Detect if a theme is intended to be dark based on its colors or name
+ */
+export function isThemeDark(theme: Theme | null): boolean {
+  if (!theme) return false;
+
+  // Explicit colorScheme takes precedence
+  if (theme.colorScheme === 'dark') return true;
+  if (theme.colorScheme === 'light') return false;
+
+  // Check theme name for dark indicators
+  const nameLower = theme.name.toLowerCase();
+  if (nameLower.includes('dark') || nameLower.includes('night') || nameLower.includes('midnight')) {
+    return true;
+  }
+
+  // Analyze background color luminance
+  const bgColor = theme.colors?.background || theme.colors?.bg;
+  if (bgColor) {
+    const luminance = getColorLuminance(bgColor);
+    return luminance < 0.5; // Dark if luminance is below 50%
+  }
+
+  return false;
+}
+
+/**
+ * Calculate relative luminance of a color (0 = black, 1 = white)
+ */
+function getColorLuminance(color: string): number {
+  // Handle hex colors
+  let hex = color;
+  if (hex.startsWith('#')) {
+    hex = hex.slice(1);
+  }
+
+  // Handle shorthand hex
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+
+  // Parse RGB values
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+  // Calculate relative luminance using sRGB
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 }
 
 /**
@@ -89,25 +144,29 @@ export function generateThemeCSS(theme: Theme | null): ThemeVariables {
   // Build final CSS
   const css = `:root {\n${cssLines.join('\n')}\n}`;
 
-  return { css, variables };
+  // Determine color scheme
+  const colorScheme: ColorScheme = theme.colorScheme || (isThemeDark(theme) ? 'dark' : 'light');
+
+  return { css, variables, colorScheme };
 }
 
 /**
  * Inject theme CSS into the document
  * This makes the design system LIVE
+ * Returns the detected color scheme so callers can sync dark mode
  */
-export function injectThemeCSS(theme: Theme | null): void {
+export function injectThemeCSS(theme: Theme | null): ColorScheme | undefined {
   // Remove existing theme style tag
   const existingStyle = document.getElementById('dynamic-theme-variables');
   if (existingStyle) {
     existingStyle.remove();
   }
 
-  if (!theme) return;
+  if (!theme) return undefined;
 
   // Generate and inject new CSS
-  const { css } = generateThemeCSS(theme);
-  
+  const { css, colorScheme } = generateThemeCSS(theme);
+
   // Only inject if we have actual variables
   if (css && css.trim() !== ':root {\n\n}') {
     const styleTag = document.createElement('style');
@@ -115,6 +174,15 @@ export function injectThemeCSS(theme: Theme | null): void {
     styleTag.textContent = css;
     document.head.appendChild(styleTag);
   }
+
+  // Dispatch event so DarkModeProvider can sync
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('theme-color-scheme-change', {
+      detail: { colorScheme }
+    }));
+  }
+
+  return colorScheme;
 }
 
 /**

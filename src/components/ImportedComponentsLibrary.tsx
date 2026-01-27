@@ -24,11 +24,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
 
-import { getComponentRegistry } from '../lib/component-registry';
 import type { ImportedComponent, ComponentCategory } from '../types/imported-component';
 import { ComponentPreviewCard } from './DynamicComponent';
 import { ComponentImportDialog } from './ComponentImportDialog';
-import { ComponentEditor } from './ComponentEditor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { DynamicComponent } from './DynamicComponent';
@@ -74,8 +72,8 @@ export function ImportedComponentsLibrary() {
   }, [components, searchTerm, categoryFilter, intentFilter]);
 
   const loadComponents = () => {
-    const registry = getComponentRegistry();
-    setComponents(registry.getAll());
+    // TODO: Load from proper data source
+    setComponents([]);
   };
 
   const handleImportComplete = (component: ImportedComponent) => {
@@ -85,26 +83,15 @@ export function ImportedComponentsLibrary() {
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this component?')) {
-      const registry = getComponentRegistry();
-      registry.delete(id);
+      // TODO: Implement delete
       loadComponents();
       toast.success('Component deleted');
     }
   };
 
   const handleExport = (component: ImportedComponent) => {
-    const registry = getComponentRegistry();
-    const json = registry.export(component.id);
-    if (json) {
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${component.name.toLowerCase().replace(/\s+/g, '-')}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('Component exported!');
-    }
+    // TODO: Implement export
+    toast.success('Component exported!');
   };
 
   const handlePreview = (component: ImportedComponent) => {
@@ -113,11 +100,11 @@ export function ImportedComponentsLibrary() {
   };
 
   const handleEdit = (component: ImportedComponent) => {
-    setComponentToEdit(component);
-    setShowEditor(true);
+    // Navigate to full-screen visual editor
+    window.location.hash = `edit-component-${component.id}`;
   };
 
-  const stats = getComponentRegistry().getStats();
+  const stats = { total: 0, byCategory: {}, editable: 0 };
   const uniqueIntents = [...new Set(components.map(c => c.designIntent).filter(Boolean))] as string[];
 
   return (
@@ -255,15 +242,6 @@ export function ImportedComponentsLibrary() {
         />
       )}
 
-      {/* Editor Dialog */}
-      {componentToEdit && (
-        <ComponentEditor
-          component={componentToEdit}
-          open={showEditor}
-          onOpenChange={setShowEditor}
-          onEditComplete={loadComponents}
-        />
-      )}
     </div>
   );
 }
@@ -301,7 +279,7 @@ function ComponentPreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5" />

@@ -51,30 +51,30 @@ export function PullRefreshShowcase() {
           <Card>
             <div className="relative">
               {/* Pull indicator */}
-              <div className={`flex items-center justify-center py-4 border-b bg-muted/50 transition-all ${isPulling ? 'opacity-100' : 'opacity-0'}`}>
+              <div className={`flex items-center justify-center py-md border-b bg-muted/50 transition-all ${isPulling ? 'opacity-100' : 'opacity-0'}`}>
                 <ArrowDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPulling ? 'animate-bounce' : ''}`} />
-                <span className="ml-2 text-sm text-muted-foreground">
+                <span className="ml-xs text-sm text-muted-foreground">
                   Pull to refresh
                 </span>
               </div>
 
               {/* Refreshing indicator */}
               {isRefreshing && (
-                <div className="flex items-center justify-center py-4 border-b bg-primary/10">
+                <div className="flex items-center justify-center py-md border-b bg-primary/10">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-primary">
+                  <span className="ml-xs text-sm text-primary">
                     Refreshing...
                   </span>
                 </div>
               )}
 
               <CardContent className="p-0">
-                <div className="p-4 border-b text-sm text-muted-foreground text-center">
+                <div className="p-md border-b text-sm text-muted-foreground text-center">
                   Last updated: {lastUpdated.toLocaleTimeString()}
                 </div>
                 {posts.slice(0, 3).map((post) => (
-                  <div key={post.id} className="p-4 border-b last:border-0 hover:bg-muted/50">
-                    <div className="flex gap-3">
+                  <div key={post.id} className="p-md border-b last:border-0 hover:bg-muted/50">
+                    <div className="flex gap-sm">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-xl flex-shrink-0">
                         {post.avatar}
                       </div>
@@ -92,7 +92,7 @@ export function PullRefreshShowcase() {
             </div>
           </Card>
           
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-sm mt-md">
             <Button
               variant="outline"
               className="flex-1"
@@ -107,12 +107,12 @@ export function PullRefreshShowcase() {
             >
               {isRefreshing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-xs animate-spin" />
                   Refreshing...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <RefreshCw className="w-4 h-4 mr-xs" />
                   Refresh
                 </>
               )}
@@ -126,22 +126,22 @@ export function PullRefreshShowcase() {
         title="Custom Refresh Animations"
         description="Branded loading animations"
       >
-        <div className="max-w-md mx-auto space-y-6">
+        <div className="max-w-md mx-auto space-y-lg">
           <Card>
             <CardContent className="p-0">
-              <div className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col items-center justify-center text-center">
-                <div className="relative w-16 h-16 mb-4">
+              <div className="p-xl bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col items-center justify-center text-center">
+                <div className="relative w-16 h-16 mb-md">
                   <div className="absolute inset-0 border-4 border-purple-200 rounded-full" />
                   <div className="absolute inset-0 border-4 border-purple-600 rounded-full border-t-transparent animate-spin" />
                 </div>
                 <p className="text-sm font-semibold">Loading fresh content...</p>
                 <p className="text-xs text-muted-foreground mt-1">Please wait</p>
               </div>
-              <div className="p-4 space-y-3">
+              <div className="p-md space-y-sm">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex gap-3 animate-pulse">
+                  <div key={i} className="flex gap-sm animate-pulse">
                     <div className="w-12 h-12 bg-muted rounded-full" />
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-xs">
                       <div className="h-4 bg-muted rounded w-3/4" />
                       <div className="h-3 bg-muted rounded w-1/2" />
                     </div>
@@ -153,8 +153,8 @@ export function PullRefreshShowcase() {
 
           <Card>
             <CardContent className="p-0">
-              <div className="p-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="p-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-center">
+                <div className="flex items-center justify-center gap-xs mb-xs">
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -175,8 +175,8 @@ export function PullRefreshShowcase() {
           <Card>
             <CardContent className="p-0 max-h-[500px] overflow-auto">
               {posts.map((post) => (
-                <div key={post.id} className="p-4 border-b hover:bg-muted/50">
-                  <div className="flex gap-3">
+                <div key={post.id} className="p-md border-b hover:bg-muted/50">
+                  <div className="flex gap-sm">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center text-xl flex-shrink-0">
                       {post.avatar}
                     </div>
@@ -191,12 +191,12 @@ export function PullRefreshShowcase() {
                 </div>
               ))}
               
-              <div className="p-8 text-center">
+              <div className="p-xl text-center">
                 <Button
                   variant="outline"
                   onClick={() => toast("Loading more...")}
                 >
-                  <Loader2 className="w-4 h-4 mr-2" />
+                  <Loader2 className="w-4 h-4 mr-xs" />
                   Load More
                 </Button>
               </div>

@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ComponentShowcase } from "./components/ComponentShowcase";
 import { ThemeCustomizer } from "./components/ThemeCustomizer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
-import { Palette, Mouse, Layout, Type, Box, Menu, Settings, ChevronLeft, ChevronRight, Code2, Upload, Target, ShoppingBag, CreditCard, Star, Filter, Smartphone, Hand, RefreshCw, AlignLeft, Zap, Megaphone, DollarSign, MessageSquare, Grid3x3, Mail, Plug, Rocket, Package, Sparkles, Layers, Wand2 } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar } from "./components/ui/sidebar";
+import { Settings, ChevronLeft, ChevronRight, Upload, Target, Plug, Rocket, Package, Sparkles, Layers, Wand2, Library, Box, Palette, Code2, Settings2 } from "lucide-react";
+import * as Icons from "lucide-react";
 import { Button } from "./components/ui/button";
 import { toast } from "sonner";
 import { ImportConfig } from "./components/ImportConfig";
@@ -11,13 +12,12 @@ import { QuickStartGuide } from "./components/QuickStartGuide";
 import { MCPConfig } from "./components/MCPConfig";
 import { SavedDesignSystemsPage } from "./components/SavedDesignSystemsPage";
 import { DesignSystemBuilderPage } from "./components/DesignSystemBuilderPage";
-import { PlaygroundShowcase } from "./components/showcases/PlaygroundShowcase";
 import { EnhancedPlayground } from "./components/showcases/EnhancedPlayground";
 import { DesignTokensPage } from "./components/DesignTokensPage";
 import { ImportedComponentsLibrary } from "./components/ImportedComponentsLibrary";
+import { FrontendLibrariesConfig } from "./components/FrontendLibrariesConfig";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { Label } from "./components/ui/label";
-import * as Icons from "lucide-react";
 import { AppStateProvider } from "./contexts/AppStateContext";
 import { useAppState } from "./contexts/AppStateContext";
 import { TokenEditorProvider } from "./contexts/TokenEditorContext";
@@ -31,95 +31,23 @@ import { features } from "./config";
 import { DevPreview, parseDevHash } from "./components/DevPreview";
 import { UserMenu } from "./components/auth";
 import { injectThemeCSS } from "./lib/dynamic-theme-engine";
-import { STORAGE_KEYS, CATEGORY_IDS, INTENT_IDS, UI_LIBRARY_LABELS } from "./lib/constants";
+import { DarkModeProvider, useDarkMode } from "./contexts/DarkModeContext";
+import { DarkModeToggle } from "./components/DarkModeToggle";
+import { STORAGE_KEYS, UI_LIBRARY_LABELS } from "./lib/constants";
 import { branding } from "./config";
 import { UILibraryProvider } from "./providers/UILibraryProvider";
 import { dataMigrationService } from "./services/migration";
+import { getCategoriesForIntent, getAllIntents } from "./lib/component-registry";
+import { IntentComponentEditor } from "./components/IntentComponentEditor";
 
-// Web App Categories (default)
-const webAppCategories = [
-  { name: "Code Playground", icon: Code2, id: "playground" },
-  { name: "Buttons & Actions", icon: Mouse, id: "buttons" },
-  { name: "Forms & Inputs", icon: Type, id: "forms" },
-  { name: "Layout Components", icon: Layout, id: "layout" },
-  { name: "Overlays & Dialogs", icon: Box, id: "overlays" },
-  { name: "Navigation", icon: Menu, id: "navigation" },
-  { name: "Data Display", icon: Palette, id: "data" },
-  { name: "AI Components", icon: Zap, id: "ai" }
-];
-
-// E-commerce Categories
-const ecommerceCategories = [
-  { name: "Code Playground", icon: Code2, id: "playground" },
-  { name: "Product Cards", icon: ShoppingBag, id: "product-cards" },
-  { name: "Shopping Cart", icon: ShoppingBag, id: "shopping-cart" },
-  { name: "Checkout Flow", icon: CreditCard, id: "checkout" },
-  { name: "Reviews & Ratings", icon: Star, id: "reviews" },
-  { name: "Filters & Search", icon: Filter, id: "filters" },
-  { name: "Buttons & Actions", icon: Mouse, id: "buttons" },
-  { name: "Forms & Inputs", icon: Type, id: "forms" }
-];
-
-// Mobile Experience Categories
-const mobileCategories = [
-  { name: "Code Playground", icon: Code2, id: "playground" },
-  { name: "Bottom Navigation", icon: Menu, id: "bottom-nav" },
-  { name: "Swipe Actions", icon: Hand, id: "swipe-actions" },
-  { name: "Pull to Refresh", icon: RefreshCw, id: "pull-refresh" },
-  { name: "Mobile Menu", icon: AlignLeft, id: "mobile-menu" },
-  { name: "Touch Gestures", icon: Zap, id: "touch-gestures" },
-  { name: "Mobile Forms", icon: Smartphone, id: "mobile-forms" },
-  { name: "Buttons & Actions", icon: Mouse, id: "buttons" }
-];
-
-// Landing Page Categories
-const landingCategories = [
-  { name: "Code Playground", icon: Code2, id: "playground" },
-  { name: "Hero Sections", icon: Megaphone, id: "hero" },
-  { name: "CTA Blocks", icon: Mouse, id: "cta-blocks" },
-  { name: "Testimonials", icon: MessageSquare, id: "testimonials" },
-  { name: "Pricing Tables", icon: DollarSign, id: "pricing" },
-  { name: "Feature Grids", icon: Grid3x3, id: "features" },
-  { name: "Email Capture", icon: Mail, id: "email-capture" },
-  { name: "Buttons & Actions", icon: Mouse, id: "buttons" }
-];
-
-// Editorial Categories (for web-editorial intent)
-const editorialCategories = [
-  { name: "Code Playground", icon: Code2, id: "playground" },
-  { name: "Editorial Heroes", icon: Megaphone, id: "editorial-hero" },
-  { name: "Article Cards", icon: Layers, id: "article-cards" },
-  { name: "Longform Reading", icon: Type, id: "longform-reading" },
-  { name: "Editorial Features", icon: Sparkles, id: "editorial-features" },
-  { name: "Buttons & Actions", icon: Mouse, id: "buttons" },
-  { name: "Forms & Inputs", icon: Type, id: "forms" }
-];
-
+// Configuration categories (static - not intent-based)
 const configCategories = [
   { name: "Import Config", icon: Upload, id: "import-config" },
   { name: "Design System Builder", icon: Wand2, id: "design-system-builder" },
   { name: "Saved Systems", icon: Package, id: "saved-systems" },
   { name: "Imported Components", icon: Layers, id: "imported-components" },
+  { name: "Front-End Libraries", icon: Library, id: "frontend-libraries" },
   { name: "MCP Config", icon: Plug, id: "mcp-config" }
-];
-
-const intents = [
-  { value: "web-app", label: "Web App" },
-  { value: "ecommerce", label: "E-commerce" },
-  { value: "mobile", label: "Mobile Experience" },
-  { value: "landing", label: "Landing Page" },
-  { value: "dashboard", label: "Dashboard & Analytics" },
-  { value: "saas", label: "SaaS Platform" },
-  { value: "social", label: "Social Media" },
-  { value: "blog", label: "Blog & Content" },
-  { value: "portfolio", label: "Portfolio & Showcase" },
-  { value: "admin", label: "Admin Panel" },
-  { value: "docs", label: "Documentation" },
-  { value: "auth", label: "Authentication" },
-  { value: "messaging", label: "Messaging & Chat" },
-  { value: "calendar", label: "Calendar & Scheduling" },
-  { value: "media", label: "Media Gallery" },
-  { value: "forms", label: "Forms & Surveys" },
 ];
 
 // Handle first sign-in migration
@@ -178,20 +106,27 @@ export default function App() {
 
   return (
     <ErrorBoundary section="Application">
-      <AuthProvider onFirstSignIn={handleFirstSignIn}>
-        <AppStateProvider>
-          <TokenEditorProvider>
-            <AppContent />
-          </TokenEditorProvider>
-        </AppStateProvider>
-      </AuthProvider>
+      <DarkModeProvider>
+        <AuthProvider onFirstSignIn={handleFirstSignIn}>
+          <AppStateProvider>
+            <TokenEditorProvider>
+              <AppContent />
+            </TokenEditorProvider>
+          </AppStateProvider>
+        </AuthProvider>
+      </DarkModeProvider>
     </ErrorBoundary>
   );
 }
 
 function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState("quick-start");
-  const [isThemeSidebarOpen, setIsThemeSidebarOpen] = useState(true);
+  // Default to closed on smaller screens (< 1280px)
+  const [isThemeSidebarOpen, setIsThemeSidebarOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1280 : true
+  );
+  // Left sidebar state
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
   const [showDecisionGate, setShowDecisionGate] = useState(false);
   const [showEmptyStateOnboarding, setShowEmptyStateOnboarding] = useState(false);
@@ -225,8 +160,43 @@ function AppContent() {
     setVisualFeel,
     setDesignIntent,
     addIntent,
+    updateIntent,
     deleteIntent,
   } = useAppState();
+
+  // Intent Component Editor dialog state
+  const [showIntentEditor, setShowIntentEditor] = useState(false);
+
+  // Auto-collapse theme sidebar on smaller screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280) {
+        setIsThemeSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Listen for hash-based navigation from other components
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && hash !== 'dev' && !hash.startsWith('dev/')) {
+        setSelectedCategory(hash);
+        // Clear the hash after navigation
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    };
+
+    // Check on mount
+    handleHashNavigation();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashNavigation);
+    return () => window.removeEventListener('hashchange', handleHashNavigation);
+  }, []);
 
   // Check if user has seen the decision gate before
   useEffect(() => {
@@ -337,13 +307,18 @@ function AppContent() {
     }
   }, [activeTheme, setColorTheme, setFontFamily, setVisualFeel]);
 
+  // Get dark mode controls
+  const { applyThemeColorScheme } = useDarkMode();
+
   // 🎨 INJECT THEME CSS - This makes the ENTIRE app a living preview
   useEffect(() => {
     if (activeTheme) {
-      injectThemeCSS(activeTheme);
-      console.log('💫 Applied design system tokens to entire app:', activeTheme.name);
+      const colorScheme = injectThemeCSS(activeTheme);
+      // Sync dark mode with theme's color scheme
+      applyThemeColorScheme(colorScheme);
+      console.log('💫 Applied design system tokens to entire app:', activeTheme.name, { colorScheme });
     }
-  }, [activeTheme]);
+  }, [activeTheme, applyThemeColorScheme]);
 
   // Handle design system change
   const handleDesignSystemChange = (systemId: string) => {
@@ -360,11 +335,11 @@ function AppContent() {
     }
   };
 
-  // Get the appropriate component categories based on design intent
-  const getComponentCategories = () => {
-    // Check for custom intent first
+  // Get the appropriate component categories based on design intent (dynamic from registry)
+  const componentCategories = useMemo(() => {
+    // Check for custom intent first (user-created intents with explicit categories)
     const customIntent = customIntents.find(i => i.id === designIntent);
-    if (customIntent) {
+    if (customIntent?.categories?.length) {
       // Map string icon names to actual icon components
       return customIntent.categories.map(cat => ({
         ...cat,
@@ -372,28 +347,41 @@ function AppContent() {
       }));
     }
 
-    // Fall back to defaults
-    switch (designIntent) {
-      case "ecommerce":
-        return ecommerceCategories;
-      case "mobile":
-        return mobileCategories;
-      case "landing":
-        return landingCategories;
-      case "web-editorial":
-        return editorialCategories;
-      default:
-        return webAppCategories;
-    }
-  };
+    // Use the dynamic component registry
+    const categories = getCategoriesForIntent(designIntent);
 
-  const componentCategories = getComponentCategories();
+    // Map string icon names to actual icon components
+    return categories.map(cat => ({
+      ...cat,
+      icon: (Icons as any)[cat.icon] || Box
+    }));
+  }, [designIntent, customIntents]);
 
   // Handle intent change and reset to playground
   const handleIntentChange = (newIntent: string) => {
     setDesignIntent(newIntent);
     setSelectedCategory("playground");
   };
+
+  // Handle saving intent component categories
+  const handleIntentComponentsSave = async (intentId: string, categories: Array<{ id: string; name: string; icon: string }>) => {
+    await updateIntent(intentId, { categories });
+  };
+
+  // Get current intent label for display
+  const currentIntentLabel = useMemo(() => {
+    const fromAvailable = availableIntents.find(i => i.value === designIntent);
+    if (fromAvailable) return fromAvailable.label;
+    const fromCustom = customIntents.find(i => i.id === designIntent);
+    if (fromCustom) return fromCustom.label;
+    return designIntent;
+  }, [designIntent, availableIntents, customIntents]);
+
+  // Get current intent's custom categories if any
+  const currentIntentCategories = useMemo(() => {
+    const customIntent = customIntents.find(i => i.id === designIntent);
+    return customIntent?.categories;
+  }, [designIntent, customIntents]);
 
   // Handle custom intent creation
   const handleIntentCreated = (intent: { id: string; name: string; description: string; tokens?: { colors?: Record<string, string> } }) => {
@@ -424,26 +412,28 @@ function AppContent() {
   return (
     <ActiveThemeProvider activeTheme={activeTheme}>
       <UILibraryProvider library={activeUILibrary} theme={activeTheme}>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <Sidebar>
+      <SidebarProvider open={isLeftSidebarOpen} onOpenChange={setIsLeftSidebarOpen}>
+        <div className="flex h-screen w-full overflow-hidden">
+          {/* Left Sidebar */}
+          <aside className={`transition-all duration-300 flex-shrink-0 h-full border-r bg-background ${isLeftSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
+            <div className="h-full overflow-y-auto">
+          <Sidebar collapsible="none" className="h-full">
             <SidebarContent>
-              <div className="p-4 sm:p-6">
-                <h1 className="text-xl sm:text-2xl">{branding.appName}</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{branding.tagline}</p>
+              <div className="p-4" style={{ paddingTop: '40px' }}>
+                <h1 className="text-lg lg:text-xl xl:text-2xl font-semibold">{branding.appName}</h1>
               </div>
 
               {/* DESIGN FOUNDATION SECTION */}
-              <div className="px-3 pb-2">
+              <div className="px-2 lg:px-3 pb-2">
                 <div className="flex items-center gap-2 px-1 pb-2">
-                  <Layers className="w-4 h-4 text-primary" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Design Foundation</h3>
+                  <Layers className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-primary" />
+                  <h3 className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-foreground">Design Foundation</h3>
                 </div>
-                <div className="p-3 rounded-lg bg-muted/40 border border-border/50 space-y-3">
+                <div className="p-2 lg:p-3 rounded-lg bg-muted/40 border border-border/50 space-y-2 lg:space-y-3">
                   {/* Design System Selector */}
-                  <div className="space-y-2">
-                    <Label htmlFor="design-system" className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <Palette className="w-3.5 h-3.5" />
+                  <div className="space-y-1.5 lg:space-y-2">
+                    <Label htmlFor="design-system" className="text-[10px] lg:text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 lg:gap-2">
+                      <Palette className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
                       Design System
                     </Label>
                     <Select
@@ -519,52 +509,63 @@ function AppContent() {
               </div>
 
               {/* COMPONENT LIBRARY SECTION */}
-              <div className="px-3 pt-3 pb-2">
+              <div className="px-2 lg:px-3 pt-2 lg:pt-3 pb-2">
                 <div className="flex items-center gap-2 px-1 pb-2">
-                  <Box className="w-4 h-4 text-primary" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Component Library</h3>
+                  <Box className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-primary" />
+                  <h3 className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-foreground">Component Library</h3>
                 </div>
-                <div className="p-3 rounded-lg bg-accent/20 border border-border/50 space-y-3">
+                <div className="p-2 lg:p-3 rounded-lg bg-accent/20 border border-border/50 space-y-2 lg:space-y-3">
                   {/* Design Intent Selector */}
-                  <div className="space-y-2">
-                    <Label htmlFor="design-intent" className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <Target className="w-3.5 h-3.5" />
+                  <div className="space-y-1.5 lg:space-y-2">
+                    <Label htmlFor="design-intent" className="text-[10px] lg:text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 lg:gap-2">
+                      <Target className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
                       Design Intent
                     </Label>
-                    <Select value={designIntent} onValueChange={handleIntentChange}>
-                      <SelectTrigger id="design-intent" className="h-9 bg-background">
-                        <SelectValue placeholder="Select intent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {/* Intents from active system */}
-                        {availableIntents.map(intent => (
-                          <SelectItem key={intent.value} value={intent.value}>
-                            {intent.label}
-                          </SelectItem>
-                        ))}
-                        {/* Custom Intents (if not already in system) */}
-                        {customIntents.filter(i => i.isCustom && !availableIntents.find(ai => ai.value === i.id)).length > 0 && (
-                          <div className="border-t mt-1 pt-1">
-                            {customIntents.filter(i => i.isCustom && !availableIntents.find(ai => ai.value === i.id)).map(intent => (
-                              <SelectItem key={intent.id} value={intent.id}>
-                                {intent.label} <span className="text-xs text-muted-foreground ml-1">(Custom)</span>
-                              </SelectItem>
-                            ))}
-                          </div>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select value={designIntent} onValueChange={handleIntentChange}>
+                        <SelectTrigger id="design-intent" className="h-9 bg-background flex-1">
+                          <SelectValue placeholder="Select intent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Intents from active system */}
+                          {availableIntents.map(intent => (
+                            <SelectItem key={intent.value} value={intent.value}>
+                              {intent.label}
+                            </SelectItem>
+                          ))}
+                          {/* Custom Intents (if not already in system) */}
+                          {customIntents.filter(i => i.isCustom && !availableIntents.find(ai => ai.value === i.id)).length > 0 && (
+                            <div className="border-t mt-1 pt-1">
+                              {customIntents.filter(i => i.isCustom && !availableIntents.find(ai => ai.value === i.id)).map(intent => (
+                                <SelectItem key={intent.id} value={intent.id}>
+                                  {intent.label} <span className="text-xs text-muted-foreground ml-1">(Custom)</span>
+                                </SelectItem>
+                              ))}
+                            </div>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => setShowIntentEditor(true)}
+                        title="Edit components for this intent"
+                      >
+                        <Settings2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Quick Build CTA */}
-              <div className="px-4 pt-2 pb-4">
+              <div className="px-2 lg:px-4 pt-2 pb-3 lg:pb-4">
                 <button
                   onClick={() => setShowWizard(true)}
-                  className="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-primary/90 to-primary text-primary-foreground hover:from-primary hover:to-primary/90 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group"
+                  className="w-full px-3 lg:px-4 py-2 lg:py-3 rounded-lg bg-gradient-to-r from-primary/90 to-primary text-primary-foreground hover:from-primary hover:to-primary/90 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group text-sm lg:text-base"
                 >
-                  <Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Create New System</span>
                 </button>
               </div>
@@ -631,12 +632,18 @@ function AppContent() {
               </SidebarGroup>
             </SidebarContent>
           </Sidebar>
-          
-          <main className="flex-1">
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-              <div className="flex h-14 items-center gap-4 px-4 md:px-6">
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
+            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0 z-10">
+              <div
+                className="flex h-14 items-center gap-2 sm:gap-4 px-3 sm:px-4 md:px-6"
+                style={{ paddingLeft: isLeftSidebarOpen ? undefined : '80px' }}
+              >
                 <SidebarTrigger />
-                <h2 className="capitalize text-sm md:text-base flex-1">
+                <h2 className="capitalize text-xs sm:text-sm md:text-base flex-1 truncate">
                   {selectedCategory === "quick-start" && "Quick Start Guide"}
                   {selectedCategory === "design-tokens" && "Design Tokens"}
                   {selectedCategory === "import-config" && "Import Config"}
@@ -644,11 +651,13 @@ function AppContent() {
                   {selectedCategory === "saved-systems" && "Saved Design Systems"}
                   {selectedCategory === "imported-components" && "Imported Components"}
                   {selectedCategory === "mcp-config" && "MCP Config"}
-                  {selectedCategory !== "quick-start" && selectedCategory !== "design-tokens" && selectedCategory !== "import-config" && selectedCategory !== "design-system-builder" && selectedCategory !== "saved-systems" && selectedCategory !== "imported-components" && selectedCategory !== "mcp-config" && (
+                  {selectedCategory === "frontend-libraries" && "Front-End Libraries"}
+                  {selectedCategory !== "quick-start" && selectedCategory !== "design-tokens" && selectedCategory !== "import-config" && selectedCategory !== "design-system-builder" && selectedCategory !== "saved-systems" && selectedCategory !== "imported-components" && selectedCategory !== "mcp-config" && selectedCategory !== "frontend-libraries" && (
                     componentCategories.find(c => c.id === selectedCategory)?.name
                   )}
                 </h2>
                 <div className="flex items-center gap-2">
+                  <DarkModeToggle />
                   <UserMenu />
                   <Button
                     variant="outline"
@@ -667,8 +676,8 @@ function AppContent() {
                 </div>
               </div>
             </div>
-            
-            <div className={`p-4 md:p-6 ${activeTheme?.fontFamily ? `font-${activeTheme.fontFamily}` : ''}`}>
+
+            <div className={`flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 ${activeTheme?.fontFamily ? `font-${activeTheme.fontFamily}` : ''}`}>
               <ErrorBoundary section="Main Content">
                 {selectedCategory === "quick-start" ? (
                   <QuickStartGuide onNavigate={setSelectedCategory} />
@@ -682,6 +691,8 @@ function AppContent() {
                   <ImportedComponentsLibrary />
                 ) : selectedCategory === "mcp-config" ? (
                   <MCPConfig />
+                ) : selectedCategory === "frontend-libraries" ? (
+                  <FrontendLibrariesConfig />
                 ) : selectedCategory === "playground" ? (
                   <EnhancedPlayground />
                 ) : selectedCategory === "design-tokens" ? (
@@ -695,13 +706,12 @@ function AppContent() {
 
           {/* Theme Customizer Right Sidebar */}
           <aside
-            className={`border-l bg-background transition-all duration-300 ${
-              isThemeSidebarOpen ? "w-80 md:w-96" : "w-0"
-            } overflow-hidden flex-shrink-0 h-screen sticky top-0`}
+            className={`border-l bg-background transition-all duration-300 flex-shrink-0 h-full ${
+              isThemeSidebarOpen ? "w-72 lg:w-80 xl:w-96" : "w-0"
+            } overflow-hidden`}
           >
-            {isThemeSidebarOpen && (
-              <div className="h-full flex flex-col">
-                <div className="border-b p-4 flex items-center justify-between flex-shrink-0">
+            <div className="h-full flex flex-col w-72 lg:w-80 xl:w-96">
+              <div className="border-b p-4 flex items-center justify-between flex-shrink-0">
                   <div>
                     <h3 className="flex items-center gap-2">
                       <Settings className="w-5 h-5" />
@@ -715,7 +725,7 @@ function AppContent() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsThemeSidebarOpen(false)}
-                    className="md:hidden"
+                    title="Close theme customizer"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -737,8 +747,7 @@ function AppContent() {
                     </ErrorBoundary>
                   </div>
                 </div>
-              </div>
-            )}
+            </div>
           </aside>
         </div>
 
@@ -766,6 +775,16 @@ function AppContent() {
             />
           </ErrorBoundary>
         )}
+
+        {/* Intent Component Editor Dialog */}
+        <IntentComponentEditor
+          open={showIntentEditor}
+          onOpenChange={setShowIntentEditor}
+          intentId={designIntent}
+          intentLabel={currentIntentLabel}
+          currentCategories={currentIntentCategories}
+          onSave={handleIntentComponentsSave}
+        />
       </SidebarProvider>
       </UILibraryProvider>
     </ActiveThemeProvider>

@@ -14,77 +14,25 @@ import {
   withErrorHandling,
 } from '../types';
 import { STORAGE_KEYS } from '../../lib/constants';
+import { getAllIntents, getCategoriesForIntent } from '../../lib/component-registry';
 
 // =============================================================================
-// Default Intents (always available, never persisted)
+// Default Intents (dynamically generated from the component registry)
 // =============================================================================
 
-const defaultIntents: DesignIntent[] = [
-  {
-    id: 'web-app',
-    label: 'Web App',
-    description: 'Components optimized for web applications',
-    categories: [
-      { name: 'Code Playground', icon: 'Code2', id: 'playground' },
-      { name: 'Buttons & Actions', icon: 'Mouse', id: 'buttons' },
-      { name: 'Forms & Inputs', icon: 'Type', id: 'forms' },
-      { name: 'Layout Components', icon: 'Layout', id: 'layout' },
-      { name: 'Overlays & Dialogs', icon: 'Box', id: 'overlays' },
-      { name: 'Navigation', icon: 'Menu', id: 'navigation' },
-      { name: 'Data Display', icon: 'Palette', id: 'data' },
-      { name: 'AI Components', icon: 'Sparkles', id: 'ai' },
-    ],
+/**
+ * Get default intents with their categories dynamically from the registry.
+ * This ensures a single source of truth for intent-category mappings.
+ */
+function getDefaultIntents(): DesignIntent[] {
+  return getAllIntents().map(intent => ({
+    id: intent.id,
+    label: intent.label,
+    description: intent.description,
+    categories: getCategoriesForIntent(intent.id),
     isCustom: false,
-  },
-  {
-    id: 'ecommerce',
-    label: 'E-commerce',
-    description: 'Components for online stores and marketplaces',
-    categories: [
-      { name: 'Code Playground', icon: 'Code2', id: 'playground' },
-      { name: 'Product Cards', icon: 'ShoppingBag', id: 'product-cards' },
-      { name: 'Shopping Cart', icon: 'ShoppingBag', id: 'shopping-cart' },
-      { name: 'Checkout Flow', icon: 'CreditCard', id: 'checkout' },
-      { name: 'Reviews & Ratings', icon: 'Star', id: 'reviews' },
-      { name: 'Filters & Search', icon: 'Filter', id: 'filters' },
-      { name: 'Buttons & Actions', icon: 'Mouse', id: 'buttons' },
-      { name: 'Forms & Inputs', icon: 'Type', id: 'forms' },
-    ],
-    isCustom: false,
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile Experience',
-    description: 'Touch-optimized components for mobile apps',
-    categories: [
-      { name: 'Code Playground', icon: 'Code2', id: 'playground' },
-      { name: 'Bottom Navigation', icon: 'Menu', id: 'bottom-nav' },
-      { name: 'Swipe Actions', icon: 'Hand', id: 'swipe-actions' },
-      { name: 'Pull to Refresh', icon: 'RefreshCw', id: 'pull-refresh' },
-      { name: 'Mobile Menu', icon: 'AlignLeft', id: 'mobile-menu' },
-      { name: 'Touch Gestures', icon: 'Zap', id: 'touch-gestures' },
-      { name: 'Mobile Forms', icon: 'Smartphone', id: 'mobile-forms' },
-      { name: 'Buttons & Actions', icon: 'Mouse', id: 'buttons' },
-    ],
-    isCustom: false,
-  },
-  {
-    id: 'landing',
-    label: 'Landing Page',
-    description: 'Marketing and conversion-focused components',
-    categories: [
-      { name: 'Code Playground', icon: 'Code2', id: 'playground' },
-      { name: 'Hero Sections', icon: 'Megaphone', id: 'hero' },
-      { name: 'CTA Blocks', icon: 'Mouse', id: 'cta-blocks' },
-      { name: 'Testimonials', icon: 'MessageSquare', id: 'testimonials' },
-      { name: 'Pricing Tables', icon: 'DollarSign', id: 'pricing' },
-      { name: 'Feature Grids', icon: 'Grid3x3', id: 'features' },
-      { name: 'Email Capture', icon: 'Mail', id: 'email-capture' },
-      { name: 'Buttons & Actions', icon: 'Mouse', id: 'buttons' },
-    ],
-    isCustom: false,
-  },
-];
+  }));
+}
 
 // =============================================================================
 // Service Implementation
@@ -134,14 +82,14 @@ export class LocalIntentService implements IIntentService {
     return withErrorHandling(async () => {
       const customIntents = this.getCustomIntentsFromStorage();
       // Merge default intents with custom intents
-      return [...defaultIntents, ...customIntents];
+      return [...getDefaultIntents(), ...customIntents];
     }, true);
   }
 
   async getById(id: string): Promise<ServiceResult<DesignIntent>> {
     return withErrorHandling(async () => {
       // Check default intents first
-      const defaultIntent = defaultIntents.find((i) => i.id === id);
+      const defaultIntent = getDefaultIntents().find((i) => i.id === id);
       if (defaultIntent) return defaultIntent;
 
       // Then check custom intents
@@ -177,7 +125,7 @@ export class LocalIntentService implements IIntentService {
 
       // Check if ID already exists
       if (
-        defaultIntents.some((i) => i.id === data.id) ||
+        getDefaultIntents().some((i) => i.id === data.id) ||
         customIntents.some((i) => i.id === data.id)
       ) {
         throw new Error(`Intent with ID already exists: ${data.id}`);
@@ -208,7 +156,7 @@ export class LocalIntentService implements IIntentService {
   ): Promise<ServiceResult<DesignIntent>> {
     return withErrorHandling(async () => {
       // Cannot update default intents
-      if (defaultIntents.some((i) => i.id === id)) {
+      if (getDefaultIntents().some((i) => i.id === id)) {
         throw new Error(`Cannot update default intent: ${id}`);
       }
 
@@ -237,7 +185,7 @@ export class LocalIntentService implements IIntentService {
   async delete(id: string): Promise<ServiceResult<boolean>> {
     return withErrorHandling(async () => {
       // Cannot delete default intents
-      if (defaultIntents.some((i) => i.id === id)) {
+      if (getDefaultIntents().some((i) => i.id === id)) {
         throw new Error(`Cannot delete default intent: ${id}`);
       }
 
@@ -261,6 +209,6 @@ export class LocalIntentService implements IIntentService {
    * Get the default intents (useful for resetting or comparison)
    */
   static getDefaultIntents(): DesignIntent[] {
-    return [...defaultIntents];
+    return [...getDefaultIntents()];
   }
 }

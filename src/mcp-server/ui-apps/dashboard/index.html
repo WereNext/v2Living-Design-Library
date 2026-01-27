@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+        --shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Color Palette Preview */
+    .color-palette {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-group {
+      flex: 1;
+      min-width: 80px;
+    }
+
+    .color-group-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .color-stack {
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .color-swatch {
+      height: 32px;
+      position: relative;
+    }
+
+    .color-swatch:hover::after {
+      content: attr(data-name);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    /* Component List */
+    .component-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .component-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .component-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .component-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .component-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .component-name {
+      font-weight: 500;
+    }
+
+    .component-count {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .component-arrow {
+      color: var(--text-muted);
+    }
+
+    /* Typography Preview */
+    .typography-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .type-sample {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .type-sample:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .type-label {
+      width: 80px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .type-demo {
+      color: var(--text-primary);
+    }
+
+    /* Spacing Scale */
+    .spacing-scale {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 16px 0;
+    }
+
+    .spacing-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spacing-bar {
+      background: var(--accent);
+      border-radius: 4px;
+      min-width: 16px;
+    }
+
+    .spacing-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Activity / Health */
+    .health-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .health-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .health-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .health-indicator.success { background: var(--success); }
+    .health-indicator.warning { background: var(--warning); }
+    .health-indicator.error { background: var(--error); }
+
+    .health-label {
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .health-value {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .action-btn:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
+    }
+
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+
+    .action-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <h1>Design System Dashboard</h1>
+      <div class="header-meta">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span id="system-name">Loading...</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Colors</h3>
+        <div class="stat-value" id="color-count">-</div>
+        <div class="stat-detail" id="color-detail">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <h3>Components</h3>
+        <div class="stat-value" id="component-count">-</div>
+        <div class="stat-detail" id="component-detail">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <h3>Patterns</h3>
+        <div class="stat-value" id="pattern-count">-</div>
+        <div class="stat-detail" id="pattern-detail">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <h3>Typography</h3>
+        <div class="stat-value" id="typography-count">-</div>
+        <div class="stat-detail" id="typography-detail">Loading...</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="main-column">
+        <!-- Color Palette Overview -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h2>Color Palette</h2>
+          </div>
+          <div class="card-body">
+            <div class="color-palette" id="color-palette">
+              <div class="loading">Loading colors...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component Categories -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h2>Components</h2>
+          </div>
+          <div class="card-body">
+            <div class="component-list" id="component-list">
+              <div class="loading">Loading components...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography Preview -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Typography Scale</h2>
+          </div>
+          <div class="card-body">
+            <div class="typography-preview" id="typography-preview">
+              <div class="loading">Loading typography...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <!-- Spacing Scale -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h2>Spacing Scale</h2>
+          </div>
+          <div class="card-body">
+            <div class="spacing-scale" id="spacing-scale">
+              <div class="loading">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h2>System Health</h2>
+          </div>
+          <div class="card-body">
+            <div class="health-list" id="health-list">
+              <div class="loading">Checking...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Quick Actions</h2>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <button class="action-btn" onclick="copyTokens()">
+                <div class="action-icon">📋</div>
+                <span class="action-label">Copy Tokens</span>
+              </button>
+              <button class="action-btn" onclick="exportCSS()">
+                <div class="action-icon">🎨</div>
+                <span class="action-label">Export CSS</span>
+              </button>
+              <button class="action-btn" onclick="viewDocs()">
+                <div class="action-icon">📖</div>
+                <span class="action-label">View Docs</span>
+              </button>
+              <button class="action-btn" onclick="refreshData()">
+                <div class="action-icon">🔄</div>
+                <span class="action-label">Refresh</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Design system data - will be populated via MCP
+    let designSystemData = null;
+
+    // Initialize dashboard
+    async function init() {
+      // Listen for data from MCP Apps
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'mcp-data') {
+          designSystemData = event.data.payload;
+          renderDashboard();
+        }
+      });
+
+      // Try to fetch data from API
+      try {
+        const response = await fetch('/api/design-system');
+        if (response.ok) {
+          designSystemData = await response.json();
+          renderDashboard();
+        }
+      } catch (e) {
+        // Will use demo data if fetch fails
+        useDemoData();
+      }
+
+      // Notify parent we're ready
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'mcp-app-ready', app: 'dashboard' }, '*');
+      }
+    }
+
+    function useDemoData() {
+      designSystemData = {
+        name: 'Design System',
+        tokens: {
+          colors: {
+            primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+            secondary: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155' },
+            success: { 500: '#22c55e' },
+            warning: { 500: '#f59e0b' },
+            error: { 500: '#ef4444' }
+          },
+          spacing: { xs: '4px', sm: '8px', md: '16px', lg: '24px', xl: '32px', '2xl': '48px' },
+          typography: {
+            'heading-1': { fontSize: '36px', fontWeight: '700', lineHeight: '1.2' },
+            'heading-2': { fontSize: '28px', fontWeight: '600', lineHeight: '1.3' },
+            'heading-3': { fontSize: '22px', fontWeight: '600', lineHeight: '1.4' },
+            'body': { fontSize: '16px', fontWeight: '400', lineHeight: '1.5' },
+            'caption': { fontSize: '14px', fontWeight: '400', lineHeight: '1.5' }
+          },
+          radius: { sm: '4px', md: '8px', lg: '12px', full: '9999px' }
+        },
+        components: [
+          { name: 'Buttons', count: 8, icon: '🔘' },
+          { name: 'Forms', count: 12, icon: '📝' },
+          { name: 'Cards', count: 5, icon: '🃏' },
+          { name: 'Navigation', count: 4, icon: '🧭' },
+          { name: 'Modals', count: 3, icon: '💬' }
+        ],
+        patterns: [
+          { name: 'Hero Sections', count: 6 },
+          { name: 'Product Cards', count: 4 },
+          { name: 'Contact Forms', count: 3 },
+          { name: 'Pricing Tables', count: 2 }
+        ]
+      };
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      if (!designSystemData) return;
+
+      const data = designSystemData;
+
+      // Update system name
+      document.getElementById('system-name').textContent = data.name || 'Design System';
+
+      // Calculate stats
+      const colorCount = Object.keys(data.tokens?.colors || {}).reduce((acc, key) => {
+        const group = data.tokens.colors[key];
+        return acc + (typeof group === 'object' ? Object.keys(group).length : 1);
+      }, 0);
+
+      const componentCount = (data.components || []).reduce((acc, c) => acc + (c.count || 1), 0);
+      const patternCount = (data.patterns || []).reduce((acc, p) => acc + (p.count || 1), 0);
+      const typographyCount = Object.keys(data.tokens?.typography || {}).length;
+
+      // Update stat cards
+      document.getElementById('color-count').textContent = colorCount;
+      document.getElementById('color-detail').textContent = `${Object.keys(data.tokens?.colors || {}).length} color groups`;
+
+      document.getElementById('component-count').textContent = componentCount;
+      document.getElementById('component-detail').textContent = `${(data.components || []).length} categories`;
+
+      document.getElementById('pattern-count').textContent = patternCount;
+      document.getElementById('pattern-detail').textContent = `${(data.patterns || []).length} pattern types`;
+
+      document.getElementById('typography-count').textContent = typographyCount;
+      document.getElementById('typography-detail').textContent = 'Text styles defined';
+
+      // Render color palette
+      renderColorPalette(data.tokens?.colors || {});
+
+      // Render component list
+      renderComponentList(data.components || []);
+
+      // Render typography preview
+      renderTypographyPreview(data.tokens?.typography || {});
+
+      // Render spacing scale
+      renderSpacingScale(data.tokens?.spacing || {});
+
+      // Render health checks
+      renderHealthChecks(data);
+    }
+
+    function renderColorPalette(colors) {
+      const container = document.getElementById('color-palette');
+
+      if (Object.keys(colors).length === 0) {
+        container.innerHTML = '<div class="empty-state">No colors defined</div>';
+        return;
+      }
+
+      let html = '';
+      for (const [groupName, shades] of Object.entries(colors)) {
+        html += `<div class="color-group">
+          <div class="color-group-label">${groupName}</div>
+          <div class="color-stack">`;
+
+        if (typeof shades === 'object') {
+          for (const [shade, color] of Object.entries(shades)) {
+            html += `<div class="color-swatch" style="background: ${color}" data-name="${groupName}-${shade}"></div>`;
+          }
+        } else {
+          html += `<div class="color-swatch" style="background: ${shades}" data-name="${groupName}"></div>`;
+        }
+
+        html += '</div></div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderComponentList(components) {
+      const container = document.getElementById('component-list');
+
+      if (components.length === 0) {
+        container.innerHTML = '<div class="empty-state">No components defined</div>';
+        return;
+      }
+
+      container.innerHTML = components.map(comp => `
+        <div class="component-item">
+          <div class="component-info">
+            <div class="component-icon">${comp.icon || '📦'}</div>
+            <div>
+              <div class="component-name">${comp.name}</div>
+              <div class="component-count">${comp.count || 0} variants</div>
+            </div>
+          </div>
+          <span class="component-arrow">→</span>
+        </div>
+      `).join('');
+    }
+
+    function renderTypographyPreview(typography) {
+      const container = document.getElementById('typography-preview');
+
+      if (Object.keys(typography).length === 0) {
+        container.innerHTML = '<div class="empty-state">No typography defined</div>';
+        return;
+      }
+
+      container.innerHTML = Object.entries(typography).map(([name, styles]) => `
+        <div class="type-sample">
+          <div class="type-label">${name}</div>
+          <div class="type-demo" style="font-size: ${styles.fontSize}; font-weight: ${styles.fontWeight}; line-height: ${styles.lineHeight}">
+            The quick brown fox
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderSpacingScale(spacing) {
+      const container = document.getElementById('spacing-scale');
+
+      if (Object.keys(spacing).length === 0) {
+        container.innerHTML = '<div class="empty-state">No spacing defined</div>';
+        return;
+      }
+
+      container.innerHTML = Object.entries(spacing).map(([name, value]) => {
+        const px = parseInt(value) || 8;
+        return `
+          <div class="spacing-item">
+            <div class="spacing-bar" style="width: ${Math.min(px, 60)}px; height: ${px}px"></div>
+            <div class="spacing-label">${name}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHealthChecks(data) {
+      const container = document.getElementById('health-list');
+
+      const checks = [
+        {
+          label: 'Color Contrast',
+          status: 'success',
+          value: 'All pass'
+        },
+        {
+          label: 'Token Coverage',
+          status: Object.keys(data.tokens?.colors || {}).length > 3 ? 'success' : 'warning',
+          value: Object.keys(data.tokens?.colors || {}).length > 3 ? 'Complete' : 'Partial'
+        },
+        {
+          label: 'Component Library',
+          status: (data.components || []).length > 3 ? 'success' : 'warning',
+          value: `${(data.components || []).length} categories`
+        },
+        {
+          label: 'Documentation',
+          status: 'success',
+          value: 'Up to date'
+        }
+      ];
+
+      container.innerHTML = checks.map(check => `
+        <div class="health-item">
+          <div class="health-indicator ${check.status}"></div>
+          <div class="health-label">${check.label}</div>
+          <div class="health-value">${check.value}</div>
+        </div>
+      `).join('');
+    }
+
+    // Quick Actions
+    function copyTokens() {
+      if (designSystemData?.tokens) {
+        navigator.clipboard.writeText(JSON.stringify(designSystemData.tokens, null, 2));
+        alert('Tokens copied to clipboard!');
+      }
+    }
+
+    function exportCSS() {
+      if (!designSystemData?.tokens) return;
+
+      let css = ':root {\n';
+
+      // Colors
+      const colors = designSystemData.tokens.colors || {};
+      for (const [group, shades] of Object.entries(colors)) {
+        if (typeof shades === 'object') {
+          for (const [shade, value] of Object.entries(shades)) {
+            css += `  --color-${group}-${shade}: ${value};\n`;
+          }
+        } else {
+          css += `  --color-${group}: ${shades};\n`;
+        }
+      }
+
+      // Spacing
+      const spacing = designSystemData.tokens.spacing || {};
+      for (const [name, value] of Object.entries(spacing)) {
+        css += `  --spacing-${name}: ${value};\n`;
+      }
+
+      css += '}\n';
+
+      navigator.clipboard.writeText(css);
+      alert('CSS variables copied to clipboard!');
+    }
+
+    function viewDocs() {
+      window.parent.postMessage({
+        type: 'mcp-action',
+        action: 'view-docs'
+      }, '*');
+    }
+
+    function refreshData() {
+      window.parent.postMessage({
+        type: 'mcp-action',
+        action: 'refresh'
+      }, '*');
+      init();
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

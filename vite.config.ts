@@ -2,9 +2,71 @@
   import { defineConfig } from 'vite';
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
+  import fs from 'fs';
+
+  // Custom plugin to handle MCP data API endpoint
+  function mcpDataPlugin() {
+    const bridgeFilePath = path.resolve(__dirname, 'src/mcp-server/data-bridge.json');
+
+    return {
+      name: 'mcp-data-api',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          // Handle GET requests for MCP data
+          if (req.url === '/api/mcp/data' && req.method === 'GET') {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+            try {
+              const data = JSON.parse(fs.readFileSync(bridgeFilePath, 'utf8'));
+              res.statusCode = 200;
+              res.end(JSON.stringify(data));
+            } catch (error) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: 'Failed to read data bridge' }));
+            }
+          }
+          // Handle POST requests to update MCP data bridge
+          else if (req.url === '/api/mcp/bridge' && req.method === 'POST') {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', () => {
+              try {
+                const data = JSON.parse(body);
+                fs.writeFileSync(bridgeFilePath, JSON.stringify(data, null, 2));
+                res.statusCode = 200;
+                res.end(JSON.stringify({ success: true }));
+              } catch (error) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to write data bridge' }));
+              }
+            });
+          }
+          // Handle OPTIONS requests for CORS
+          else if ((req.url === '/api/mcp/data' || req.url === '/api/mcp/bridge') && req.method === 'OPTIONS') {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+            res.statusCode = 200;
+            res.end();
+          }
+          else {
+            next();
+          }
+        });
+      }
+    };
+  }
 
   export default defineConfig({
-    plugins: [react()],
+    plugins: [react(), mcpDataPlugin()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {

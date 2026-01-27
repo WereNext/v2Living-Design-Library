@@ -1,3 +1,5 @@
+import { parseHSLString, hslToRgbTuple } from "../lib/theme-mappers/color-utils";
+
 export interface ContrastResult {
   ratio: number;
   aa: boolean;
@@ -16,8 +18,8 @@ export interface AccessibilityIssue {
 export function checkContrast(foreground: string, background: string): ContrastResult {
   const fgLuminance = getRelativeLuminance(foreground);
   const bgLuminance = getRelativeLuminance(background);
-  
-  const ratio = (Math.max(fgLuminance, bgLuminance) + 0.05) / 
+
+  const ratio = (Math.max(fgLuminance, bgLuminance) + 0.05) /
                 (Math.min(fgLuminance, bgLuminance) + 0.05);
 
   return {
@@ -43,12 +45,15 @@ function getRelativeLuminance(color: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+/**
+ * Parse a color string to RGB tuple
+ * Uses centralized parseHSLString for HSL parsing
+ */
 function parseColor(color: string): [number, number, number] | null {
-  // Handle HSL format: "hsl(x, y%, z%)" or just "x y% z%"
-  const hslMatch = color.match(/hsl\(?\s*(\d+\.?\d*)\s+(\d+\.?\d*)%?\s+(\d+\.?\d*)%?\s*\)?/);
-  if (hslMatch) {
-    const [, h, s, l] = hslMatch.map(Number);
-    return hslToRgb(h, s, l);
+  // Try parsing as HSL using centralized utility
+  const hsl = parseHSLString(color);
+  if (hsl) {
+    return hslToRgbTuple(hsl.h, hsl.s, hsl.l);
   }
 
   // Handle RGB format
@@ -77,37 +82,6 @@ function parseColor(color: string): [number, number, number] | null {
   }
 
   return null;
-}
-
-function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-  s = s / 100;
-  l = l / 100;
-
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-
-  let r = 0, g = 0, b = 0;
-
-  if (h >= 0 && h < 60) {
-    r = c; g = x; b = 0;
-  } else if (h >= 60 && h < 120) {
-    r = x; g = c; b = 0;
-  } else if (h >= 120 && h < 180) {
-    r = 0; g = c; b = x;
-  } else if (h >= 180 && h < 240) {
-    r = 0; g = x; b = c;
-  } else if (h >= 240 && h < 300) {
-    r = x; g = 0; b = c;
-  } else if (h >= 300 && h < 360) {
-    r = c; g = 0; b = x;
-  }
-
-  return [
-    Math.round((r + m) * 255),
-    Math.round((g + m) * 255),
-    Math.round((b + m) * 255),
-  ];
 }
 
 interface ThemeWithColors {

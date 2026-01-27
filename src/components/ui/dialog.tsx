@@ -52,58 +52,23 @@ function DialogContent({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
-    <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 9999,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        }}
-      />
+    <DialogPortal>
+      <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        style={{
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
-          width: 'calc(100vw - 2rem)',
-          maxWidth: '32rem',
-          backgroundColor: 'var(--background)',
-          border: '1px solid var(--border)',
-          borderRadius: '0.5rem',
-          padding: '1.5rem',
-          boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-          display: 'block',
-        }}
+        className={cn(
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+          className
+        )}
         {...props}
       >
-        <div style={{ display: 'block', width: '100%' }}>
-          {children}
-        </div>
-        <button
-          onClick={() => {
-            // Find and click the actual close button
-            const event = new Event('click', { bubbles: true });
-            document.querySelector('[data-radix-dialog-close]')?.dispatchEvent(event);
-          }}
-          style={{
-            position: 'absolute',
-            right: '1rem',
-            top: '1rem',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            opacity: 0.7,
-          }}
-        >
-          <XIcon style={{ width: '1rem', height: '1rem' }} />
+        {children}
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <XIcon className="h-4 w-4" />
           <span className="sr-only">Close</span>
-        </button>
+        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
-    </DialogPrimitive.Portal>
+    </DialogPortal>
   );
 }
 
@@ -111,12 +76,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn(className)}
-      style={{
-        display: 'block',
-        width: '100%',
-        textAlign: 'center',
-      }}
+      className={cn("flex flex-col gap-1.5 text-center sm:text-left", className)}
       {...props}
     />
   );
@@ -142,13 +102,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg font-semibold", className)}
-      style={{
-        display: 'block',
-        width: '100%',
-        lineHeight: '1.5',
-        marginBottom: '0.5rem',
-      }}
+      className={cn("text-lg font-semibold leading-none tracking-tight", className)}
       {...props}
     />
   );
@@ -161,12 +115,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
-      style={{
-        display: 'block',
-        width: '100%',
-        lineHeight: '1.5',
-      }}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   );

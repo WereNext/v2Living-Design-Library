@@ -5,7 +5,7 @@
 // - design-system-builder/IntentManager.tsx - Intent management
 // - design-system-builder/useVariables.ts - Variable state management hook
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -28,6 +28,7 @@ import { DesignSystemPreview } from "../DesignSystemPreview";
 import { VariableList } from "./VariableList";
 import { IntentManager } from "./IntentManager";
 import { useVariables } from "./useVariables";
+import { LiveTokenPreview } from "./LiveTokenPreview";
 import type { DesignIntent, DesignSystemData } from "./types";
 
 interface DesignSystemBuilderProps {
@@ -45,6 +46,8 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
     { value: 'web-app', label: 'Web App' },
   ]);
   const [selectedLibraryTemplate, setSelectedLibraryTemplate] = useState('');
+  const [importedTemplateName, setImportedTemplateName] = useState<string | null>(null);
+  const [importedTemplateLibrary, setImportedTemplateLibrary] = useState<string | null>(null);
 
   const {
     colors,
@@ -65,6 +68,43 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
     loadFullTemplate,
     loadBlankTemplate,
   } = useVariables();
+
+  // Check for imported template from Front-End Libraries on mount
+  useEffect(() => {
+    const selectedTemplate = localStorage.getItem('ldl-selected-template');
+    if (selectedTemplate) {
+      try {
+        const template = JSON.parse(selectedTemplate);
+
+        // Validate template has required fields
+        if (!template || typeof template !== 'object' || !template.name) {
+          console.warn('Invalid template data in localStorage:', template);
+          localStorage.removeItem('ldl-selected-template');
+          return;
+        }
+
+        // Pre-fill system name and description
+        setSystemName(template.name || '');
+        setSystemDescription(template.description || '');
+        setImportedTemplateName(template.name);
+        setImportedTemplateLibrary(template.uiLibrary || null);
+
+        // Clear the localStorage item so it doesn't auto-load again
+        localStorage.removeItem('ldl-selected-template');
+
+        toast.success(`Starting from ${template.name}!`, {
+          description: 'Customize the design tokens to match your vision.',
+        });
+      } catch (error) {
+        console.error('Failed to parse selected template:', error);
+        // Clean up corrupted data
+        localStorage.removeItem('ldl-selected-template');
+        toast.error('Failed to load template data', {
+          description: 'Starting with a blank template instead.',
+        });
+      }
+    }
+  }, []);
 
   const handleGenerate = () => {
     const systemColors = getVariablesAsRecord('colors');
@@ -102,10 +142,19 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
     setBorderRadius(toVars(template.borderRadius));
     setShadows(toVars(template.shadows));
     setSelectedLibraryTemplate(libraryId);
+
+    // Clear imported template name when manually loading a library template
+    setImportedTemplateName(null);
+    setImportedTemplateLibrary(null);
+
     toast.success(`${template.name} tokens loaded! Customize and save as your own.`);
   };
 
   const handleLoadTemplate = (template: 'minimal' | 'full' | 'blank') => {
+    // Clear imported template name when manually loading a preset template
+    setImportedTemplateName(null);
+    setImportedTemplateLibrary(null);
+
     switch (template) {
       case 'minimal':
         loadMinimalTemplate();
@@ -142,12 +191,21 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Alert>
-          <BoxIcon className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Fresh Start Template:</strong> Define your own variables. Everything is just a starting point!
-          </AlertDescription>
-        </Alert>
+        {importedTemplateName ? (
+          <Alert className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300">
+            <Package className="h-4 w-4 text-purple-600" />
+            <AlertDescription>
+              <strong>Starting from {importedTemplateName}:</strong> Customize the tokens below to match your vision, then generate your design system.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert>
+            <BoxIcon className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Fresh Start Template:</strong> Define your own variables. Everything is just a starting point!
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Library Template Selector */}
         <div className="space-y-3 bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200">
@@ -311,6 +369,12 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
           </TabsContent>
         </Tabs>
 
+        {/* Live Component Preview */}
+        <LiveTokenPreview
+          defaultExpanded={false}
+          uiLibrary={importedTemplateLibrary || 'shadcn/ui'}
+        />
+
         {/* Summary */}
         <div className="bg-muted/50 p-4 rounded-lg">
           <h4 className="text-sm font-semibold mb-2">System Summary</h4>
@@ -331,36 +395,38 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
       </CardContent>
 
       {pendingSystem && (
-        <>
-          <DesignSystemPreview
-            open={isPreviewDialogOpen}
-            onOpenChange={setIsPreviewDialogOpen}
-            onConfirm={() => {
-              setIsPreviewDialogOpen(false);
-              setIsSaveDialogOpen(true);
-            }}
-            systemName={systemName}
-            systemDescription={systemDescription}
-            designIntents={designIntents}
-            colors={pendingSystem.colors}
-            spacing={pendingSystem.spacing}
-            typography={pendingSystem.typography}
-            borderRadius={pendingSystem.borderRadius}
-            shadows={pendingSystem.shadows}
-            tokenCounts={tokenCounts}
-          />
-          <SaveDesignSystemDialog
-            open={isSaveDialogOpen}
-            onOpenChange={setIsSaveDialogOpen}
-            onSave={({ name, description, applyImmediately }) => {
-              onSystemCreated({ name, description, ...pendingSystem }, applyImmediately);
-              setIsSaveDialogOpen(false);
-              setPendingSystem(null);
-            }}
-            tokenCounts={tokenCounts}
-          />
-        </>
+        <DesignSystemPreview
+          open={isPreviewDialogOpen}
+          onOpenChange={setIsPreviewDialogOpen}
+          onConfirm={() => {
+            setIsPreviewDialogOpen(false);
+            setIsSaveDialogOpen(true);
+          }}
+          systemName={systemName}
+          systemDescription={systemDescription}
+          designIntents={designIntents}
+          colors={pendingSystem.colors}
+          spacing={pendingSystem.spacing}
+          typography={pendingSystem.typography}
+          borderRadius={pendingSystem.borderRadius}
+          shadows={pendingSystem.shadows}
+          tokenCounts={tokenCounts}
+        />
       )}
+
+      {/* Save dialog rendered separately to avoid timing issues */}
+      <SaveDesignSystemDialog
+        open={isSaveDialogOpen}
+        onOpenChange={setIsSaveDialogOpen}
+        onSave={({ name, description, applyImmediately }) => {
+          if (pendingSystem) {
+            onSystemCreated({ name, description, ...pendingSystem }, applyImmediately);
+          }
+          setIsSaveDialogOpen(false);
+          setPendingSystem(null);
+        }}
+        tokenCounts={tokenCounts}
+      />
     </Card>
   );
 }
