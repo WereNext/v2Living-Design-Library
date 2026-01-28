@@ -145,7 +145,6 @@ export function MCPConfig() {
           <CardTitle className="flex items-center gap-2">
             <Zap className="w-5 h-5" />
             MCP Apps
-            <Badge variant="secondary" className="text-xs">New</Badge>
           </CardTitle>
           <CardDescription>
             Interactive UI components that display directly in AI conversations

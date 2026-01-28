@@ -212,7 +212,6 @@ export function DesignSystemBuilder({ onSystemCreated, initialData }: DesignSyst
           <div className="flex items-center gap-2 mb-2">
             <Package className="w-4 h-4 text-purple-600" />
             <Label className="text-sm font-semibold">Start from Popular Library</Label>
-            <Badge variant="outline" className="ml-auto">New</Badge>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
             Load design tokens from shadcn, Material UI, Chakra, and more.
