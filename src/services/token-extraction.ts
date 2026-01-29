@@ -8,7 +8,7 @@
  * - Component styles
  */
 
-import { Theme } from '../types';
+import { Theme, ColorScheme } from '../types';
 
 export interface ExtractedTokens {
   colors: Record<string, string>;
@@ -195,12 +195,7 @@ export class TokenExtractor {
       name: themeName,
       colors: {},
       spacing: {},
-      typography: {
-        fontFamily: {},
-        fontSize: {},
-        fontWeight: {},
-        lineHeight: {},
-      },
+      typography: {},
       borderRadius: {},
       shadows: {},
     };
@@ -210,19 +205,38 @@ export class TokenExtractor {
       theme.colors = { ...tokens.colors };
     }
 
+    // Detect colorScheme from theme name or background color
+    theme.colorScheme = this.detectColorScheme(themeName, tokens.colors);
+
     // Map spacing
     if (tokens.spacing) {
       theme.spacing = { ...tokens.spacing };
     }
 
-    // Map typography
+    // Map typography - flatten nested structure into Record<string, string>
     if (tokens.typography) {
-      theme.typography = {
-        fontFamily: tokens.typography.fontFamily || {},
-        fontSize: tokens.typography.fontSize || {},
-        fontWeight: tokens.typography.fontWeight || {},
-        lineHeight: tokens.typography.lineHeight || {},
-      };
+      const flatTypography: Record<string, string> = {};
+      if (tokens.typography.fontFamily) {
+        Object.entries(tokens.typography.fontFamily).forEach(([key, value]) => {
+          flatTypography[`font-family-${key}`] = value;
+        });
+      }
+      if (tokens.typography.fontSize) {
+        Object.entries(tokens.typography.fontSize).forEach(([key, value]) => {
+          flatTypography[`font-size-${key}`] = value;
+        });
+      }
+      if (tokens.typography.fontWeight) {
+        Object.entries(tokens.typography.fontWeight).forEach(([key, value]) => {
+          flatTypography[`font-weight-${key}`] = value;
+        });
+      }
+      if (tokens.typography.lineHeight) {
+        Object.entries(tokens.typography.lineHeight).forEach(([key, value]) => {
+          flatTypography[`line-height-${key}`] = value;
+        });
+      }
+      theme.typography = flatTypography;
     }
 
     // Map border radius
@@ -279,6 +293,70 @@ export class TokenExtractor {
     }
 
     return merged;
+  }
+
+  /**
+   * Detect color scheme from theme name or background color
+   */
+  private detectColorScheme(themeName: string, colors?: Record<string, string>): ColorScheme {
+    const nameLower = themeName.toLowerCase();
+
+    // Check theme name for dark indicators
+    if (nameLower.includes('dark') || nameLower.includes('night') || nameLower.includes('midnight')) {
+      return 'dark';
+    }
+
+    // Check theme name for light indicators
+    if (nameLower.includes('light') || nameLower.includes('day')) {
+      return 'light';
+    }
+
+    // Analyze background color luminance
+    if (colors) {
+      const bgColor = colors['background'] || colors['bg'] || colors['light-background'];
+      if (bgColor) {
+        const luminance = this.getColorLuminance(bgColor);
+        return luminance < 0.5 ? 'dark' : 'light';
+      }
+    }
+
+    // Default to light
+    return 'light';
+  }
+
+  /**
+   * Calculate luminance from color value (supports hex and HSL)
+   */
+  private getColorLuminance(color: string): number {
+    const trimmed = color.trim();
+
+    // Handle HSL format: "H S% L%" or "hsl(H, S%, L%)"
+    const hslMatch = trimmed.match(/^(?:hsl\()?(\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)%\s*,?\s*(\d+(?:\.\d+)?)%\)?$/i);
+    if (hslMatch) {
+      return parseFloat(hslMatch[3]) / 100;
+    }
+
+    // Handle hex colors
+    let hex = trimmed;
+    if (hex.startsWith('#')) {
+      hex = hex.slice(1);
+    }
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+      return 0.5;
+    }
+
+    const r = parseInt(hex.slice(0, 2), 16) / 255;
+    const g = parseInt(hex.slice(2, 4), 16) / 255;
+    const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+    const [rs, gs, bs] = [r, g, b].map(c =>
+      c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+    );
+
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   }
 }
 
