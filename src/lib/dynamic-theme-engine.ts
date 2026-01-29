@@ -40,10 +40,21 @@ export function isThemeDark(theme: Theme | null): boolean {
 
 /**
  * Calculate relative luminance of a color (0 = black, 1 = white)
+ * Supports hex (#fff, #ffffff) and HSL ("0 0% 100%", "hsl(0, 0%, 100%)")
  */
 function getColorLuminance(color: string): number {
+  const trimmed = color.trim();
+
+  // Handle HSL format: "H S% L%" or "hsl(H, S%, L%)"
+  const hslMatch = trimmed.match(/^(?:hsl\()?(\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)%\s*,?\s*(\d+(?:\.\d+)?)%\)?$/i);
+  if (hslMatch) {
+    // For HSL, lightness directly indicates luminance (0% = black, 100% = white)
+    const lightness = parseFloat(hslMatch[3]) / 100;
+    return lightness;
+  }
+
   // Handle hex colors
-  let hex = color;
+  let hex = trimmed;
   if (hex.startsWith('#')) {
     hex = hex.slice(1);
   }
@@ -51,6 +62,11 @@ function getColorLuminance(color: string): number {
   // Handle shorthand hex
   if (hex.length === 3) {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+
+  // Validate hex
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+    return 0.5; // Default to middle luminance for unrecognized formats
   }
 
   // Parse RGB values
@@ -78,46 +94,51 @@ export function generateThemeCSS(theme: Theme | null): ThemeVariables {
   const variables: Record<string, string> = {};
   const cssLines: string[] = [];
 
-  // COLORS - Convert token structure to CSS variables
+  // COLORS - Inject as base variable names to override globals.css
+  // e.g., --background, --primary, --foreground (matching what Tailwind/shadcn expects)
   if (theme.colors) {
     Object.entries(theme.colors).forEach(([name, value]) => {
-      const varName = `--theme-color-${name}`;
+      // Use the base variable name (--background, --primary, etc.)
+      const varName = `--${name}`;
       variables[varName] = value as string;
       cssLines.push(`  ${varName}: ${value};`);
     });
   }
 
-  // TYPOGRAPHY
+  // TYPOGRAPHY - Use standard variable names
   if (theme.typography) {
     Object.entries(theme.typography).forEach(([name, value]) => {
-      const varName = `--theme-typography-${name}`;
+      // Handle both "font-sans" and "sans" formats
+      const varName = name.startsWith('font-') ? `--${name}` : `--font-${name}`;
       variables[varName] = value as string;
       cssLines.push(`  ${varName}: ${value};`);
     });
   }
 
-  // SPACING
+  // SPACING - Use --space-* to override globals.css spacing variables
   if (theme.spacing) {
     Object.entries(theme.spacing).forEach(([size, value]) => {
-      const varName = `--theme-space-${size}`;
+      const varName = `--space-${size}`;
       variables[varName] = value as string;
       cssLines.push(`  ${varName}: ${value};`);
     });
   }
 
-  // BORDER RADIUS
+  // BORDER RADIUS - Use --radius-* to override globals.css
   if (theme.borderRadius) {
     Object.entries(theme.borderRadius).forEach(([size, value]) => {
-      const varName = `--theme-radius-${size}`;
+      // Handle both "radius-sm" and "sm" formats
+      const varName = size.startsWith('radius-') ? `--${size}` : `--radius-${size}`;
       variables[varName] = value as string;
       cssLines.push(`  ${varName}: ${value};`);
     });
   }
 
-  // SHADOWS
+  // SHADOWS - Use --shadow-* to override globals.css
   if (theme.shadows) {
     Object.entries(theme.shadows).forEach(([size, value]) => {
-      const varName = `--theme-shadow-${size}`;
+      // Handle both "shadow-sm" and "sm" formats
+      const varName = size.startsWith('shadow-') ? `--${size}` : `--shadow-${size}`;
       variables[varName] = value as string;
       cssLines.push(`  ${varName}: ${value};`);
     });
@@ -141,11 +162,20 @@ export function generateThemeCSS(theme: Theme | null): ThemeVariables {
     });
   }
 
-  // Build final CSS
-  const css = `:root {\n${cssLines.join('\n')}\n}`;
-
   // Determine color scheme
   const colorScheme: ColorScheme = theme.colorScheme || (isThemeDark(theme) ? 'dark' : 'light');
+
+  // Build final CSS
+  // For dark themes: inject to both :root and .dark so colors persist
+  // For light themes: inject to :root only, dark mode uses system defaults
+  let css: string;
+  if (colorScheme === 'dark') {
+    // Dark theme: inject to both selectors to ensure dark colors always apply
+    css = `:root {\n${cssLines.join('\n')}\n}\n\n.dark {\n${cssLines.join('\n')}\n}`;
+  } else {
+    // Light theme: inject to :root only
+    css = `:root {\n${cssLines.join('\n')}\n}`;
+  }
 
   return { css, variables, colorScheme };
 }
