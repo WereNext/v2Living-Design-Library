@@ -21,7 +21,8 @@ import { Label } from "./ui/label";
 
 interface CodePlaygroundProps {
   code: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  preview?: React.ReactNode;
   title?: string;
   description?: string;
   language?: string;
@@ -38,6 +39,7 @@ interface CodePlaygroundProps {
 export function CodePlayground({
   code,
   children,
+  preview,
   title,
   description,
   language = "tsx",
@@ -46,6 +48,8 @@ export function CodePlayground({
   configOptions,
   onConfigChange,
 }: CodePlaygroundProps) {
+  // Support both children and preview prop (preview takes precedence)
+  const previewContent = preview ?? children;
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [currentCode, setCurrentCode] = useState(code);
   const [copied, setCopied] = useState(false);
@@ -209,7 +213,7 @@ export function CodePlayground({
 
         <TabsContent value="preview" className="m-0">
           <div className="p-6 md:p-8 min-h-[200px] flex items-center justify-center bg-background">
-            {children}
+            {previewContent}
           </div>
         </TabsContent>
 
